@@ -7,6 +7,7 @@ Fonctions utilisées pour la gestion des libs chargées
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dlfcn.h>
 
 #include "backgammon.h"
 #include "libs.h"
