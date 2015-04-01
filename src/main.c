@@ -80,10 +80,12 @@ int main (int arc, char *argv[])
     player1 = (rand() % 2);
     if (player1 == WHITE)
     {
+    	current=player1;
         player2 = BLACK;
     }
     else
     {
+    	current=player2;
         player2 = WHITE;
     }
 
