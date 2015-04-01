@@ -10,6 +10,8 @@ Programme principal gérant l'interface, l'arbitre et les interface
 #include "libs.h"
 #include "arbitre.h" // Fonction de l'arbitre
 
+//CACA
+
 int main (int arc, char *argv[])
 {
 	/*
