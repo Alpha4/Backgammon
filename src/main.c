@@ -121,19 +121,45 @@ int main (int arc, char *argv[])
 			dices[0]=rand()%6+1;
 			dices[1]=rand()%6+1;
 
+			if(dices[0]==dices[1])
+				nbMoves=4;
+			else
+				nbMoves=2;
+
+			//Tableau vide pour les moves
+			SMove vide=malloc(sizeof(SMove));
+			vide->src_point=0;
+			vide->dest_point=0;
+			moves={vide,vide,vide,vide};
+
 
 			if (player1==current)
 			{
-				if (j1DoubleStack(&gameState))
-					j2TakeDouble(&gameState);
-				j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
+				if (ai1.DoubleStack(&gameState))
+					ai2.TakeDouble(&gameState);
+				ai1.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
 			}
-
+			else
+			{
+				if (ai2.DoubleStack(&gameState))
+					ai1.TakeDouble(&gameState);
+				ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
+			}
 			if(isValidMoves())//Fonction de l'arbitre
 			{
-				//Application des mouvements
-				// Sinon pénalités ++
-				
+				int n;
+				for (n=0;n<nbMoves;n++) // MODIFIER nbMoves part le nombre de coup effectivement joué (cas ou seul un des deux dés pouvait être joué)
+				{
+
+					//CAS DE PIONS PRIS
+					//SQUARE --> code à modifier.
+					gameState->board[moves[n]->src]--;
+					gameState->board[moves[n]->dest]++;
+				}
+			}
+			else
+			{
+				penalty[current]++;
 			}
 
 			result=isGameFinished() // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
