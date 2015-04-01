@@ -29,8 +29,8 @@ typedef struct {
  */
 typedef struct {
     Square board[24];           /*!< Les 24 cases du tableau, en partant du bord blanc. */
-	unsigned int bar[2];
-	unsigned int out[2];
+	unsigned int bar[2];           // Pions sortis (validés)
+	unsigned int out[2];          // Pions pris
     unsigned int whiteScore;    /*!< Score du joueur blanc */
     unsigned int blackScore;    /*!< Score du joueur noir */
     unsigned int turn;          /*!< Numéro du tour en cours (initialisé à 0) */

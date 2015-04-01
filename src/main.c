@@ -80,13 +80,11 @@ int main (int arc, char *argv[])
     player1 = (rand() % 2);
     if (player1 == WHITE)
     {
-    	current=player1;
         player2 = BLACK;
     }
     else
     {
-    	current=player2;
-        player2 = WHITE;
+        player2=WHITE;
     }
 
 
@@ -115,11 +113,32 @@ int main (int arc, char *argv[])
 				ai2.StartGame();
 			}
 		}
-
-		while (/*PAS DE GAGNANT*/)
+		int result=-1;
+		while (result==-1)
 		{
+			// Tirage des dés
+			srand(time(NULL));
+			dices[0]=rand()%6+1;
+			dices[1]=rand()%6+1;
 
+
+			if (player1==current)
+			{
+				if (j1DoubleStack(&gameState))
+					j2TakeDouble(&gameState);
+				j1PlayTurn(&gameState,dices,moves,&nbMoves,3);
+			}
+
+			if(isValidMoves())//Fonction de l'arbitre
+			{
+				//Application des mouvements
+				// Sinon pénalités ++
+				
+			}
+
+			result=isGameFinished() // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
 		}
+
 
 	}
 
