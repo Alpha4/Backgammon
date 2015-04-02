@@ -12,6 +12,8 @@ Programme principal gérant l'interface, l'arbitre et les interface
 #include "arbitre.h" // Fonction de l'arbitre
 
 
+
+
 int main (int arc, char *argv[])
 {
 	/*
@@ -30,6 +32,7 @@ int main (int arc, char *argv[])
 	PLayer current=WHITE;
 	SGameState gameState;
 	SGameState gameStateCopy;
+
 
 	int nbHumanPlayers;
 
@@ -113,8 +116,13 @@ int main (int arc, char *argv[])
 				ai2.StartGame();
 			}
 		}
+
+		/*Initialisation du plateau*/
+		gameState
+
+
 		int result=-1;
-		while (result==-1)
+		while (result==-1) //Boucle pour chaque tour (result est à -1 si pas de gagnant)
 		{
 			// Tirage des dés
 			srand(time(NULL));
@@ -136,36 +144,84 @@ int main (int arc, char *argv[])
 			if (player1==current)
 			{
 				if (ai1.DoubleStack(&gameState))
-					ai2.TakeDouble(&gameState);
+					if(!(ai2.TakeDouble(&gameState)))
+					{
+						result=current;
+						break;//Sortie de la boucle while
+					}
+					else
+						gameState.stake*=2;
 				ai1.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
 			}
 			else
 			{
 				if (ai2.DoubleStack(&gameState))
-					ai1.TakeDouble(&gameState);
+					if(!(ai1.TakeDouble(&gameState)))
+					{
+						result=current;
+						break; //Sortie de la boucle while
+					}
+					else
+						gameState.stake*=2;
 				ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
 			}
-			if(isValidMoves())//Fonction de l'arbitre
+
+			/* Calcul du nombre de moves effectués*/
+			int n,nbMovesDone=4;
+			for (n=0;n<nbMoves;n++)
 			{
-				int n;
-				for (n=0;n<nbMoves;n++) // MODIFIER nbMoves part le nombre de coup effectivement joué (cas ou seul un des deux dés pouvait être joué)
+				if(moves[n].dest==0 && moves[n].src==0)
+					nbMovesDone--;
+			}
+
+			memcpy(copy,game,sizeof(SGameState));
+			if(validMoves(nbMovesDone,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
+			{
+				for (n=0;n<nbMovesDone;n++) 
 				{
 
-					//CAS DE PIONS PRIS
-					//SQUARE --> code à modifier.
-					gameState->board[moves[n]->src]--;
-					gameState->board[moves[n]->dest]++;
+					//Cas de pions pris
+					if (gameState->board[moves[n].dest].owner!=current)
+					{
+						Player p=gameState->board[moves[n].dest].owner; //Ancien owner de la case prise
+						gameState->board[moves[n].dest].owner=current; //Changement d'owner
+						gameState->out[p]++; // L'adversaire a une dame supplémentaire de sortie du jeu
+					}
+
+					//Cas général
+					gameState->board[moves[n].src].nbDames--;
+					gameState->board[moves[n].dest].nbDames++;
+
+					//Une dame est remise en jeu
+					if (moves[n].src==25)
+						gameState->out[current]--;
+
+					//Une dame est placée dans le bar
+					if (moves[n].dest==0)
+						gameState->bar[current]++;
 				}
 			}
-			else
+			else // mouvement(s) non valide(s)
 			{
-				penalty[current]++;
+				penalty[current]++; //Pénalité pour le joueur 
 			}
 
-			result=isGameFinished() // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
+			result=isGameFinished(gameState,current,penalty); // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
+			
+			//Prochain joueur
+			if (current==WHITE)
+				current=BLACK;
+			else
+				current=WHITE;
+
+			gameState.turn++;
 		}
 
-
+		//On sauvegarde le résultat
+		if (result==player1)
+			saveResult(p1Name,gameState.stake,g+1,argv[1]);
+		else
+			saveResult(p2Name,gameState.stake,g+1,argv[1]);
 	}
 
 

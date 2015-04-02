@@ -11,17 +11,25 @@ A FAIRE
 #include <math.h>
 
 
-// fin du jeu ?
-Player isGameFinished(SGameState gameSate){ // retourne -1 ( partie non finie) 0 ( noir a gagné) ou 1 ( blanc a gagné)
-	if (gameState -> bar[BLACK] == 15){
-		return 0;
-	}
-	else if (gameState -> bar[WHITE] == 15){
-		return 1;
-	}
-	else{ 
-		return -1; 
-	}
+/**
+ * Fonction qui renvoie le joueur ayant gagné ou NOBODY sinon
+ * @param SGameState gameState
+ *	l'état du jeu courant
+ * @return Player
+ *	le joueur gagnant
+ * En cas de gain par abandon le cas est traité par le main.c
+ */
+Player isGameFinished(SGameState gameState,int penalty[2])
+{
+	if (gameState -> bar[BLACK] == 15)
+		return BLACK;
+	else if (gameState -> bar[WHITE] == 15)
+		return WHITE;
+	else if(penalty[BLACK]==3) // Trop de pénalités
+		return WHITE;
+	else if (penalty[WHITE]==3) // Trop de pénalités
+		return BLACK
+	return NOBODY; 
 }
 
 
@@ -47,7 +55,7 @@ attention si dest est le bar
 // mouvements valides ? 
 // entrées : tableau de mouvements : taille 4 car au plus 4 mouvements peuvent être joués (4 si un double sort sur les dés)
 //            + joueur qui demande les mouvements
-int valideMouvs( int nbMoves, SMoves moves[4] , Player player, char dices[2], SGameState gameState){ // retourne 0 ( pas de pb) ou 1 ( au moins un mouvement n'est pas correct)
+int valideMoves( int nbMoves, SMoves moves[4] , Player player, char dices[2], SGameState gameState){ // retourne 0 ( pas de pb) ou 1 ( au moins un mouvement n'est pas correct)
 	int valide = 0; // initialisation à " mouvements correctes"
 	int i;
 	
@@ -84,7 +92,32 @@ int valideMouvs( int nbMoves, SMoves moves[4] , Player player, char dices[2], SG
 }
 
 
-// sauvegarde du résultat de la partie dans un fichier
-void saveResult(Player winner, int pointsWin){
+/**
+ * Sauvegarde du résultat du round
+ * @param char* winner
+ *	l'état du jeu courant
+ * @param int pointsWin
+ *	le nombre de points gagnés
+ * @param int round
+ *	le round gagné
+ *
+ *	FORMAT
+ *	nomGagnant	points	<-- une game
+ *	nomGagnant	points	nomGagnant	points	nomGagnant	points\n <-- un match de 3 games
+ */
+void saveResult(char* winner, int pointsWin,int round,int lastRound){
+
+	FILE *file = NULL;  // Pointeur vers le fichier
+
+    file = fopen("result.txt", "a");  // Ouverture du fichier en mode "ajout" (on ajoute du contenu à la fin du fichier)
+
+    if (file != NULL)  // Le fichier s'est bien ouvert
+    {
+        if (round == lastRound)  // On est au dernier round, on termine la ligne
+            fprintf(file, "%s\t%d\n", winner,pointsWin);  // On écrit dans le fichier
+        else  // On n'est pas au dernier round, on continue sur la même ligne
+            fprintf(file, "%s\t%d\t", winner,pointsWin);  // On écrit dans le fichier
+        fclose(file);  // On ferme le fichier
+    }
 
 }
