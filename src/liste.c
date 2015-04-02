@@ -4,30 +4,6 @@
 #include <stdio.h>
 #include "backgammon.h"
 
-
-typedef struct STab STab;
-struct SCell
-{
-	SCell *previous;
-	Data value;
-	SCell *next;
-};
-
-struct STab
-{
-	SCell tab[5]; // Bloc d'allocation
-	STab *next; // Tableau de SCell suivant
-	int nb; // Nb SCell occupée
-};
-
-struct SList
-{
-	SCell *head; //Pointeur vers la tête de liste
-	SCell *tail; //Pointeur vers la queue de liste
-	SCell *freespots; // Pointeur vers liste de cellules libres
-	STab *table; // Premier bloc
-};
-
 SList* CreateList()
 {
 	SList *list=malloc(sizeof(SList));

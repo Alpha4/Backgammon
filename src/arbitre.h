@@ -8,6 +8,14 @@ Player isGameFinished(SGameState gameState,int penalty[2]);
 
 SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Player player, unsigned char dice[2]);
 
+int getSrcCells(SGameState gameState, Player player, int* srcCells );
+
+SList* fillIn_1_MovesPossible(int indexSrc, int indexDest, unsigned int* srcCells, unsigned int* destCells, Player player, SList* movesPossible );
+
+SList* fillIn_2_movesPossible(int indexSrc, int indexDest, unsigned int* srcCells, unsigned int* destCells, Player player, SList* movesPossible );
+
+int getDestCells( SGameState gameState, Player player);
+
 int validMoves( int nbMoves, SMove moves[4], SGameState gameState, unsigned char dices[2], Player player);
 
 void saveResult(char* winner, int pointsWin);

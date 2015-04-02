@@ -4,9 +4,7 @@
 
 
 typedef struct Data Data;
-
 typedef struct STab STab;
-
 typedef struct SCell SCell;
 typedef struct SList SList;
 
@@ -23,7 +21,6 @@ struct Data {
 	
 };
 
-typedef struct STab STab;
 struct SCell
 {
 	SCell *previous;

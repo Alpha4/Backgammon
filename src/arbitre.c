@@ -65,54 +65,45 @@ attention si dest est le bar
 
 */
 
-SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Player player, unsigned char dice[2]){
 
 
-	/*
-	A FAIRE :
-	dice le rendre 4 cases
+// NUMEROS DE CELLULES DEPUIS LESQUELLES LE PION PEUT PARTIR (cellules possédées par le joueur	)
+int getSrcCells(SGameState gameState, Player player, int* srcCells ){
 
-
-	*/
-
-
-	//----------------------------------------------------------------------------------------------------
-	// NUMEROS DE CELLULES DEPUIS LESQUELLES LE PION PEUT PARTIR (cellules possédées par le joueur	)
-
-	unsigned int srcCells[25]; // tableau contenant les cases desquelles le pion peut partir
-	int indexSrc = 0; // indice de la premiere case vide du tableau
+	int index = 0; // indice de la premiere case vide du tableau
 	int i;
 	for (i=0; i < 24; i++){ 
 		if ( gameState.board[i].owner == player){
-			srcCells[indexSrc] = i+1;
-			indexSrc ++;
+			srcCells[index] = i+1;
+			index ++;
 		}
 	}
 	// si le joueur a des pions dans le bar, celui ci peut etre un case de départ 
 	if ( gameState.bar[player] > 0){
-		srcCells[indexSrc] = 0;
-		indexSrc ++;
+		srcCells[index] = 0;
+		index ++;
 	}
-	//------------------------------------------------------------------------------------------------------
+	return index;
+
+}
 
 
-	// ----------------------------------------------------------------------------------------------------
-	// NUMEROS DE CELLULES SUR LESQUELLES LE PION PEUT ARRIVER
-		
-	unsigned int destCells[25];
-	int indexDest = 0;
-
+// NUMEROS DE CELLULES SUR LESQUELLES LE PION PEUT ARRIVER
+int getDestCells( SGameState gameState, Player player){
+	
+	int index = 0; // indice de la premiere case vide du tableau
+	int i;
 	for (i=0; i < 24; i++){
 		//cellules possédées par personnes ou le joueur
 		if ( ( gameState.board[i].owner == player) || (gameState.board[i].owner == NOBODY) ){
-			destCells[indexDest] = i+1;
-			indexDest ++;
+			destCells[index] = i+1;
+			index ++;
 		}
 
 		//cellules ou il n'y a qu'un pion ennemi
-		else if( gameState.board[i].nbDames == 1){
-			destCells[indexDest] = i+1;
-			indexDest ++;
+		else if ( gameState.board[i].nbDames == 1){
+			destCells[index] = i+1;
+			index ++;
 		}
 	}
 
@@ -120,13 +111,14 @@ SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Playe
 	// si tous les pions sont dans les 6 dernieres cases du joueur --> il peut mettre des pions dans out[]
 	if (player == WHITE ){
 		int add = 0; // nb de pionts dans les 6 dernieres cases
-		for (i=18; i < 34; i++){
+		for ( i=18; i < 34; i++){
 			if (gameState.board[i].owner == player){
 				add += gameState.board[i].nbDames;
 			}
 		}
 		if (add == 15){
-			destCells[indexDest] = 25;
+			destCells[index] = 25;
+			index ++;
 		}
 	}
 
@@ -141,39 +133,20 @@ SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Playe
 			}
 		}
 		if (add == 15){
-			destCells[indexDest] = 25;
+			destCells[index] = 25;
+			index ++;
 		}	
 	}
-	//--------------------------------------------------------------------------------------------------------
-
-	
-
-	//         ATTENTION
-	// -- le joueur peut mettre dans bar que si le nb est pil celui du dé ou qu'il n'a plus de pions plus loin
-	// -- si pion dans out, mouv obligatoire partant de out
-	// -- si le joueur a un double il faut prévoir qu'il peut faire 4 mouvs
+	return index;
+}
 
 
 
-/*
-AURELIEN
-Data qui marche pas
-expected expression before [
-besoin du (usigned char ) ?
+SList* fillIn_1_MovesPossible(int indexSrc, int indexDest, unsigned int* srcCells, unsigned int* destCells, Player player, SList* movesPossible ){
 
-*/
-
-
-
-	// le joueur n'a pas de pions dans le bar et ne peut pas en mettre dans le out :
-
-
-	//----------------------------------------------------------------------------------------------------------------------
-	// REMPLISSAGE DES PREMIERS MOUVEMENTS POSSIBLES 
-
-	SList* movesPossible; // liste chainée de combinaisons de mouvements possibes
 	movesPossible = CreateList();
 
+	int i;
 	int j;
 	for (i=0; i < indexSrc; i++){ // i --> parcours de srcCells
 		for (j=0; j < indexDest; j++){ // j --> parcours de destCells
@@ -237,24 +210,24 @@ besoin du (usigned char ) ?
 		}
 		return movesPossible;
 	}
-	//------------------------------------------------------------------------------------------------------------------------------
+}
 
-	//-------------------------------------------------------------------------------------------------------------------------------
-	//REMPLISSAGE DES DEUXIEMES MOUVEMENTS POSSIBLES ( en fonction du premier)
-	/*
-	principe :
-		on copie le gameState et pour chaque cellule de la liste ( contenant pour l'instant 1 et un seul mouvement)
-		on le change pour appliquer ce mouvement. On va ensuite déterminer quels sont les mouvements ( n°2 ) possibles
-		pour chacun des mouvements n°2 possibles on créer une nouvelle cellule dans la liste avec move1 ET mov2
-		a la fin de l'analyse des move2 possibles, on détruit la cellule ne contenant que mov1
-	*/
 
+/*
+principe de fillIn_2_MovesPossible :
+	on copie le gameState et pour chaque cellule de la liste ( contenant pour l'instant 1 et un seul mouvement)
+	on le change pour appliquer ce mouvement. On va ensuite déterminer quels sont les mouvements ( n°2 ) possibles
+	pour chacun des mouvements n°2 possibles on créer une nouvelle cellule dans la liste avec move1 ET mov2
+	a la fin de l'analyse des move2 possibles, on détruit la cellule ne contenant que mov1
+*/
+SList* fillIn_2_movesPossible(int indexSrc, int indexDest, unsigned int* srcCells, unsigned int* destCells, Player player, SList* movesPossible ){
 
 	SCell* cellEnTraitement;
 	SCell* cellTemp;
 	cellEnTraitement = GetFirstElement(movesPossible);
+	int movAdd =0; // pour savoir si on a rajouté des movesPossible ou pas
 	while ( cellEnTraitement != GetLastElement(movesPossible)){
-		int movAdd =0; // pour savoir si on a rajouté des moves ou pas
+		int movAddCell =0; // pour savoir si on a rajouté des moves dans la cellule (combinaison de moves) ou pas
 
 		for (i=0; i < indexSrc; i++){ // i --> parcours de srcCells
 			for (j=0; j < indexDest; j++){ // j --> parcours de destCells
@@ -282,7 +255,7 @@ besoin du (usigned char ) ?
 						data->dice[2] = newDice[2];
 						data->dice[3] = newDice[3];
 						AddElementBegin(movesPossible, *data);
-						movAdd =1;
+						movAddCell = 1;
 					}
 	
 					// deuxieme dé
@@ -295,7 +268,7 @@ besoin du (usigned char ) ?
 						data->dice[2] = newDice[2];
 						data->dice[3] = newDice[3];
 						AddElementBegin(movesPossible, *data);
-						movAdd =1;
+						movAddCell = 1;
 					}
 	
 					//troisieme dé ( dans le cas d'un double --> on fait comme si il y avait 4 dés)
@@ -308,7 +281,7 @@ besoin du (usigned char ) ?
 						data->dice[2] = 100;
 						data->dice[3] = newDice[3];
 						AddElementBegin(movesPossible, *data);
-						movAdd =1;
+						movAddCell = 1;
 					}
 	
 					// 4e dé ( dans le cas d'un double --> on fait comme si il y avait 4 dés)
@@ -321,18 +294,70 @@ besoin du (usigned char ) ?
 						data->dice[2] = newDice[2];
 						data->dice[3] = 100;
 						AddElementBegin(movesPossible, *data);
-						movAdd =1;
+						movAddCell = 1;
 					}
 				}
 			}
+			if (movAddCell != 0){ // si on a ajouté au moins une combinaison (cell ) avec 2 moves alors on supprime la cell avec qu'un seul mov
+				cellTemp = cellEnTraitement;
+				DeleteCell(movesPossible, cellEnTraitement);
+				cellEnTraitement = cellTemp;
+				movAdd = 1;
+			}
 		}
-
-		//destruction de la cellule avec un seul move
-		cellTemp = cellEnTraitement;
-		DeleteCell(movesPossible, cellEnTraitement);
-		cellEnTraitement = cellTemp;
-
 	}
+	return movesPossible;
+}
+
+
+
+SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Player player, unsigned char dice[2]){
+
+
+	/*
+	A FAIRE :
+	dice le rendre 4 cases
+
+	*/
+
+
+	// tableau contenant les cases desquelles le pion peut partir
+	unsigned int srcCells[25];
+	int indexSrc = getSrcCells(gameState, player, srcCells); 
+
+	// tableau contenant les cases sur lesquelles le pion peut arriver
+	unsigned int destCells[25]; 
+	int indexDest = getDestCells( gameState, player, destCells);
+
+	
+
+	//         ATTENTION
+	// -- le joueur peut mettre dans bar que si le nb est pil celui du dé ou qu'il n'a plus de pions plus loin
+	// -- si pion dans out, mouv obligatoire partant de out
+	// -- si le joueur a un double il faut prévoir qu'il peut faire 4 mouvs
+
+
+
+
+	// le joueur n'a pas de pions dans le bar et ne peut pas en mettre dans le out :
+
+	// liste chainée de combinaisons de mouvements possibes
+	SList* movesPossible; 
+
+	//remplissage des premiers mouvements possibles
+	movesPossibles = fillIn_1_MovesPossible( indexSrc, indexDest, srcCells, destCells, movesPossible);
+
+	//     ATTENTION ACTUALISATION DU FAUX GAMESTATE
+
+
+	// remplissage des deuxiemes mouvements possibles ( en fonction du premier)
+	movesPossible = fillIn_2_movesPossible();
+
+	//-------------------------------------------------------------------------------------------------------------------------------
+	//REMPLISSAGE DES DEUXIEMES MOUVEMENTS POSSIBLES ( en fonction du premier)
+
+
+	
 	//----------------------------------------------------------------------------------------------------------------------------------------
 
 
