@@ -95,17 +95,16 @@ int valideMoves( int nbMoves, SMoves moves[4] , Player player, char dices[2], SG
 /**
  * Sauvegarde du résultat du round
  * @param char* winner
- *	l'état du jeu courant
+ *	nom du gagnant
  * @param int pointsWin
  *	le nombre de points gagnés
  * @param int round
  *	le round gagné
  *
  *	FORMAT
- *	nomGagnant	points	<-- une game
- *	nomGagnant	points	nomGagnant	points	nomGagnant	points\n <-- un match de 3 games
+ *	nomGagnant	points\n<-- une game
  */
-void saveResult(char* winner, int pointsWin,int round,int lastRound){
+void saveResult(char* winner, int pointsWin){
 
 	FILE *file = NULL;  // Pointeur vers le fichier
 
@@ -113,11 +112,56 @@ void saveResult(char* winner, int pointsWin,int round,int lastRound){
 
     if (file != NULL)  // Le fichier s'est bien ouvert
     {
-        if (round == lastRound)  // On est au dernier round, on termine la ligne
-            fprintf(file, "%s\t%d\n", winner,pointsWin);  // On écrit dans le fichier
-        else  // On n'est pas au dernier round, on continue sur la même ligne
-            fprintf(file, "%s\t%d\t", winner,pointsWin);  // On écrit dans le fichier
-        fclose(file);  // On ferme le fichier
+    	fprintf(file, "%s\t%d\n", winner,pointsWin);  // On écrit dans le fichier
+    	fclose(file);  // On ferme le fichier
+    }
+}
+
+/**
+ * Sauvegarde du résultat du match
+ * @param GameState gs
+ *	l'état du jeu courant
+ * @param char* p1Name
+ *	nom joueur 1
+ * @param char* p2Name
+ *	nom joueur 2
+ * @param Player player1
+ *	couleur du joueur 1
+ *
+ *	FORMAT
+ *	nomGagnant	points	nomPerdant	points\n
+ */
+void saveMatch(GameState gs, char* p1Name,char* p2Name,Player player1){
+
+	FILE *file = NULL;  // Pointeur vers le fichier
+
+    file = fopen("result.txt", "a");  // Ouverture du fichier en mode "ajout" (on ajoute du contenu à la fin du fichier)
+
+    if (file != NULL)  // Le fichier s'est bien ouvert
+    {
+    	if (gs.whiteScore>gs.blackScore) //BLANC 
+    	{
+    		if(player1==WHITE)
+    		{
+    			fprintf(file, "%s\t%d\t%s\t%d\n",p1Name,gs.whiteScore,p2Name,gs.blackScore);
+    		}
+    		else
+    		{
+    			fprintf(file, "%s\t%d\t%s\t%d\n",p2Name,gs.blackScore,p1Name,gs.whiteScore);
+    		}
+    	}
+    	else
+    	{
+    		if(player1==WHITE)
+    		{
+    			fprintf(file, "%s\t%d\t%s\t%d\n",p2Name,gs.blackScore,p1Name,gs.whiteScore);
+    		}
+    		else
+    		{
+    			fprintf(file, "%s\t%d\t%s\t%d\n",p1Name,gs.whiteScore,p2Name,gs.blackScore);
+    		}
+    	}
+    	fclose(file);  // On ferme le fichier
     }
 
 }

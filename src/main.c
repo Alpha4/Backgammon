@@ -118,7 +118,32 @@ int main (int arc, char *argv[])
 		}
 
 		/*Initialisation du plateau*/
-		gameState
+
+		//WHITE
+		gameState.board[0].owner=WHITE;
+		gameState.board[0].nbDames=2;
+		gameState.board[11].owner=WHITE;
+		gameState.board[11].nbDames=5;
+		gameState.board[16].owner=WHITE;
+		gameState.board[16].nbDames=3;
+		gameState.board[18].owner=WHITE;
+		gameState.board[18].nbDames=5;
+
+		//BLACK
+		gameState.board[23].owner=BLACK;
+		gameState.board[23].nbDames=2;
+		gameState.board[12].owner=BLACK;
+		gameState.board[12].nbDames=5;
+		gameState.board[7].owner=BLACK;
+		gameState.board[7].nbDames=3;
+		gameState.board[5].owner=BLACK;
+		gameState.board[5].nbDames=5;
+
+		gameState.out={0,0};
+		gameState.bar={0,0};
+		gameState.turn=1;
+		gameState.stake=1;
+
 
 
 		int result=-1;
@@ -135,7 +160,7 @@ int main (int arc, char *argv[])
 				nbMoves=2;
 
 			//Tableau vide pour les moves
-			SMove vide=malloc(sizeof(SMove));
+			SMove vide;
 			vide->src_point=0;
 			vide->dest_point=0;
 			moves={vide,vide,vide,vide};
@@ -217,12 +242,20 @@ int main (int arc, char *argv[])
 			gameState.turn++;
 		}
 
+		//MAJ du score du gagnant
+		if(result==WHITE)
+			gameState.whiteScore+=gameState.stake;
+		else
+			gameState.blackScore+=gameState.stake;
+
 		//On sauvegarde le résultat
 		if (result==player1)
-			saveResult(p1Name,gameState.stake,g+1,argv[1]);
+			saveResult(p1Name,gameState.stake);
 		else
-			saveResult(p2Name,gameState.stake,g+1,argv[1]);
+			saveResult(p2Name,gameState.stake);
 	}
+
+	saveMatch(gameState,p1Name,p2Name,player1);
 
 
 	return 0;
