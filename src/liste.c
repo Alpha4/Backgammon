@@ -5,20 +5,7 @@
 #include "backgammon.h"
 
 
-
-struct Data {
-	SMove moves[4];
-	char dice[4]; // représente les nombres disponibles sur les dés 
-	/* EXEMPLE :
-	les dé affichent 3 et 4 --> dice est rempli de la sorte : [3,4,100,100]
-	( 100 représente un 'dé' inutilisable)
-	le dé affichant 3 est utilisé --> dice devient [100,4,100,100]
-	les dés affichent 2 et 2 --> dice est rempli de la sort : [2,2,2,2]
-	*/
-};
-
-
-
+typedef struct STab STab;
 struct SCell
 {
 	SCell *previous;
@@ -73,8 +60,8 @@ SCell* GetNewCell(SList *list) // Fonction renvoyant la cellule à ajouter à la
 	SCell *temp;
 	if(list->freespots!=NULL) // Il y a des cellules libre pour l'ajout
 	{
-		temp=list->freespots; //On renvoie la première cellule libre
-		list->freespots=list->freespots->next; //La tete de la liste de cellules libres est la suivante
+		temp = list->freespots; //On renvoie la première cellule libre
+		list->freespots = list->freespots->next; //La tete de la liste de cellules libres est la suivante
 	}
 	else if ((list->table->nb)<5) //cas où le dernier tableau n'est pas rempli
 	{

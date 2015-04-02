@@ -10,6 +10,43 @@ typedef struct STab STab;
 typedef struct SCell SCell;
 typedef struct SList SList;
 
+
+struct Data {
+	SMove moves[4];
+	char dice[4]; // représente les nombres disponibles sur les dés 
+	/* EXEMPLE :
+	les dé affichent 3 et 4 --> dice est rempli de la sorte : [3,4,-1,-1]
+	( -1 représente un 'dé' inutilisable)
+	le dé affichant 3 est utilisé --> dice devient [-1,4,-1,-1]
+	les dés affichent 2 et 2 --> dice est rempli de la sort : [2,2,2,2]
+	*/
+	
+};
+
+typedef struct STab STab;
+struct SCell
+{
+	SCell *previous;
+	Data value;
+	SCell *next;
+};
+
+struct STab
+{
+	SCell tab[5]; // Bloc d'allocation
+	STab *next; // Tableau de SCell suivant
+	int nb; // Nb SCell occupée
+};
+
+struct SList
+{
+	SCell *head; //Pointeur vers la tête de liste
+	SCell *tail; //Pointeur vers la queue de liste
+	SCell *freespots; // Pointeur vers liste de cellules libres
+	STab *table; // Premier bloc
+};
+
+
 SList* CreateList();
 void DeleteList(SList *list);
 

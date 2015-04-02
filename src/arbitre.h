@@ -6,7 +6,7 @@
 
 Player isGameFinished(SGameState gameState,int penalty[2]);
 
-SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Player player, unsigned char dices[2]);
+SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Player player, unsigned char dice[2]);
 
 int validMoves( int nbMoves, SMove moves[4], SGameState gameState, unsigned char dices[2], Player player);
 
