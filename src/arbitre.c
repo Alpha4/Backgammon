@@ -6,6 +6,9 @@ A FAIRE
 --> différentes manieres de perdre la partie : nb de points gagnés varient
 --> videau
 --> verifier qu'il pouvait bien pas jouer les 2 coups pour autoriser 1 seul coup
+
+
+--> FAIRE LES FREE POUR LES MALLOCS !
 */
 
 
@@ -19,6 +22,17 @@ A FAIRE
 #include "liste.h"
 
 
+struct Data {
+	SMove moves[4];
+	char dice[4]; // représente les nombres disponibles sur les dés 
+	/* EXEMPLE :
+	les dé affichent 3 et 4 --> dice est rempli de la sorte : [3,4,-1,-1]
+	( -1 représente un 'dé' inutilisable)
+	le dé affichant 3 est utilisé --> dice devient [-1,4,-1,-1]
+	les dés affichent 2 et 2 --> dice est rempli de la sort : [2,2,2,2]
+	*/
+	
+};
 
 
 /**
@@ -31,14 +45,14 @@ A FAIRE
  */
 Player isGameFinished(SGameState gameState,int penalty[2])
 {
-	if (gameState -> bar[BLACK] == 15)
+	if (gameState.bar[BLACK] == 15)
 		return BLACK;
-	else if (gameState -> bar[WHITE] == 15)
+	else if (gameState.bar[WHITE] == 15)
 		return WHITE;
 	else if(penalty[BLACK]==3) // Trop de pénalités
 		return WHITE;
 	else if (penalty[WHITE]==3) // Trop de pénalités
-		return BLACK
+		return BLACK;
 	return NOBODY; 
 }
 
@@ -62,15 +76,25 @@ attention si dest est le bar
 
 */
 
-SMove** movesPossibles(SGameState gameState, int nbMoves, Smove moves[4], Player player, char dices[2]){
+SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Player player, unsigned char dice[2]){
 
+
+	/*
+	A FAIRE :
+	dice le rendre 4 cases
+
+
+	*/
+
+
+	//----------------------------------------------------------------------------------------------------
 	// NUMEROS DE CELLULES DEPUIS LESQUELLES LE PION PEUT PARTIR (cellules possédées par le joueur	)
 
 	int srcCells[25]; // tableau contenant les cases desquelles le pion peut partir
 	int indexSrc = 0; // indice de la premiere case vide du tableau
 	int i;
-	for (i=0; i < gameState.board.length(); i++){
-		if ( SGameState.board[i].owner == player){
+	for (i=0; i < gameState.board.length(); i++){ // PROBLEME LENGTH
+		if ( gameState.board[i].owner == player){
 			srcCells[indexSrc] = i+1;
 			indexSrc ++;
 		}
@@ -80,16 +104,18 @@ SMove** movesPossibles(SGameState gameState, int nbMoves, Smove moves[4], Player
 		srcCells[indexSrc] = 0;
 		indexSrc ++;
 	}
+	//------------------------------------------------------------------------------------------------------
 
 
+	// ----------------------------------------------------------------------------------------------------
 	// NUMEROS DE CELLULES SUR LESQUELLES LE PION PEUT ARRIVER
 		
 	int destCells[25];
 	int indexDest = 0;
 
-	for (i=0; i < gameState.board.length(); i++){
+	for (i=0; i < gameState.board.length(); i++){ // PROBLEME LENGTH
 		//cellules possédées par personnes ou le joueur
-		if ( ( gameState.board[i].owner == player) || (SGameState.board[i].owner == NOBODY) ){
+		if ( ( gameState.board[i].owner == player) || (gameState.board[i].owner == NOBODY) ){
 			destCells[indexDest] = i+1;
 			indexDest ++;
 		}
@@ -103,9 +129,9 @@ SMove** movesPossibles(SGameState gameState, int nbMoves, Smove moves[4], Player
 
 	// pour le joueur blanc
 	// si tous les pions sont dans les 6 dernieres cases du joueur --> il peut mettre des pions dans out[]
-	if (joueur == WHITE ){
+	if (player == WHITE ){
+		int add = 0; // nb de pionts dans les 6 dernieres cases
 		for (i=18; i < 34; i++){
-			int add = 0; // nb de pionts dans les 6 dernieres cases
 			if (gameState.board[i].owner == player){
 				add += gameState.board[i].nbDames;
 			}
@@ -118,9 +144,9 @@ SMove** movesPossibles(SGameState gameState, int nbMoves, Smove moves[4], Player
 
 	//pour le joueur noir
 	// si tous les pions sont dans les 6 dernieres cases --> il peut mettre des pions dans out[]
-	if ( joueur == BLACK ){	
+	if ( player == BLACK ){	
+		int add = 0; // nb de pionts dans les 6 dernieres cases
 		for (i=0; i < 6; i++){
-			int add = 0; // nb de pionts dans les 6 dernieres cases
 			if (gameState.board[i].owner == player){
 				add += gameState.board[i].nbDames;
 			}
@@ -129,6 +155,7 @@ SMove** movesPossibles(SGameState gameState, int nbMoves, Smove moves[4], Player
 			destCells[indexDest] = 25;
 		}	
 	}
+	//--------------------------------------------------------------------------------------------------------
 
 	
 
@@ -139,91 +166,201 @@ SMove** movesPossibles(SGameState gameState, int nbMoves, Smove moves[4], Player
 
 
 
+/*
+AURELIEN
+Data qui marche pas
+expected expression before [
+besoin du (usigned char ) ?
 
-	/*
-	// initialisation du tableau contenant les tableaux des différentes combinaisons de mouvement que peut faire le joueur
-	Smove movesPossibles[512][4];
-	int indexMovesPossibles = 0;
-
-	// si le joueur a au moins 2 pions dans le out, les mouvements possibles ne sont que ceux qui partent du out
-	//                 A FAIRE
-	// joueur blanc
-	if ( joueur == WHITE ){
-		if (gameState.board[0] > 2 ){
-			for ( i=0; i < indexDest; i++){ // on parcours les cases d'arrivée possible
-				// si un dé permet le déplacement on l'ajoute dans les mouvs possibles
-				if ( (destCells[indexDest] == dice[0]) ){
-
-				}
-			}
-		}
-	}
-
-	// joueur noir
-	if ( joueur == BLACK ){
-
-	}
-	//                 ^ A FAIRE ^
-	*/
-
-
-
-
-	/*
-	A FAIRE :
-	dice le rendre 4 cases
-
-
-	*/
-
+*/
 
 
 
 	// le joueur n'a pas de pions dans le bar et ne peut pas en mettre dans le out :
 
 
-	Slist* movesPossibles; // liste chainée de mouvements possibes
-	movesPossibles = CreateList();
+	//----------------------------------------------------------------------------------------------------------------------
+	// REMPLISSAGE DES PREMIERS MOUVEMENTS POSSIBLES 
+
+	SList* movesPossible; // liste chainée de combinaisons de mouvements possibes
+	movesPossible = CreateList();
 
 	int j;
 	for (i=0; i < indexSrc; i++){ // i --> parcours de srcCells
 		for (j=0; j < indexDest; j++){ // j --> parcours de destCells
+
 			// vérification que le mouvement est dans le bon sens suivant le joueur
-			if ( (player == WHITE) && destCells[j] > srcCells[i] ){
+			if ( (player == WHITE && destCells[j] > srcCells[i]) || (player == BLACK && destCells[j] < srcCells[i]) ){
+				
 				// vérification que le mouvement correspond à un dé
+				
+				Data* data = malloc(sizeof(Data));
+				//SMove* data.moves[0] = malloc(sizeof(SMove));
+				// premier dé
 				if ( fabs(destCells[j] - srcCells[i]) == dice[0] ){
 					// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du dé
-					
-					Data data;
-					data.moves[0].src_point= srcCells[i-1];
-					data.moves[0].dest_point = destCells][i-1];
-					data.dice = [-1, dice[1],;
-					addElementBegin(movesPossibles, data)
+					data->moves[0].src_point = srcCells[i-1];
+					data->moves[0].dest_point = destCells[i-1];
+					data->dice[0] = 100;
+					data->dice[1] = dice[1];
+					data->dice[2] = dice[2];
+					data->dice[3] = dice[3];
+					AddElementBegin(movesPossible, *data);
 				}
+
+				// deuxieme dé
 				else if ( fabs(destCells[j] - srcCells[i]) == dice[1] ){
 					// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du dé
-					Data data;
-					data.moves[0].src_point= srcCells[i-1];
-					data.moves[0].dest_point = destCells][i-1];
-					data.dice = monDice;
-					addElementBegin(movesPossibles, data)
+					data->moves[0].src_point= srcCells[i-1];
+					data->moves[0].dest_point = destCells[i-1];
+					data->dice[0] = dice[0];
+					data->dice[1] = 100;
+					data->dice[2] = dice[2];
+					data->dice[3] = dice[3];
+					AddElementBegin(movesPossible, *data);
 				}
+
+				//troisieme dé ( dans le cas d'un double --> on fait comme si il y avait 4 dés)
+				else if ( fabs(destCells[j] - srcCells[i]) == dice[2] ){
+					// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du dé
+					data->moves[0].src_point= srcCells[i-1];
+					data->moves[0].dest_point = destCells[i-1];
+					data->dice[0] = dice[0];
+					data->dice[1] = dice[1];
+					data->dice[2] = 100;
+					data->dice[3] = dice[3];
+					AddElementBegin(movesPossible, *data);
+				}
+
+				// 4e dé ( dans le cas d'un double --> on fait comme si il y avait 4 dés)
+				else if ( fabs(destCells[j] - srcCells[i]) == dice[3] ){
+					// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du dé
+					data->moves[0].src_point= srcCells[i-1];
+					data->moves[0].dest_point = destCells[i-1];
+					data->dice[0] = dice[0];
+					data->dice[1] = dice[1];
+					data->dice[2] = dice[2];
+					data->dice[3] = 100;
+					AddElementBegin(movesPossible, *data);
+				}
+
 			}
 		}
+		return movesPossible;
 	}
+	//------------------------------------------------------------------------------------------------------------------------------
+
+	//-------------------------------------------------------------------------------------------------------------------------------
+	//REMPLISSAGE DES DEUXIEMES MOUVEMENTS POSSIBLES ( en fonction du premier)
+	/*
+	principe :
+		on copie le gameState et pour chaque cellule de la liste ( contenant pour l'instant 1 et un seul mouvement)
+		on le change pour appliquer ce mouvement. On va ensuite déterminer quels sont les mouvements ( n°2 ) possibles
+		pour chacun des mouvements n°2 possibles on créer une nouvelle cellule dans la liste avec move1 ET mov2
+		a la fin de l'analyse des move2 possibles, on détruit la cellule ne contenant que mov1
+	*/
+
+
+	SCell* cellEnTraitement;
+	SCell* cellTemp;
+	cellEnTraitement = GetFirstElement(movesPossible);
+	while ( cellEnTraitement != GetLastElement(movesPossible)){
+		int movAdd =0; // pour savoir si on a rajouté des moves ou pas
+
+		for (i=0; i < indexSrc; i++){ // i --> parcours de srcCells
+			for (j=0; j < indexDest; j++){ // j --> parcours de destCells
+
+				int newDice[4]; // dé qui prend en compte le premier mouvement
+				newDice[0] = cellEnTraitement.data.dice[0];
+				newDice[1] = cellEnTraitement.data.dice[1];
+				newDice[2] = cellEnTraitement.data.dice[2];
+				newDice[3] = cellEnTraitement.data.dice[3];
+
+				// vérification que le mouvement est dans le bon sens suivant le joueur
+				if ( (player == WHITE && destCells[j] > srcCells[i]) || (player == BLACK && destCells[j] < srcCells[i]) ){
+					
+					// vérification que le mouvement correspond à un dé
+					
+					Data* data = malloc(sizeof(data));
+
+					// premier dé
+					if ( fabs(destCells[j] - srcCells[i]) == newDice[0] ){
+						// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du dé
+						data->moves[0].src_point= srcCells[i-1];
+						data->moves[0].dest_point = destCells[i-1];
+						data->dice[0] = 100;
+						data->dice[1] = newDice[1];
+						data->dice[2] = newDice[2];
+						data->dice[3] = newDice[3];
+						AddElementBegin(movesPossible, *data);
+						movAdd =1;
+					}
+	
+					// deuxieme dé
+					else if ( fabs(destCells[j] - srcCells[i]) == newdDice[1] ){
+						// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du dé
+						data->moves[0].src_point= srcCells[i-1];
+						data->moves[0].dest_point = destCells[i-1];
+						data->dice[0] = newDice[0];
+						data->dice[1] = 100;
+						data->dice[2] = newDice[2];
+						data->dice[3] = newDice[3];
+						AddElementBegin(movesPossible, *data);
+						movAdd =1;
+					}
+	
+					//troisieme dé ( dans le cas d'un double --> on fait comme si il y avait 4 dés)
+					else if ( fabs(destCells[j] - srcCells[i]) == newdDice[2] ){
+						// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du dé
+						Data data;
+						data->moves[0].src_point= srcCells[i-1];
+						data->moves[0].dest_point = destCells[i-1];
+						data->dice[0] = newDice[0];
+						data->dice[1] = newDice[1];
+						data->dice[2] = 100;
+						data->dice[3] = newDice[3];
+						AddElementBegin(movesPossible, *data);
+						movAdd =1;
+					}
+	
+					// 4e dé ( dans le cas d'un double --> on fait comme si il y avait 4 dés)
+					else if ( fabs(destCells[j] - srcCells[i]) == newdDice[3] ){
+						// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du dé
+						Data data;
+						data->moves[0].src_point= srcCells[i-1];
+						data->moves[0].dest_point = destCells[i-1];
+						data->dice[0] = newDice[0];
+						data->dice[1] = newDice[1];
+						data->dice[2] = newDice[2];
+						data->dice[3] = 100;
+						AddElementBegin(movesPossible, *data);
+						movAdd =1;
+					}
+	
+				}
+
+			}
+		}
+
+		//destruction de la cellule avec un seul move
+		SCellTemp = ScellEnTraitement;
+		DeletCell(movesPossible, ScellEnTraitement);
+		ScellEnTraitement = SCellTemp;
+
+	}
+	//----------------------------------------------------------------------------------------------------------------------------------------
+
+
 }
 
-struct Data {               //  A SUPPRIMER 	!!!!!!!!!!!!! ( DEJA PRÉSENT DANS LISTE.C)
-	Smove moves[4];
-	char dice[4]; // représente les nombres disponibles sur les dés 
-};
+
 
 
 
 
 
 // mouvements valides ? 
-int validMoves( int nbMoves, SMove moves[4], SGameState gameState, char dices[2], Player player){ // retourne 0 ( pas de pb) ou 1 ( au moins un mouvement n'est pas correct)
+int validMoves( int nbMoves, SMove moves[4], SGameState gameState, unsigned char dices[2], Player player){ // retourne 0 ( pas de pb) ou 1 ( au moins un mouvement n'est pas correct)
 	
 
 // Smove movesPossibles[512][4]
@@ -294,7 +431,7 @@ void saveResult(char* winner, int pointsWin){
 
 /**
  * Sauvegarde du résultat du match
- * @param SGameState gs
+ * @param GameState gs
  *	l'état du jeu courant
  * @param char* p1Name
  *	nom joueur 1

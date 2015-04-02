@@ -1,5 +1,5 @@
 /*LISTE AVEC ALLOCATION PAR BLOC*/
-#include "Liste.h"
+#include "liste.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "backgammon.h"
@@ -10,12 +10,14 @@ struct Data {
 	SMove moves[4];
 	char dice[4]; // représente les nombres disponibles sur les dés 
 	/* EXEMPLE :
-	les dé affichent 3 et 4 --> dice est rempli de la sorte : [3,4,-1,-1]
-	( -1 représente un 'dé' inutilisable)
-	le dé affichant 3 est utilisé --> dice devient [-1,4,-1,-1]
+	les dé affichent 3 et 4 --> dice est rempli de la sorte : [3,4,100,100]
+	( 100 représente un 'dé' inutilisable)
+	le dé affichant 3 est utilisé --> dice devient [100,4,100,100]
 	les dés affichent 2 et 2 --> dice est rempli de la sort : [2,2,2,2]
 	*/
 };
+
+
 
 struct SCell
 {

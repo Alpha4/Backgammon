@@ -1,13 +1,15 @@
-#ifndef _LIBS_ARB
-    #define _LIBS_ARB
+#ifndef _ARBITRE
+    #define _ARBITRE
 
-// fin du jeu ?
-Player isGameFinished(SGameState gameSate,int penalty[2]);
+#include "liste.h"
+//#include "backgammon.h"
 
-// mouvements valides ? 
-int validMoves( int nbMoves, SMove moves[4] , Player player, char dices[2], SGameState gameState);
+Player isGameFinished(SGameState gameState,int penalty[2]);
 
-// sauvegarde du résultat de la partie dans un fichier
+SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Player player, unsigned char dices[2]);
+
+int validMoves( int nbMoves, SMove moves[4], SGameState gameState, unsigned char dices[2], Player player);
+
 void saveResult(char* winner, int pointsWin);
 
 void saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1);
