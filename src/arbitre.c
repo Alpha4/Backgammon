@@ -294,7 +294,7 @@ void saveResult(char* winner, int pointsWin){
 
 /**
  * Sauvegarde du résultat du match
- * @param GameState gs
+ * @param SGameState gs
  *	l'état du jeu courant
  * @param char* p1Name
  *	nom joueur 1
@@ -306,7 +306,7 @@ void saveResult(char* winner, int pointsWin){
  *	FORMAT
  *	nomGagnant	points	nomPerdant	points\n
  */
-void saveMatch(GameState gs, char* p1Name,char* p2Name,Player player1){
+void saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1){
 
 	FILE *file = NULL;  // Pointeur vers le fichier
 

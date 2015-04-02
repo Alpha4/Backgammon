@@ -2,11 +2,12 @@
 #include "Liste.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "backgammon.h"
 
 
 
 struct Data {
-	Smove moves[4];
+	SMove moves[4];
 	char dice[4]; // représente les nombres disponibles sur les dés 
 	/* EXEMPLE :
 	les dé affichent 3 et 4 --> dice est rempli de la sorte : [3,4,-1,-1]
