@@ -5,10 +5,12 @@
 Player isGameFinished(SGameState gameSate,int penalty[2]);
 
 // mouvements valides ? 
-int valideMoves( int nbMoves, SMove moves[4] , Player player, char dices[2], SGameState gameState);
+int validMoves( int nbMoves, SMove moves[4] , Player player, char dices[2], SGameState gameState);
 
 // sauvegarde du résultat de la partie dans un fichier
 void saveResult(Player winner, int pointsWin);
+
+void saveMatch(GameState gs, char* p1Name,char* p2Name,Player player1);
 
 #endif
 
