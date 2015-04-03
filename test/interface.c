@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     {
         /* Création de la fenêtre */
         SDL_Window* pWindow = NULL;
-        pWindow = SDL_CreateWindow("Backgammon",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,100,200,SDL_WINDOW_SHOWN);
+        pWindow = SDL_CreateWindow("Backgammon",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,800,600,SDL_WINDOW_SHOWN);
 
         if( pWindow )
         {

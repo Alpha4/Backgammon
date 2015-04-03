@@ -19,7 +19,7 @@ LDFlags = -rdynamic
 # library names
 libs = SDL2
 # additionnal library directories
-libDir = libs/
+libDir = lib/
 # additionnal include directories
 incDir =
 
