@@ -10,11 +10,11 @@ SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Playe
 
 int getSrcCells(SGameState gameState, Player player, int* srcCells );
 
-SList* fillIn_1_MovesPossible(int indexSrc, int indexDest, unsigned int* srcCells, unsigned int* destCells, Player player, SList* movesPossible );
+SList* fillIn_1_MovesPossible(int indexSrc, int indexDest, int* srcCells, int* destCells, Player player, SList* movesPossible, int dice[4]);
 
-SList* fillIn_2_movesPossible(int indexSrc, int indexDest, unsigned int* srcCells, unsigned int* destCells, Player player, SList* movesPossible );
+SList* fillIn_2_movesPossible(int indexSrc, int indexDest, int* srcCells, int* destCells, Player player, SList* movesPossible, int dice[4] );
 
-int getDestCells( SGameState gameState, Player player);
+int getDestCells( SGameState gameState, Player player, int* destCells );
 
 int validMoves( int nbMoves, SMove moves[4], SGameState gameState, unsigned char dices[2], Player player);
 

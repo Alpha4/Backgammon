@@ -110,7 +110,9 @@ int main (int argc, char *argv[])
 		}
 
 
-		
+		gameState.whiteScore=0;
+		gameState.whiteScore=0;
+
 		while(gameState.whiteScore<pts || gameState.blackScore<pts)
 		{
 			if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
@@ -215,18 +217,44 @@ int main (int argc, char *argv[])
 				{
 					for (n=0;n<nbMovesDone;n++) 
 					{
+						Square *dest;
+						Square *src;
+						Square nul;
+
+						if (moves[n].src_point!=25)
+							dest=&gameState.board[moves[n].dest_point-1]
+						else
+							dest=&nul;
+
+						if (moves[n].dest_point!=0)
+							src=&gameState.board[moves[n].src_point-1]
+						else
+							src=&nul;
+
+						//La case sur laquelle on arrive était vide
+						if(dest->nbDames==0)
+						{
+							dest->owner=current; 
+						}
+
+						//La case de départ est maintenant vide
+						if(src->nbDames==1)
+						{
+							src->owner=NOBODY;
+						}
 
 						//Cas de pions pris
-						if (gameState.board[moves[n].dest_point].owner!=current)
+						if (dest->owner!=current && dest->owner!=NOBODY)
 						{
-							Player p=gameState.board[moves[n].dest_point].owner; //Ancien owner de la case prise
-							gameState.board[moves[n].dest_point].owner=current; //Changement d'owner
+							Player p=dest->owner; //Ancien owner de la case prise
+							dest->owner=current; //Changement d'owner
 							gameState.out[p]++; // L'adversaire a une dame supplémentaire de sortie du jeu
+							dest->nbDames=0; // Le placement de la dame est géré dans le cas général
 						}
 
 						//Cas général
-						gameState.board[moves[n].src_point].nbDames--;
-						gameState.board[moves[n].dest_point].nbDames++;
+						src->nbDames--;
+						dest->nbDames++;
 
 						//Une dame est remise en jeu
 						if (moves[n].src_point==25)

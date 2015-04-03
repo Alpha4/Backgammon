@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "backgammon.h"
 
+
+
 SList* CreateList()
 {
 	SList *list=malloc(sizeof(SList));

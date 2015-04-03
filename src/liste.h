@@ -4,14 +4,18 @@
 
 
 typedef struct Data Data;
+
 typedef struct STab STab;
+
 typedef struct SCell SCell;
 typedef struct SList SList;
 
 
 struct Data {
 	SMove moves[4];
-	char dice[4]; // représente les nombres disponibles sur les dés 
+	int nbMoves;
+	int dice[4]; // représente les nombres disponibles sur les dés 
+	SGameState gamestate;
 	/* EXEMPLE :
 	les dé affichent 3 et 4 --> dice est rempli de la sorte : [3,4,-1,-1]
 	( -1 représente un 'dé' inutilisable)
@@ -20,6 +24,8 @@ struct Data {
 	*/
 	
 };
+
+
 
 struct SCell
 {
