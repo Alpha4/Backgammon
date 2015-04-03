@@ -17,9 +17,9 @@ CFlags = -Wall
 # linker options
 LDFlags = -rdynamic
 # library names
-libs = SDL2
+libs = SDL2 SDL2_image
 # additionnal library directories
-libDir = lib/
+libDir = 
 # additionnal include directories
 incDir =
 
@@ -55,7 +55,7 @@ $(binDir)/$(app): $(objects)
 	@mkdir -p `dirname $@`
 	@echo "Linking $@..."
 	@$(CC) $(objects) $(LDFlags) -o $@
-	cd lib; make;
+	#cd lib; make;
 
 $(objDir)/%.o: %.$(srcExt)
 	@echo "Generating dependencies for $<..."
