@@ -47,23 +47,6 @@ Player isGameFinished(SGameState gameState,int penalty[2])
 
 
 
-/*
-déplacement ne correspond pas à un dé
-mauvais sens d'avancement des pions
-pas de piont du joueur sur la case départ
-au moins 2 pionts adverses sur la cas arrivé
-case arrivée ou départ n'existe pas
-
-
-!! ATTENTION prendre en compte 
-0 bar --> peut etre uniquement dest
-25 out peut etre uniquement source
-
-sil en a dans dans le out et src pas out
-attention si dest est le bar
-
-
-*/
 
 
 
@@ -73,7 +56,7 @@ int getSrcCells(SGameState gameState, Player player, int* srcCells ){
 	int index = 0; // indice de la premiere case vide du tableau
 	int i;
 
-	// si le joueur a au moins 2 pions dans le out il ne peut que partir du out
+	// si le joueur a au moins 1 pion dans le out il ne peut que partir du out
 	if ( gameState.out[player] > 0){
 		srcCells[0] = 0;
 		index ++;
@@ -91,26 +74,14 @@ int getSrcCells(SGameState gameState, Player player, int* srcCells ){
 
 
 
-/*
-		!!!!!!!!!!!!!!!!		WARNIIIIIIIING !!!!!!!!!!!!!!!!!
-
-		pions noirs et blancs inversés je crois dans le sens d'avancement !!
-
-		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-*/
-
-
-
-// ATTENTION traiter sortie de pions du bar ( suivant le joueur)
-
 
 // NUMEROS DE CELLULES SUR LESQUELLES LE PION PEUT ARRIVER
 int getDestCells( SGameState gameState, Player player, int* destCells ){
 	
 	int index = 0; // indice de la premiere case vide du tableau
 	int i;
-	for (i=0; i < 24; i++){
-		//cellules possédées par personnes ou le joueur
+	for (i=0; i < 24; i++){ 
+		//cellules possédées par personne ou le joueur
 		if ( ( gameState.board[i].owner == player) || (gameState.board[i].owner == NOBODY) ){
 			destCells[index] = i+1;
 			index ++;
@@ -124,7 +95,7 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 	}
 
 	// pour le joueur blanc
-	// si tous les pions sont dans les 6 dernieres cases du joueur --> il peut mettre des pions dans bar[]
+	// si tous les pions sont dans les 6 dernieres cases du joueur --> il peut mettre des pions dans out[]
 	if (player == WHITE ){
 		int add = 0; // nb de pionts dans les 6 dernieres cases
 		for ( i=18; i < 34; i++){
@@ -140,7 +111,7 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 
 
 	//pour le joueur noir
-	// si tous les pions sont dans les 6 dernieres cases --> il peut mettre des pions dans bar[]
+	// si tous les pions sont dans les 6 dernieres cases --> il peut mettre des pions dans out[]
 	if ( player == BLACK ){	
 		int add = 0; // nb de pionts dans les 6 dernieres cases
 		for (i=0; i < 6; i++){
@@ -155,6 +126,13 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 	}
 	return index;
 }
+
+/*
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		FONCTION CANGOTOBAR A FAIRE
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*/
+
 
 
 // remplissage des premiers mouvements possibles dans la liste
@@ -175,54 +153,74 @@ SList* fillIn_1_MovesPossible( Player player, SList* movesPossible, int dice[4],
 		for (j=0; j < indexDest; j++){ // j --> parcours de destCells
 
 			// vérification que le mouvement est dans le bon sens suivant le joueur
-			if ( (player == WHITE && destCells[j] > srcCells[i]) || (player == BLACK && destCells[j] < srcCells[i]) ){
-				
-				// vérification que le mouvement correspond à un dé
-				if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || (fabs(destCells[j] - srcCells[i]) == dice[1]) || (fabs(destCells[j] - srcCells[i]) == dice[2]) || (fabs(destCells[j] - srcCells[i]) == dice[3])){
-					
-					// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du jeu
-					Data* data = malloc(sizeof(Data));
+			// cas particulier : si la cellule de départ est out[]  ou celle d'arrivée le bar[] alors on ne compte pas le sens
+			if ( (player == WHITE && destCells[j] < srcCells[i]) || (player == BLACK && destCells[j] > srcCells[i]) || srcCell[i] == 0 
+					|| destCell[i] == 25 ) {
 
-					//ajout du 1er move
-					data->moves[0].src_point = srcCells[i-1];
-					data->moves[0].dest_point = destCells[i-1];
-					data->nbMoves = 1;
+				// vérification que, si la cellule d'arrivée est le bar, le jouer a le droit d'y mettre son pion
+				if ( (destCell[i] != 25) || (destCell[i] == 25 &&  canGoToBar()) ){		
 
-					// nouveau jeu de dé
-
-					data->dice[0] = dice[0];
-					data->dice[1] = dice[1];
-					data->dice[2] = dice[2];
-					data->dice[3] = dice[3];
-
-					if ( fabs(destCells[j] - srcCells[i]) == dice[0] ){ // cas 1 : premier dé utilisé
-						data->dice[0] = -1; // "supprime " le dé utilisé
+					// vérification que le mouvement correspond à un dé
+					if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || (fabs(destCells[j] - srcCells[i]) == dice[1])  // cas "normal" 
+						|| (fabs(destCells[j] - srcCells[i]) == dice[2]) || (fabs(destCells[j] - srcCells[i]) == dice[3])
+						|| 25-destCell[j] == dice[0] || 25-destCell[j] == dice[1] // Traite 2 cas : le joueur blanc sort un pion du out
+						|| 25-destCell[j] == dice[2] || 25-destCell[j] == dice[3] // et le cas ou le joueur noir met un pion dans le bar
+						){  // remarque : les cas ou un pion noir sort du out et celui ou un pion blanc va dans le bar sont traité par le cas "normal"
+	
+	
+						// remplissage de la liste chainée avec une nouvelle cellule contenant le premier move et l'état du jeu
+						Data* data = malloc(sizeof(Data));
+	
+						//ajout du 1er move
+						data->moves[0].src_point = srcCells[i-1];
+						data->moves[0].dest_point = destCells[i-1];
+						data->nbMoves = 1;
+	
+						// nouveau jeu de dé
+	
+						data->dice[0] = dice[0];
+						data->dice[1] = dice[1];
+						data->dice[2] = dice[2];
+						data->dice[3] = dice[3];
+	
+						if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || (player == WHITE && 25-destCell[j] == dice[0]) 
+									|| (player == BLACK && destCell[j] == dice[0]) ){ // cas 1 : premier dé utilisé
+	
+							data->dice[0] = -1; // "supprime " le dé utilisé
+						}
+						else if ( (fabs(destCells[j] - srcCells[i]) == dice[1]) || (player == WHITE && 25-destCell[j] == dice[1]) 
+									|| (player == BLACK && destCell[j] == dice[1]) ){ // cas 2 : 2e dé utilisé
+	
+							data->dice[1] = -1; // "supprime " le dé utilisé
+						}
+						else if ( (fabs(destCells[j] - srcCells[i]) == dice[2]) || (player == WHITE && 25-destCell[j] == dice[2]) 
+									|| (player == BLACK && destCell[j] == dice[2]) ){ // cas 3 : 3e dé utilisé
+	
+							data->dice[2] = -1; // "supprime " le dé utilisé
+						}
+						else if ( (fabs(destCells[j] - srcCells[i]) == dice[3]) || (player == WHITE && 25-destCell[j] == dice[3]) 
+									|| (player == BLACK && destCell[j] == dice[3]) ){ // cas 4 : 4e dé utilisé
+	
+							data->dice[3] = -1; // "supprime " le dé utilisé
+						}
+	
+	
+	
+						//nouveau gameState  			PRENDRE CE BOUT DE CODE SUR AURELIEN
+						// ATTENTION REMPLACER DANS LE CODE D'AURELIEN GAMESTATE PAR NEWGAMESTATE (OU DATA->GAMESTATE)
+						data->gameState = gameState;
+						data->gameState.board[srcCells[i-1]].nbDames --; // retirer le pion de la case de départ
+	
+						if ( data->GameState.board[srcCells[i-1]].nbDames ){ // s'il n'y a plus de pion sur la case de départ alors on change l'owner à personne
+							data->GameState.board[srcCells[i-1]].owner = NOBODY;
+						}
+	
+						data->GameState.board[destCells[i-1]].nbDames ++; // ajout du pion sur la case d'arrivée
+						data->GameState.board[destCells[i-1]].owner = player;// actualisation de l'owner de la cellule ( au cas ou le joueur ne la possédait pas déjà)
+	
+						// ajout de la cellule
+						AddElementBegin(movesPossible, *data);
 					}
-					else if ( fabs(destCells[j] - srcCells[i]) == dice[1] ){ // cas 2 : 2e dé utilisé
-						data->dice[1] = -1; // "supprime " le dé utilisé
-					}
-					else if ( fabs(destCells[j] - srcCells[i]) == dice[2] ){ // cas 3 : 3e dé utilisé
-						data->dice[2] = -1; // "supprime " le dé utilisé
-					}
-					else if ( fabs(destCells[j] - srcCells[i]) == dice[3] ){ // cas 4 : 4e dé utilisé
-						data->dice[3] = -1; // "supprime " le dé utilisé
-					}
-
-
-
-					//nouveau gameState  			PRENDRE CE BOUT DE CODE SUR AURELIEN
-					data->gameState = gameState;
-					data->gameState.board[srcCells[i-1]].nbDames --; // retirer le pion de la case de départ
-
-					if ( data->GameState.board[srcCells[i-1]].nbDames ){ // s'il n'y a plus de pion sur la case de départ alors on change l'owner à personne
-						data->GameState.board[srcCells[i-1]].owner = NOBODY;
-					}
-
-					data->GameState.board[destCells[i-1]].nbDames ++; // ajout du pion sur la case d'arrivée
-					data->GameState.board[destCells[i-1]].owner = player;// actualisation de l'owner de la cellule ( au cas ou le joueur ne la possédait pas déjà)
-
-					// ajout de la cellule
-					AddElementBegin(movesPossible, *data);
 				}
 			}
 		}
@@ -288,61 +286,79 @@ SList* fillIn_2_MovesPossible( Player player, SList* movesPossible, int dice[4],
 
 
 				// vérification que le mouvement est dans le bon sens suivant le joueur
-				if ( (player == WHITE && destCells[j] > srcCells[i]) || (player == BLACK && destCells[j] < srcCells[i]) ){
+				// cas particulier : si la cellule de départ est out[]  ou celle d'arrivée le bar[] alors on ne compte pas le sens
+				if ( (player == WHITE && destCells[j] < srcCells[i]) || (player == BLACK && destCells[j] > srcCells[i]) || srcCell[i] == 0 
+						|| destCell[i] == 25 ){
 					
-					// vérification que le mouvement correspond à un dé
-					if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || (fabs(destCells[j] - srcCells[i]) == dice[1]) || (fabs(destCells[j] - srcCells[i]) == dice[2]) || (fabs(destCells[j] - srcCells[i]) == dice[3]) ){
-						
-						// remplissage de la liste chainée avec une nouvelle cellule
-						Date* data = malloc(sizeof(data));
+					// vérification que, si la cellule d'arrivée est le bar, le joueur en a bien le droit d'y mettre son pion
+					if ( (destCell[i] != 25) || (destCell[i] == 25 &&  canGoToBar()) ){	
 
-						//copie des moves déjà présents
-						int x;
-						for (x=0; x < nbMovesInCells; x++){
-							data->moves[i] = cellEnTraitement->data.moves[i];
-						}
-						
-
-						// ajout du dernier move
-						data->moves[nbMovesInCells].src_point = srcCells[i-1];
-						data->moves[nbMovesInCells].dest_point = destCells[i-1];
-						data->nbMoves ++;
-
-						// nouveau jeu de dé
-						data->dice[0] = cellEnTraitement->value.dice[0];
-						data->dice[1] = cellEnTraitement->value.dice[1];
-						data->dice[2] = cellEnTraitement->value.dice[2];
-						data->dice[3] = cellEnTraitement->value.dice[3];
-
-						if (fabs(destCells[j] - srcCells[i]) == dice[0]){
-							data->dice[0] = -1; // "supprime " le dé utilisé
-						}
-						else if ( fabs(destCells[j] - srcCells[i]) == dice[1] ){
-							data->dice[1] = -1; // "supprime " le dé utilisé
-						}
-						else if ( fabs(destCells[j] - srcCells[i]) == dice[2] ){
-							data->dice[2] = -1; // "supprime " le dé utilisé
-						}
-						else if ( fabs(destCells[j] - srcCells[i]) == dice[3] ){
-							data->dice[3] = -1; // "supprime " le dé utilisé
-						}
-
-
-						// nouveau GameState  						PRENDRE CE BOUT DE CODE SUR AURELIEN
-						data->gameState = gameState;
-						data->GameState.board[srcCells[i-1]].nbDames --; // retirer le pion de la case de départ
+						// vérification que le mouvement correspond à un dé
+						if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || (fabs(destCells[j] - srcCells[i]) == dice[1])  // cas "normal" 
+							|| (fabs(destCells[j] - srcCells[i]) == dice[2]) || (fabs(destCells[j] - srcCells[i]) == dice[3])
+							|| 25-destCell[j] == dice[0] || 25-destCell[j] == dice[1] // Traite 2 cas : le joueur blanc sort un pion du out
+							|| 25-destCell[j] == dice[2] || 25-destCell[j] == dice[3] // et le cas ou le joueur noir met un pion dans le bar
+							){  // remarque : les cas ou un pion noir sort du out et ___ sont traité par le cas "normal"
+							
+							// remplissage de la liste chainée avec une nouvelle cellule
+							Date* data = malloc(sizeof(data));
 	
-						if ( data->GameState.board[srcCells[i-1]].nbDames ){ // s'il n'y a plus de pion sur la case de départ alors on change l'owner à personne
-							data->GameState.board[srcCells[i-1]].owner = NOBODY;
-						}
+							//copie des moves déjà présents
+							int x;
+							for (x=0; x < nbMovesInCells; x++){
+								data->moves[i] = cellEnTraitement->data.moves[i];
+							}
+							
 	
-						data->GameState.board[destCells[i-1]].nbDames ++; // ajout du pion sur la case d'arrivée
-						data->GameState.board[destCells[i-1]].owner = player;// actualisation de l'owner de la cellule ( au cas ou le joueur ne la possédait pas déjà)
-
-
-						//ajout de la cellule
-						AddElementBegin(movesPossible, *data);
-						movAddCell = 1;
+							// ajout du dernier move
+							data->moves[nbMovesInCells].src_point = srcCells[i-1];
+							data->moves[nbMovesInCells].dest_point = destCells[i-1];
+							data->nbMoves ++;
+	
+							// nouveau jeu de dé
+							data->dice[0] = cellEnTraitement->value.dice[0];
+							data->dice[1] = cellEnTraitement->value.dice[1];
+							data->dice[2] = cellEnTraitement->value.dice[2];
+							data->dice[3] = cellEnTraitement->value.dice[3];
+	
+							if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || (player == WHITE && 25-destCell[j] == dice[0]) 
+									|| (player == BLACK && destCell[j] == dice[0]) ){ // cas 1 : premier dé utilisé
+	
+								data->dice[0] = -1; // "supprime " le dé utilisé
+							}
+							else if ( (fabs(destCells[j] - srcCells[i]) == dice[1]) || (player == WHITE && 25-destCell[j] == dice[1])
+										|| (player == BLACK && destCell[j] == dice[1]) ){ // cas 2 : 2e dé utilisé
+	
+								data->dice[1] = -1; // "supprime " le dé utilisé
+							}
+							else if ( (fabs(destCells[j] - srcCells[i]) == dice[2]) || (player == WHITE && 25-destCell[j] == dice[2]) 
+										|| (player == BLACK && destCell[j] == dice[2]) ){ // cas 3 : 3e dé utilisé
+	
+								data->dice[2] = -1; // "supprime " le dé utilisé
+							}
+							else if ( (fabs(destCells[j] - srcCells[i]) == dice[3]) || (player == WHITE && 25-destCell[j] == dice[3]) 
+										|| (player == BLACK && destCell[j] == dice[3]) ){ // cas 4 : 4e dé utilisé
+	
+								data->dice[3] = -1; // "supprime " le dé utilisé
+							}
+	
+	
+							// nouveau GameState  						PRENDRE CE BOUT DE CODE SUR AURELIEN
+							data->gameState = gameState;
+							data->GameState.board[srcCells[i-1]].nbDames --; // retirer le pion de la case de départ
+		
+							if ( data->GameState.board[srcCells[i-1]].nbDames ){ // s'il n'y a plus de pion sur la case de départ alors on change l'owner à personne
+								data->GameState.board[srcCells[i-1]].owner = NOBODY;
+							}
+		
+							data->GameState.board[destCells[i-1]].nbDames ++; // ajout du pion sur la case d'arrivée
+							data->GameState.board[destCells[i-1]].owner = player;// actualisation de l'owner de la cellule ( au cas ou le joueur ne la possédait pas déjà)
+	
+	
+							//ajout de la cellule
+							AddElementBegin(movesPossible, *data);
+							movAddCell = 1;
+						}
 					}
 				}
 			}
@@ -402,12 +418,8 @@ SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Playe
 	//         ATTENTION
 
 	// -- le joueur peut mettre dans bar que si le nb est pil celui du dé ou qu'il n'a plus de pions plus loin
-	// si le joueur ne peut pas jouer tous ces dés il doit jouer le + élevé --> nouvelle fonction
+	// -- si le joueur ne peut pas jouer tous ces dés il doit jouer le + élevé --> nouvelle fonction
 
-
-
-
-	// le joueur n'a pas de pions dans le bar et ne peut pas en mettre dans le out :
 
 	// liste chainée de combinaisons de mouvements possibes
 	SList* movesPossible; 
@@ -416,9 +428,11 @@ SList* getMovesPossible(SGameState gameState, int nbMoves, SMove moves[4], Playe
 	movesPossible = fillIn_1_MovesPossible( indexSrc, indexDest, srcCells, destCells, player, movesPossible, dice);
 
 
-	// remplissage des deuxiemes mouvements possibles ( en fonction du premier)
+	// remplissage des mouvements suivants:
 	movesPossible = fillIn_2_movesPossible( indexSrc, indexDest, srcCells, destCells, player, movesPossible, dice, 1);
 
+
+	// A FAIRE --> SI LE JOUEUR NE PEUT PAS JOUER TOUS CES DES IL DOIT JOUER LE PLUS ELEVE
 
 
 }

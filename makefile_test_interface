@@ -1,11 +1,11 @@
 # app name
-app = main
+app = interface
 
 # extension to compile
 srcExt = c
 
 # directories
-srcDir = src
+srcDir = test
 objDir = obj
 binDir = .
 
@@ -19,7 +19,7 @@ LDFlags = -rdynamic
 # library names
 libs = SDL2
 # additionnal library directories
-libDir = lib/
+libDir = libs/
 # additionnal include directories
 incDir =
 

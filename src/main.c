@@ -164,6 +164,7 @@ int main (int argc, char *argv[])
 				dices[0]=rand()%6+1;
 				dices[1]=rand()%6+1;
 
+				/* Inutile ?*/
 				if(dices[0]==dices[1])
 					nbMoves=4;
 				else
@@ -179,38 +180,110 @@ int main (int argc, char *argv[])
 					moves[i]=vide;
 				}
 
-				if (player1==current)
+				if (player1==current) // Au joueur 1 de jouer
 				{
-					if (ai1.DoubleStack(&gameState))
-						if(!(ai2.TakeDouble(&gameState)))
+					if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
+					{
+						if (ai1.DoubleStack(&gameState))
 						{
-							result=current;
-							break;//Sortie de la boucle while
+							if(nbHumanPlayers==0) //Le joueur 2 est une IA
+							{
+								if(!(ai2.TakeDouble(&gameState)))
+								{
+									result=current;
+									break;//Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
+							}
+							else //Le joueur 2 est humain
+							{
+								if()//VIDEAU_TAKE J2
+								{
+									result=current;
+									break;//Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
+							}
 						}
-						else
-							gameState.stake*=2;
-					ai1.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
-				}
-				else
-				{
-					if (ai2.DoubleStack(&gameState))
-						if(!(ai1.TakeDouble(&gameState)))
+						ai1.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
+					}
+					else //Le joueur 1 est humain
+					{
+						if()//VIDEAU_DOUBLE HUMAIN J1
 						{
-							result=current;
-							break; //Sortie de la boucle while
+							if()//VIDEAU_TAKE HUMAIN J2
+							{
+									result=current;
+									break;//Sortie de la boucle while
+							}
+							else
+								gameState.stake*=2;
 						}
-						else
-							gameState.stake*=2;
-					ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
+						//COUP HUMAIN J1
+					}
 				}
 
-				/* Calcul du nombre de moves effectués*/
+				else // Au joueur 2 de jouer
+				{
+					if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
+					{
+						if (ai2.DoubleStack(&gameState))
+						{
+							if(!(ai1.TakeDouble(&gameState)))
+							{
+								result=current;
+								break; //Sortie de la boucle while
+							}
+							else
+								gameState.stake*=2;
+						}
+						ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
+					}
+					else // Le joueur 2 est humain
+					{
+						if (nbHumanPlayers==1) // Le joueur 1 est IA
+						{
+							if ()//VIDEAU HUMAIN
+							{
+								if(!(ai1.TakeDouble(&gameState)))
+								{
+									result=current;
+									break; //Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
+							}
+						}
+
+						else // Le joueur 1 est humain
+						{
+							if ()//VIDEAU_DOUBLE HUMAIN J2
+							{
+								if()//VIDEAU_TAKE HUMAIN J1
+								{
+									result=current;
+									break; //Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
+							}
+
+						}
+						//COUP HUMAIN J2
+					}
+				}
+
+				/* Calcul du nombre de moves effectués
+				Inutile ?*/
 				int n,nbMovesDone=4;
 				for (n=0;n<nbMoves;n++)
 				{
 					if(moves[n].dest_point==0 && moves[n].src_point==0)
 						nbMovesDone--;
 				}
+
 
 				memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
 				if(validMoves(nbMovesDone,moves,current,dices,gameStateCopy))//Fonction de l'arbitre
