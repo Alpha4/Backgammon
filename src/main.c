@@ -198,7 +198,7 @@ int main (int argc, char *argv[])
 							}
 							else //Le joueur 2 est humain
 							{
-								if()//VIDEAU_TAKE J2
+								if(1)//VIDEAU_TAKE J2
 								{
 									result=current;
 									break;//Sortie de la boucle while
@@ -211,9 +211,9 @@ int main (int argc, char *argv[])
 					}
 					else //Le joueur 1 est humain
 					{
-						if()//VIDEAU_DOUBLE HUMAIN J1
+						if(1)//VIDEAU_DOUBLE HUMAIN J1
 						{
-							if()//VIDEAU_TAKE HUMAIN J2
+							if(1)//VIDEAU_TAKE HUMAIN J2
 							{
 									result=current;
 									break;//Sortie de la boucle while
@@ -245,7 +245,7 @@ int main (int argc, char *argv[])
 					{
 						if (nbHumanPlayers==1) // Le joueur 1 est IA
 						{
-							if ()//VIDEAU HUMAIN
+							if (1)//VIDEAU HUMAIN
 							{
 								if(!(ai1.TakeDouble(&gameState)))
 								{
@@ -259,9 +259,9 @@ int main (int argc, char *argv[])
 
 						else // Le joueur 1 est humain
 						{
-							if ()//VIDEAU_DOUBLE HUMAIN J2
+							if (1)//VIDEAU_DOUBLE HUMAIN J2
 							{
-								if()//VIDEAU_TAKE HUMAIN J1
+								if(1)//VIDEAU_TAKE HUMAIN J1
 								{
 									result=current;
 									break; //Sortie de la boucle while
@@ -286,7 +286,7 @@ int main (int argc, char *argv[])
 
 
 				memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
-				if(validMoves(nbMovesDone,moves,current,dices,gameStateCopy))//Fonction de l'arbitre
+				if(validMoves(nbMovesDone,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
 				{
 					for (n=0;n<nbMovesDone;n++) 
 					{
@@ -295,12 +295,12 @@ int main (int argc, char *argv[])
 						Square nul;
 
 						if (moves[n].src_point!=25)
-							dest=&gameState.board[moves[n].dest_point-1]
+							dest=&gameState.board[moves[n].dest_point-1];
 						else
 							dest=&nul;
 
 						if (moves[n].dest_point!=0)
-							src=&gameState.board[moves[n].src_point-1]
+							src=&gameState.board[moves[n].src_point-1];
 						else
 							src=&nul;
 

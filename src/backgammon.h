@@ -1,3 +1,5 @@
+#ifndef _BACKGAMMON_H
+    #define _BACKGAMMON_H
 /////////// Strutures à utiliser
 
 /**
@@ -113,3 +115,5 @@ typedef int (*pfTakeDouble)(const SGameState * const);
  */
 //void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMove, unsigned int tries);
 typedef void (*pfPlayTurn)(const SGameState * const,  const unsigned char[2], SMove[4], unsigned int*, unsigned int);
+
+#endif
