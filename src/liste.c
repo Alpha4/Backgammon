@@ -33,6 +33,15 @@ void DeleteList(SList *list)
 	list=NULL;
 }
 
+int IsEmpty(SList *list){
+	int isEmpty = 0;
+	if (list->head == NULL){
+		isEmpty =1;
+	}
+	return isEmpty;
+}
+
+
 SCell* GetNewCell(SList *list) // Fonction renvoyant la cellule à ajouter à la liste
 {
 	SCell *temp;

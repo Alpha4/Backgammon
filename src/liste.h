@@ -1,8 +1,7 @@
 #ifndef _LISTE_H
 	#define _LISTE_H
 
-#include "backgammon.h"
-
+//#include "backgammon.h"
 
 typedef struct Data Data;
 
@@ -64,5 +63,7 @@ SCell* GetLastElement(SList *list);
 SCell* GetPrevElement(SCell *cell);
 SCell* GetNextElement(SCell *cell);
 Data GetData(SCell *cell);
+
+int IsEmpty(SList *list);
 
 #endif

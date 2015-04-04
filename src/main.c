@@ -111,7 +111,7 @@ int main (int argc, char *argv[])
 
 
 		gameState.whiteScore=0;
-		gameState.whiteScore=0;
+		gameState.blackScore=0;
 
 		while(gameState.whiteScore<pts || gameState.blackScore<pts)
 		{
@@ -126,7 +126,12 @@ int main (int argc, char *argv[])
 			}
 
 			/*Initialisation du plateau*/
-
+			int i;
+			for (i = 0; i < 24; ++i)
+			{	
+				gameState.board[i].owner=NOBODY;
+				gameState.board[i].nbDames=0;
+			}
 			//WHITE
 			gameState.board[0].owner=WHITE;
 			gameState.board[0].nbDames=2;
@@ -276,33 +281,33 @@ int main (int argc, char *argv[])
 				}
 
 				/* Calcul du nombre de moves effectués
-				Inutile ?*/
+				Inutile car fait par l'IA
 				int n,nbMovesDone=4;
 				for (n=0;n<nbMoves;n++)
 				{
 					if(moves[n].dest_point==0 && moves[n].src_point==0)
 						nbMovesDone--;
-				}
+				}*/
 
-
+				int n;
 				memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
-				if(validMoves(nbMovesDone,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
+				if(validMoves(nbMoves,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
 				{
-					for (n=0;n<nbMovesDone;n++) 
+					for (n=0;n<nbMoves;n++) 
 					{
 						Square *dest;
 						Square *src;
 						Square nul;
 
-						if (moves[n].src_point!=25)
-							dest=&gameState.board[moves[n].dest_point-1];
-						else
-							dest=&nul;
-
-						if (moves[n].dest_point!=0)
+						if (moves[n].src_point!=0)
 							src=&gameState.board[moves[n].src_point-1];
-						else
+						else // si la source est le bar les opération habituelles seront appliquées sur un Square vide
 							src=&nul;
+
+						if (moves[n].dest_point!=25)
+							dest=&gameState.board[moves[n].dest_point-1];
+						else // si la destination est le out les opération habituelles seront appliquées sur un Square vide
+							dest=&nul; 
 
 						//La case sur laquelle on arrive était vide
 						if(dest->nbDames==0)
@@ -321,7 +326,7 @@ int main (int argc, char *argv[])
 						{
 							Player p=dest->owner; //Ancien owner de la case prise
 							dest->owner=current; //Changement d'owner
-							gameState.out[p]++; // L'adversaire a une dame supplémentaire de sortie du jeu
+							gameState.bar[p]++; // L'adversaire a une dame supplémentaire dans le bar
 							dest->nbDames=0; // Le placement de la dame est géré dans le cas général
 						}
 
@@ -330,12 +335,12 @@ int main (int argc, char *argv[])
 						dest->nbDames++;
 
 						//Une dame est remise en jeu
-						if (moves[n].src_point==25)
-							gameState.out[current]--;
+						if (moves[n].src_point==0)
+							gameState.bar[current]--;
 
-						//Une dame est placée dans le bar
-						if (moves[n].dest_point==0)
-							gameState.bar[current]++;
+						//Une dame est sortie
+						if (moves[n].dest_point==25)
+							gameState.out[current]++;
 					}
 				}
 				else // mouvement(s) non valide(s)

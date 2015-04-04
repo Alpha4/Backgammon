@@ -1,7 +1,14 @@
-#include <SDL2/SDL.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*include de SDL*/
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+
+/*include du projet*/
+#include "backgammon.h"
 
 /*Bye bye le main bonjour les fonctions !*/
 
@@ -14,8 +21,33 @@ typedef struct Context
 	SDL_Texture* board; //Texture du board
 	SDL_Texture* dice[6]; //Textures de dé
 	SDL_Texture* pawn[2]; //Texture des pions
+	SDL_Texture* doublingCube[6]; //Texture du videau
 
 }Context;
+
+
+void cleanup(Context* c)
+{
+	int i;
+	for (i=0;i<6;i++)
+	{
+		if (c->dice[i]!=NULL)
+			SDL_DestroyTexture(c->dice[i]);
+		if(c->doublingCube[i]!=NULL)
+			SDL_DestroyTexture(c->doublingCube[i]);
+	}
+	if(c->pawn[0]!=NULL)
+		SDL_DestroyTexture(c->pawn[0]);
+	if(c->pawn[1]!=NULL)
+		SDL_DestroyTexture(c->pawn[1]);
+	if(c->board!=NULL)
+		SDL_DestroyTexture(c->board);
+	if(c->pRenderer!=NULL)
+		SDL_DestroyRenderer(c->pRenderer);
+	if(c->pWindow!=NULL)
+		SDL_DestroyWindow(c->pWindow);
+	SDL_Quit();
+}
 
 /**
  * Log les erreurs SDL
@@ -38,13 +70,14 @@ void logSDLError(char* msg)
  * @return SDL_Texture*
  *  la texture chargée 
  */
-SDL_Texture* loadTexture(char* file, SDL_Renderer *pRenderer)
+SDL_Texture* loadTexture(char* file,Context* c)
 {
-	SDL_Texture *texture = IMG_LoadTexture(pRenderer,file);
-
+	SDL_Texture *texture = IMG_LoadTexture(c->pRenderer,file);
 	if(texture==NULL)
+	{
 		logSDLError("IMG_LoadTexture");
-
+		cleanup(c);
+	}
 	return texture;
 }
 
@@ -93,11 +126,40 @@ void renderTextureAsIs(SDL_Texture* tex, SDL_Renderer* ren, int x, int y)
 }
 
 
+/**
+ * Load les images en tant que texture dans le context c
+ * @param Context* c
+ *  Context dans lequel loadé les images
+ */
+int loadImages(Context* c)
+{
+	
+	c->board=loadTexture("img/board.png",c);
+	c->pawn[WHITE]=loadTexture("img/whitePawn.png",c);
+	c->pawn[BLACK]=loadTexture("img/blackPawn.png",c);
+	int i;
+	for(i=0;i<6;i++)
+	{
+		char pathDice[40];
+		char pathDoublingCube[40];
+		sprintf(pathDice, "img/dice%d.png",i+1);
+		sprintf(pathDoublingCube, "img/doublingCube%d.png",i+1);
+		c->dice[i]=loadTexture(pathDice,c);
+		c->doublingCube[i]=loadTexture(pathDoublingCube,c);
+	}
+	return 0;
+
+}
 
 
-
-
-int Init(Context *C, int x, int y, char* title)
+/**
+ * Charge SDL et initialise le context(pWindow,pRenderer et textures)
+ * @param Context* c
+ *  Context à initialisé
+ * @param char* title
+ *	titre de la fenetre
+ */
+int init(Context *c, char* title)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0 )
 	{
@@ -105,11 +167,11 @@ int Init(Context *C, int x, int y, char* title)
 		return -1;
 	}
 
-	if (IMG_Init(IMG_INIT_PNG) != 0 )
+	/*if (IMG_Init(IMG_INIT_PNG) != 0 )
 	{
 		logSDLError("IMG_Init");
 		return -1;
-	}
+	}*/
 
 	if (TTF_Init()!= 0 )
 	{
@@ -117,8 +179,26 @@ int Init(Context *C, int x, int y, char* title)
 		return -1;
 	}
 
-	return 1;
-	//A COMPLETER
+	c->pWindow = SDL_CreateWindow(title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,800,566,SDL_WINDOW_SHOWN);
+
+	if (c->pWindow==NULL)
+	{
+		logSDLError("SDL_CreateWindow");
+		cleanup(c);
+		return 1;
+	}
+
+	c->pRenderer= SDL_CreateRenderer(c->pWindow,-1,SDL_RENDERER_ACCELERATED);
+
+	if (c->pRenderer==NULL)
+	{
+		logSDLError("SDL_CreateRenderer");
+		cleanup(c);
+		return 1;
+	}
+	loadImages(c);
+
+	return 0;
 }
 
 
@@ -132,65 +212,20 @@ int Init(Context *C, int x, int y, char* title)
 /*TEST DE CRÉATION D'UNE BÊTE FENÊTRE! */
 int main(int argc, char** argv)
 {
+	Context c;
 
-	const int SCREEN_WIDTH  = 800;
-	const int SCREEN_HEIGHT = 600;
-	//We'll just be using square tiles for now
-	const int TILE_SIZE = 100   ;
-	/* Initialisation simple */
-	if (SDL_Init(SDL_INIT_VIDEO) != 0 )
-	{
-		logSDLError("SDL_Init");
-		return -1;
-	}
+	init(&c,"Backgammon");
+
+	renderTextureAsIs(c.board,c.pRenderer,0,0);
+	renderTextureAsIs(c.pawn[0],c.pRenderer,15,15);
+	renderTextureAsIs(c.pawn[1],c.pRenderer,65,15);
 
 	
-	/* Création de la fenêtre */
-	SDL_Window* pWindow = NULL;
-	pWindow = SDL_CreateWindow("Backgammon",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT,SDL_WINDOW_SHOWN);
-	if (pWindow==NULL)
-	{
-		logSDLError("SDL_CreateWindow");
-		SDL_DestroyWindow(pWindow);
-		SDL_Quit();
-		return 1;
-	}
-
-	/*Renderer*/
-	SDL_Renderer *ren = SDL_CreateRenderer(pWindow,-1,SDL_RENDERER_ACCELERATED);
-	if (ren==NULL)
-	{
-		logSDLError("SDL_CreateRenderer");
-		SDL_DestroyRenderer(ren);
-		SDL_DestroyWindow(pWindow);
-		SDL_Quit();
-		return 1;
-	}
-
-
-	SDL_Texture *fond = loadTexture("img/test.bmp",ren);
-
-	int xTiles = SCREEN_WIDTH / TILE_SIZE;
-	int yTiles = SCREEN_HEIGHT / TILE_SIZE;
-	int i;
-	//Draw the tiles by calculating their positions
-	for (i= 0; i < xTiles * yTiles; ++i)
-	{
-		int x = i % xTiles;
-		int y = i / xTiles;
-		renderTexture(fond, ren, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE,TILE_SIZE);
-	}
-
-
-	/*Render*/
-	SDL_RenderPresent(ren);
+	SDL_RenderPresent(c.pRenderer);
 
 	SDL_Delay(3000);
 
-	SDL_DestroyTexture(fond);
-	SDL_DestroyRenderer(ren);
-	SDL_DestroyWindow(pWindow);
-	SDL_Quit();
+	cleanup(&c);
 
 	return 0;
 }
