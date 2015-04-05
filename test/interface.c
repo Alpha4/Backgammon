@@ -188,7 +188,7 @@ int init(Context *c, char* title)
 		return 1;
 	}
 
-	c->pRenderer= SDL_CreateRenderer(c->pWindow,-1,SDL_RENDERER_ACCELERATED);
+	c->pRenderer= SDL_CreateRenderer(c->pWindow,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_SOFTWARE);
 
 	if (c->pRenderer==NULL)
 	{
