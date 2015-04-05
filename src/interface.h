@@ -17,6 +17,8 @@ struct Context
 	SDL_Texture* pawnOut[2]; //Texture des pions Out
 	SDL_Texture* doublingCube[6]; //Texture du videau
 
+	TTF_Font* font;
+
 };
 
 /**
@@ -95,10 +97,18 @@ int init(Context *c, char* title);
  *  Context pour l'affichage
  * @param SGameState gs
  *	gamestate à afficher
+ * @param unsigned char* dices
+ *	tableau des dés
  */
-int update(Context *c, SGameState gs);
+int update(Context *c, SGameState gs,unsigned char* dices);
 
-
-
+/**
+ * Render du texte
+ * @param char* text
+ *	le texte à afficher
+ * @param Context c
+ *	le context contient la police
+ */
+SDL_Texture* renderText(char* text,Context* c);
 
 #endif

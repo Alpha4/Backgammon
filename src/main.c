@@ -164,35 +164,30 @@ int main (int argc, char *argv[])
 			gameState.board[5].owner=BLACK;
 			gameState.board[5].nbDames=5;
 
-			gameState.out[0]=7;
-			gameState.out[1]=4;
+			gameState.out[0]=0;
+			gameState.out[1]=0;
 			gameState.bar[0]=0;
 			gameState.bar[1]=0;
 			gameState.turn=1;
 			gameState.stake=1;
-
-			renderTextureAsIs(c.board,c.pRenderer,0,0);
-			update(&c,gameState);
-	
-			SDL_RenderPresent(c.pRenderer);
-
-			SDL_Delay(3000);
-
 	
 
 			int result=-1;
 			while (result==-1) //Boucle pour chaque tour (result est à -1 si pas de gagnant)
 			{
+
 				// Tirage des dés
 				srand(time(NULL));
 				dices[0]=rand()%6+1;
 				dices[1]=rand()%6+1;
 
-				/* Inutile ?*/
+				update(&c,gameState,dices);
+				SDL_Delay(2000);
+				/* Inutile ?
 				if(dices[0]==dices[1])
 					nbMoves=4;
 				else
-					nbMoves=2;
+					nbMoves=2;*/
 
 				//Tableau vide pour les moves
 				SMove vide;

@@ -26,6 +26,12 @@ void cleanup(Context* c)
 		if(c->doublingCube[i]!=NULL)
 			SDL_DestroyTexture(c->doublingCube[i]);
 	}
+	if(c->font!=NULL)
+		TTF_CloseFont(c->font);
+	if(c->pawnOut[0]!=NULL)
+		SDL_DestroyTexture(c->pawnOut[0]);
+	if(c->pawnOut[1]!=NULL)
+		SDL_DestroyTexture(c->pawnOut[1]);
 	if(c->pawn[0]!=NULL)
 		SDL_DestroyTexture(c->pawn[0]);
 	if(c->pawn[1]!=NULL)
@@ -40,6 +46,7 @@ void cleanup(Context* c)
 		SDL_DestroyRenderer(c->pRenderer);
 	if(c->pWindow!=NULL)
 		SDL_DestroyWindow(c->pWindow);
+	TTF_Quit();
 	SDL_Quit();
 }
 
@@ -192,7 +199,16 @@ int init(Context *c, char* title)
 		cleanup(c);
 		return 1;
 	}
+
 	loadImages(c);
+	
+	c->font=TTF_OpenFont("img/GeosansLight.ttf",42);
+	if (c->font==NULL)
+	{
+		logSDLError("TTF_OpenFont");
+		cleanup(c);
+		return 1;
+	}
 
 	return 0;
 }
@@ -205,9 +221,14 @@ int init(Context *c, char* title)
  *  Context pour l'affichage
  * @param SGameState gs
  *	gamestate à afficher
+ * @param unsigned char* dices
+ *	tableau des dés
  */
-int update(Context *c, SGameState gs)
+int update(Context *c, SGameState gs,unsigned char* dices)
 {
+	SDL_RenderClear(c->pRenderer);
+
+	renderTextureAsIs(c->board,c->pRenderer,0,0);
 
 	/*Update des pions*/
 	int i,j,x,y;
@@ -248,21 +269,38 @@ int update(Context *c, SGameState gs)
 			}
 		}
 	}
+
+
 	//mise à jour des out
+	char out[4];
+	
+	sprintf(out,"%d",gs.out[WHITE]);
+	renderTextureAsIs(renderText(out,c),c->pRenderer,682,397);
+	sprintf(out,"%d",gs.out[BLACK]);
+	renderTextureAsIs(renderText(out,c),c->pRenderer,682,116);
+
 
 	for (i=0;i<gs.out[WHITE];i++)
 	{
-		renderTextureAsIs(c->pawnOut[WHITE],c->pRenderer,622,397+i*7);	
+		renderTextureAsIs(c->pawnOut[WHITE],c->pRenderer,622,397+i*7);
+
 	}
 	for (i=0;i<gs.out[BLACK];i++)
 	{
 		renderTextureAsIs(c->pawnOut[BLACK],c->pRenderer,622,116+i*7);
 	}
+
+
 	//mise à jour des bar (affichage du nombre de pions)
-
+	char bar[4];
+	sprintf(bar,"%d",gs.bar[BLACK]);
 	renderTextureAsIs(c->pawn[BLACK],c->pRenderer,510,280);
-
+	renderTextureAsIs(renderText(bar,c),c->pRenderer,470,280);
+	sprintf(bar,"%d",gs.bar[WHITE]);
 	renderTextureAsIs(c->pawn[WHITE],c->pRenderer,110,280);
+	renderTextureAsIs(renderText(bar,c),c->pRenderer,70,280);
+
+
 
 
 	//Videau
@@ -292,7 +330,32 @@ int update(Context *c, SGameState gs)
 		break;
 
 	}
-	renderTextureAsIs(c->doublingCube[face],c->pRenderer,710,310);
+	renderTextureAsIs(c->doublingCube[face],c->pRenderer,685,285);
+
+	//Dés
+	renderTextureAsIs(c->dice[dices[0]-1],c->pRenderer,340,285);
+	renderTextureAsIs(c->dice[dices[1]-1],c->pRenderer,410,285);
+
+	SDL_RenderPresent(c->pRenderer);
 
 	return 0;
+}
+
+SDL_Texture* renderText(char* text,Context* c)
+{
+	SDL_Color color={0,0,0,0};
+	SDL_Surface* surf=TTF_RenderText_Blended(c->font,text,color);
+	if (surf == NULL)
+	{
+		logSDLError("TTF_RenderText");
+		return NULL;
+	}
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(c->pRenderer, surf);
+	if (texture == NULL)
+	{
+		logSDLError("CreateTexture");
+	}
+	SDL_FreeSurface(surf);
+
+	return texture;
 }
