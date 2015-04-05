@@ -7,9 +7,16 @@ Programme principal gérant l'interface, l'arbitre et les interface
 #include <dlfcn.h>
 #include <time.h>
 
+/*include de SDL*/
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
+/*include du projet*/
 #include "backgammon.h"
 #include "libs.h"
-#include "arbitre.h" // Fonction de l'arbitre
+#include "arbitre.h" 
+#include "interface.h"
 
 
 
@@ -26,6 +33,8 @@ int main (int argc, char *argv[])
 	/*Librairies des IA*/
 	AI ai1,ai2;
 
+	/*Variables pour l'affichage*/
+	Context c;
 
 	/* Variables pour le jeu*/
 	Player player1,player2;
@@ -73,6 +82,9 @@ int main (int argc, char *argv[])
 		break;
 
 	}
+
+	/* Initialisation affichage*/
+	init(&c,"Backgammon");
 
 	/* Jeu */
 
@@ -152,14 +164,21 @@ int main (int argc, char *argv[])
 			gameState.board[5].owner=BLACK;
 			gameState.board[5].nbDames=5;
 
-			gameState.out[0]=0;
-			gameState.out[1]=0;
+			gameState.out[0]=7;
+			gameState.out[1]=4;
 			gameState.bar[0]=0;
 			gameState.bar[1]=0;
 			gameState.turn=1;
 			gameState.stake=1;
 
+			renderTextureAsIs(c.board,c.pRenderer,0,0);
+			update(&c,gameState);
+	
+			SDL_RenderPresent(c.pRenderer);
 
+			SDL_Delay(3000);
+
+	
 
 			int result=-1;
 			while (result==-1) //Boucle pour chaque tour (result est à -1 si pas de gagnant)
@@ -385,5 +404,7 @@ int main (int argc, char *argv[])
 		    player2=BLACK;
 		}
 	}
+
+	cleanup(&c);
 	return 0;
 }

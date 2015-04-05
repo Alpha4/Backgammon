@@ -9,23 +9,13 @@
 
 /*include du projet*/
 #include "backgammon.h"
+#include "interface.h"
 
-/*Bye bye le main bonjour les fonctions !*/
-
-typedef struct Context
-{
-	SDL_Window* pWindow; //La fenêtre
-	SDL_Renderer* pRenderer; //Le renderer
-
-
-	SDL_Texture* board; //Texture du board
-	SDL_Texture* dice[6]; //Textures de dé
-	SDL_Texture* pawn[2]; //Texture des pions
-	SDL_Texture* doublingCube[6]; //Texture du videau
-
-}Context;
-
-
+/**
+ * Quitte SDL en détruisant le context
+ * @param Context* c
+ *  Context pour l'affichage
+ */
 void cleanup(Context* c)
 {
 	int i;
@@ -40,6 +30,10 @@ void cleanup(Context* c)
 		SDL_DestroyTexture(c->pawn[0]);
 	if(c->pawn[1]!=NULL)
 		SDL_DestroyTexture(c->pawn[1]);
+	if(c->pawnOut[0]!=NULL)
+		SDL_DestroyTexture(c->pawnOut[0]);
+	if(c->pawnOut[1]!=NULL)
+		SDL_DestroyTexture(c->pawnOut[1]);
 	if(c->board!=NULL)
 		SDL_DestroyTexture(c->board);
 	if(c->pRenderer!=NULL)
@@ -136,7 +130,9 @@ int loadImages(Context* c)
 	
 	c->board=loadTexture("img/board.png",c);
 	c->pawn[WHITE]=loadTexture("img/whitePawn.png",c);
+	c->pawnOut[WHITE]=loadTexture("img/whitePawnOut.png",c);
 	c->pawn[BLACK]=loadTexture("img/blackPawn.png",c);
+	c->pawnOut[BLACK]=loadTexture("img/blackPawnOut.png",c);
 	int i;
 	for(i=0;i<6;i++)
 	{
@@ -179,7 +175,7 @@ int init(Context *c, char* title)
 		return -1;
 	}
 
-	c->pWindow = SDL_CreateWindow(title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,800,566,SDL_WINDOW_SHOWN);
+	c->pWindow = SDL_CreateWindow(title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,820,620,SDL_WINDOW_SHOWN);
 
 	if (c->pWindow==NULL)
 	{
@@ -188,7 +184,7 @@ int init(Context *c, char* title)
 		return 1;
 	}
 
-	c->pRenderer= SDL_CreateRenderer(c->pWindow,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_SOFTWARE);
+	c->pRenderer= SDL_CreateRenderer(c->pWindow,-1,SDL_RENDERER_ACCELERATED);
 
 	if (c->pRenderer==NULL)
 	{
@@ -203,29 +199,100 @@ int init(Context *c, char* title)
 
 
 
-
-
-
-
-
-
-/*TEST DE CRÉATION D'UNE BÊTE FENÊTRE! */
-int main(int argc, char** argv)
+/**
+ * Mise à jour de l'affichage
+ * @param Context* c
+ *  Context pour l'affichage
+ * @param SGameState gs
+ *	gamestate à afficher
+ */
+int update(Context *c, SGameState gs)
 {
-	Context c;
 
-	init(&c,"Backgammon");
+	/*Update des pions*/
+	int i,j,x,y;
+	for(i=0;i<24;i++)
+	{
+		if(gs.board[i].owner!=NOBODY)
+		{
+			for(j=0;j<gs.board[i].nbDames;j++)
+			{
+				if(i<12)
+				{
+					x=560-50*i;
+					if(j<5)
+						y=560-30*j;
+					else
+					{
+						y=440+30*(j-5);
+						x+=5;
+					}
+				}
+				else
+				{
+					x=10+50*(i-12);
+					if(j<5)
+						y=10+30*j;
+					else
+					{
+						y=130-30*(j-5);
+						x+=5;
+					}
+					
+				}
 
-	renderTextureAsIs(c.board,c.pRenderer,0,0);
-	renderTextureAsIs(c.pawn[0],c.pRenderer,15,15);
-	renderTextureAsIs(c.pawn[1],c.pRenderer,65,15);
+				if(gs.board[i].owner==WHITE)
+					renderTextureAsIs(c->pawn[WHITE],c->pRenderer,x,y);
+				else
+					renderTextureAsIs(c->pawn[BLACK],c->pRenderer,x,y);
+			}
+		}
+	}
+	//mise à jour des out
 
-	
-	SDL_RenderPresent(c.pRenderer);
+	for (i=0;i<gs.out[WHITE];i++)
+	{
+		renderTextureAsIs(c->pawnOut[WHITE],c->pRenderer,622,397+i*7);	
+	}
+	for (i=0;i<gs.out[BLACK];i++)
+	{
+		renderTextureAsIs(c->pawnOut[BLACK],c->pRenderer,622,116+i*7);
+	}
+	//mise à jour des bar (affichage du nombre de pions)
 
-	SDL_Delay(3000);
+	renderTextureAsIs(c->pawn[BLACK],c->pRenderer,510,280);
 
-	cleanup(&c);
+	renderTextureAsIs(c->pawn[WHITE],c->pRenderer,110,280);
+
+
+	//Videau
+	int face;
+	switch(gs.stake)
+	{
+		case 1:
+			face=5;
+		break;
+		case 2:
+			face=0;
+		break;
+		case 4:
+			face=1;
+		break;
+		case 8:
+			face=2;
+		break;
+		case 16:
+			face=3;
+		break;
+		case 32:
+			face=4;
+		break;
+		case 64:
+			face=5;
+		break;
+
+	}
+	renderTextureAsIs(c->doublingCube[face],c->pRenderer,710,310);
 
 	return 0;
 }

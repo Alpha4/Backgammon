@@ -310,7 +310,7 @@ SGameState actualizeGameState(int numSrcCell, int numDestCell, SGameState gameSt
 		}
 
 		//Cas général
-		sgameState.board[numSrcCell-1].nbDames --;
+		gameState.board[numSrcCell-1].nbDames --;
 		gameState.board[numDestCell-1].nbDames ++;
 	}
 
@@ -326,7 +326,7 @@ SGameState actualizeGameState(int numSrcCell, int numDestCell, SGameState gameSt
 		}
 
 		//Cas général
-		sgameState.board[numSrcCell-1].nbDames --;
+		gameState.board[numSrcCell-1].nbDames --;
 		gameState.board[numDestCell-1].nbDames ++;
 
 	}
@@ -356,7 +356,7 @@ SGameState actualizeGameState(int numSrcCell, int numDestCell, SGameState gameSt
 		}
 
 		//Cas général
-		sgameState.board[numSrcCell-1].nbDames --;
+		gameState.board[numSrcCell-1].nbDames --;
 		gameState.board[numDestCell-1].nbDames ++;
 
 
@@ -453,7 +453,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 	
 	
 						//nouveau gameState 
-						data->gameState = actualizeGameState(SrcCell[i], DestCell[j], gameState, player);
+						data->gameState = actualizeGameState(srcCells[i], destCells[j], gameState, player);
 						
 	
 						// ajout de la cellule
@@ -479,7 +479,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 					data->dice[3] = dice[3];
 
 					// nouveau gameState 
-					data->gameState = actualizeGameState(SrcCell[i], DestCell[j], gameState, player);
+					data->gameState = actualizeGameState(srcCells[i], destCells[j], gameState, player);
 
 					// ajout de la cellule
 					AddElementBegin(movesPossible, *data);
@@ -502,7 +502,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 					data->dice[3] = dice[3];
 
 					// nouveau gameState 
-					data->gameState = actualizeGameState(SrcCell[i], DestCell[j], gameState, player);
+					data->gameState = actualizeGameState(srcCells[i], destCells[j], gameState, player);
 
 					// ajout de la cellule
 					AddElementBegin(movesPossible, *data);
@@ -526,7 +526,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 					data->dice[3] = dice[3];
 
 					// nouveau gameState
-					data->gameState = actualizeGameState(SrcCell[i], DestCell[j], gameState, player);
+					data->gameState = actualizeGameState(srcCells[i], destCells[j], gameState, player);
 
 					// ajout de la cellule
 					AddElementBegin(movesPossible, *data);
@@ -549,7 +549,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 					data->dice[3] = -1;
 
 					// nouveau gameState
-					data->gameState = actualizeGameState(SrcCell[i], DestCell[j], gameState, player);
+					data->gameState = actualizeGameState(srcCells[i], destCells[j], gameState, player);
 
 					// ajout de la cellule
 					AddElementBegin(movesPossible, *data);
@@ -694,7 +694,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 	
 	
 							// nouveau GameState
-							data->gameState = actualizeGameState(SrcCell[i], DestCell[j], cellEnTraitement->value.gameState, player);
+							data->gameState = actualizeGameState(srcCells[i], destCells[j], cellEnTraitement->value.gameState, player);
 							
 	
 							//ajout de la cellule
@@ -726,7 +726,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 						data->dice[3] = diceCell[3];
 
 						//nouveau gameState
-						data->gameState = actualizeGameState(SrcCell[i], DestCell[j], cellEnTraitement->value.gameState, player);
+						data->gameState = actualizeGameState(srcCells[i], destCells[j], cellEnTraitement->value.gameState, player);
 
 						//ajout de la cellule
 						AddElementBegin(movesPossible, *data);
@@ -757,7 +757,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 						data->dice[3] = diceCell[3];
 
 						//nouveau gameState
-						data->gameState = actualizeGameState(SrcCell[i], DestCell[j], cellEnTraitement->value.gameState, player);
+						data->gameState = actualizeGameState(srcCells[i], destCells[j], cellEnTraitement->value.gameState, player);
 
 						//ajout de la cellule
 						AddElementBegin(movesPossible, *data);
@@ -787,7 +787,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 						data->dice[3] = diceCell[3];
 
 						//nouveau gameState
-						data->gameState = actualizeGameState(SrcCell[i], DestCell[j], cellEnTraitement->value.gameState, player);
+						data->gameState = actualizeGameState(srcCells[i], destCells[j], cellEnTraitement->value.gameState, player);
 
 						//ajout de la cellule
 						AddElementBegin(movesPossible, *data);
@@ -817,7 +817,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 						data->dice[3] = -1;
 
 						//nouveau gameState
-						data->gameState = actualizeGameState(SrcCell[i], DestCell[j], cellEnTraitement->value.gameState, player);
+						data->gameState = actualizeGameState(srcCells[i], destCells[j], cellEnTraitement->value.gameState, player);
 
 						//ajout de la cellule
 						AddElementBegin(movesPossible, *data);

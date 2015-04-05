@@ -1,7 +1,7 @@
 #ifndef _LISTE_H
 	#define _LISTE_H
 
-//#include "backgammon.h"
+#include "backgammon.h"
 
 typedef struct Data Data;
 
