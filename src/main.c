@@ -104,7 +104,7 @@ int main (int argc, char *argv[])
 	}
 
 	int m; //Nombre de matchs
-	for (m=0;m<(int)argv[1];m++)
+	for (m=0;m<atoi(argv[1]);m++)
 	{
 		
 

@@ -333,8 +333,8 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	renderTextureAsIs(c->doublingCube[face],c->pRenderer,685,285);
 
 	//Dés
-	renderTextureAsIs(c->dice[dices[0]-1],c->pRenderer,340,285);
-	renderTextureAsIs(c->dice[dices[1]-1],c->pRenderer,410,285);
+	renderTextureAsIs(c->dice[dices[0]-1],c->pRenderer,250,285);
+	renderTextureAsIs(c->dice[dices[1]-1],c->pRenderer,370,285);
 
 	SDL_RenderPresent(c->pRenderer);
 
