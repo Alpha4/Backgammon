@@ -1,5 +1,5 @@
 /*LISTE AVEC ALLOCATION PAR BLOC*/
-#include "liste.h"
+#include "listebot.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "backgammon.h"
@@ -60,58 +60,7 @@ SCell* GetNewCell(SList *list) // Fonction renvoyant la cellule à ajouter à la
 	return temp;
 }
 
-SCell* AddElementBegin(SList *list,Data elem)
-{
-	SCell *cell=GetNewCell(list); //Allocation nouvelle Cellule
-	cell->value=elem; // On stocke elem dans la nouvelle SCell
 
-	if (list->head==NULL) // Si la liste est vide
-		list->tail=cell; // Alors on modifie la queue de liste
-	else // Sinon il faut mettre à jour le précédent de la cellule en tête
-		list->head->previous=cell; 
-	cell->previous=NULL; // La nouvelle cellule n'a pas de précédent
-	cell->next=list->head; // La cellule suivante de la nouvelle est celle actuellement en tête
-	
-	list->head=cell; // cell est la nouvelle tete
-	
-	return cell;
-}
-
-SCell* AddElementEnd(SList *list,Data elem)
-{
-	SCell *cell=GetNewCell(list);
-	cell->value=elem;
-
-	if (list->head==NULL)// Liste vide
-		list->head=cell; // MAJ tete de liste
-	else 
-	{
-		list->tail->next=cell; // MAJ du suivant de la queue de liste
-	}
-	
-	cell->next=NULL;
-	cell->previous=list->tail;
-	list->tail=cell;
-
-	return cell;
-}
-
-SCell* AddElementAfter(SList *list,SCell *cell,Data elem)
-{
-	if (cell == list->tail)
-	{
-		return AddElementEnd(list,elem);
-	}
-	SCell *newcell=GetNewCell(list);
-	newcell->value=elem;
-
-	newcell->next=cell->next; // Le suivant de la nouvelle cellule est le suivant de cell
-	cell->next->previous=newcell; // Le précédent du suivant de cell est newcell
-	newcell->previous=cell; // Le précédant de la newcell est cell
-	cell->next=newcell; // le suivant de cell est newcell
-
-	return cell;
-}
 
 void DeleteCell(SList *list,SCell *cell)
 {
@@ -160,7 +109,130 @@ SCell* GetNextElement(SCell *cell)
 	return cell->next;
 }
 
-Data GetData(SCell *cell)
+
+////////////////////////////////////////////////////////////////////////
+//                     Cellules Int                                   //
+////////////////////////////////////////////////////////////////////////
+
+
+
+
+SCell* AddElementBegin_int(SList *list,int elem)
+{
+	SCell *cell=GetNewCell(list); //Allocation nouvelle Cellule
+	cell->value=elem; // On stocke elem dans la nouvelle SCell
+
+	if (list->head==NULL) // Si la liste est vide
+		list->tail=cell; // Alors on modifie la queue de liste
+	else // Sinon il faut mettre à jour le précédent de la cellule en tête
+		list->head->previous=cell; 
+	cell->previous=NULL; // La nouvelle cellule n'a pas de précédent
+	cell->next=list->head; // La cellule suivante de la nouvelle est celle actuellement en tête
+	
+	list->head=cell; // cell est la nouvelle tete
+	
+	return cell;
+}
+
+SCell* AddElementEnd_int(SList *list,int elem)
+{
+	SCell *cell=GetNewCell(list);
+	cell->value=elem;
+
+	if (list->head==NULL)// Liste vide
+		list->head=cell; // MAJ tete de liste
+	else 
+	{
+		list->tail->next=cell; // MAJ du suivant de la queue de liste
+	}
+	
+	cell->next=NULL;
+	cell->previous=list->tail;
+	list->tail=cell;
+
+	return cell;
+}
+
+SCell* AddElementAfter_int(SList *list,SCell *cell,int elem)
+{
+	if (cell == list->tail)
+	{
+		return AddElementEnd(list,elem);
+	}
+	SCell *newcell=GetNewCell(list);
+	newcell->value=elem;
+
+	newcell->next=cell->next; // Le suivant de la nouvelle cellule est le suivant de cell
+	cell->next->previous=newcell; // Le précédent du suivant de cell est newcell
+	newcell->previous=cell; // Le précédant de la newcell est cell
+	cell->next=newcell; // le suivant de cell est newcell
+
+	return cell;
+}
+
+int GetData_int(SCell *cell)
+{
+	return cell->value;
+}
+
+////////////////////////////////////////////////////////////////////////
+//                     Liste move                                     //
+////////////////////////////////////////////////////////////////////////
+
+SCell* AddElementBegin_move(SList *list,SMove elem)
+{
+	SCell *cell=GetNewCell(list); //Allocation nouvelle Cellule
+	cell->value=elem; // On stocke elem dans la nouvelle SCell
+
+	if (list->head==NULL) // Si la liste est vide
+		list->tail=cell; // Alors on modifie la queue de liste
+	else // Sinon il faut mettre à jour le précédent de la cellule en tête
+		list->head->previous=cell; 
+	cell->previous=NULL; // La nouvelle cellule n'a pas de précédent
+	cell->next=list->head; // La cellule suivante de la nouvelle est celle actuellement en tête
+	
+	list->head=cell; // cell est la nouvelle tete
+	
+	return cell;
+}
+
+SCell* AddElementEnd_move(SList *list,SMove elem)
+{
+	SCell *cell=GetNewCell(list);
+	cell->value=elem;
+
+	if (list->head==NULL)// Liste vide
+		list->head=cell; // MAJ tete de liste
+	else 
+	{
+		list->tail->next=cell; // MAJ du suivant de la queue de liste
+	}
+	
+	cell->next=NULL;
+	cell->previous=list->tail;
+	list->tail=cell;
+
+	return cell;
+}
+
+SCell* AddElementAfter_move(SList *list,SCell *cell,SMove elem)
+{
+	if (cell == list->tail)
+	{
+		return AddElementEnd(list,elem);
+	}
+	SCell *newcell=GetNewCell(list);
+	newcell->value=elem;
+
+	newcell->next=cell->next; // Le suivant de la nouvelle cellule est le suivant de cell
+	cell->next->previous=newcell; // Le précédent du suivant de cell est newcell
+	newcell->previous=cell; // Le précédant de la newcell est cell
+	cell->next=newcell; // le suivant de cell est newcell
+
+	return cell;
+}
+
+SMove GetData_move(SCell *cell)
 {
 	return cell->value;
 }

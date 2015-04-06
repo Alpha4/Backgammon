@@ -50,6 +50,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
     int mustBar; // si une dame dans le bar (1) , il faut la sortir
     SList* owned = CreateList();
     SList* ennemi = CreateList();
+    SList* open = CreateList();
+    SList* possibleMovements = CreateList();
     
     if  (dices[0] == dices[1]) // on remplit diceValues 
     {
@@ -77,28 +79,75 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
     }
     
     
-    for (i=0,i<24,i++) //on stocke les flèches nous appartenant et celles de l'ennemi
+    for (i=0,i<24,i++) //on stocke les flèches nous appartenant et celles de l'ennemi, et les fleches ouvertes
     {
         nFleche = i;
-        if (gamestate->board[i]->owner == COLOR)
+        if (gamestate->board[i]->owner == COLOR) // Fleches à nous
         {
             if (COLOR == WHITE) // Si on est les blanc, on stocke en début de liste les dernières flèches
             {
-                AddElementBegin(owned,nFleche);
+                AddElementBegin_int(owned,nFleche);
+                AddElementBegin_int(open,nFleche);
             }
             else // sinon on stockes au début
             {
-                AddElementEnd(owned,nFleche);
+                AddElementEnd_int(owned,nFleche);
+                AddElementEnd_int(open,nFleche);
             }
         }
-        if ((gamestate->board[i]->owner != COLOR) && (gamestate->board[i]->owner != NOBODY)
+        else
         {
-            AddElementBegin(ennemi,nFleche);
+            if (gamestate->board[i]->owner == NOBODY) // Fleches neutres
+            {
+                if (COLOR == WHITE) // Si on est les blanc, on stocke en début de liste les dernières flèches
+                {
+                    AddElementBegin_int(open,nFleche);
+                }
+                else // sinon on stockes au début
+                {
+                    AddElementEnd_int(open,nFleche);
+                }
+            }
+            else // Fleches ennemies
+            {
+                AddElementBegin_int(ennemi,nFleche);
+            
+                if (gamestate->board[i]->nbDames == 1)
+                {
+                    if (COLOR == WHITE) // Si on est les blanc, on stocke en début de liste les dernières flèches
+                    {
+                        AddElementBegin_int(open,nFleche);
+                    }
+                    else // sinon on stockes au début
+                    {
+                        AddElementEnd_int(open,nFleche);
+                    }
+                }
+            }
         }
     }
     
     
     if (mustBar == 1)
+    {
+        SList* possibleMovements = CreateList();
+        for (i=0,i<4,i++)
+        {
+            if (diceValues[i]!=0)
+            {
+                if ((open->head->value)+1 == diceValues[i])
+                {
+                    SMove* move;
+                    move = malloc(sizeof(SMove));
+                    move->src_point = 0;
+                    move -> dest_point = open->head->value;
+                    AddElementEnd_move(possibleMovements,move);
+                }
+            }
+        }
+        
+    }
+    else
     {
         
     }
