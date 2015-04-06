@@ -47,6 +47,7 @@ struct SList
 	SCell *tail; //Pointeur vers la queue de liste
 	SCell *freespots; // Pointeur vers liste de cellules libres
 	STab *table; // Premier bloc
+	int nb;
 };
 
 
@@ -65,5 +66,7 @@ SCell* GetNextElement(SCell *cell);
 Data GetData(SCell *cell);
 
 int IsEmpty(SList *list);
+void printList(SList *list);
+void printListTab(SList *list);
 
 #endif

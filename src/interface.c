@@ -763,8 +763,10 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	printf("GA2\n");
 
 	//Libération mémoire allouée pour la liste movesPossible
+	printList(movesPossible);
+	printListTab(movesPossible);
 	DeleteList(movesPossible);
-	
+	printf("GA3\n");
 	//transformation du dé en en un tableau de 4 entiers
 	// pour pouvoir traiter le cas d'un double --> 4 dés pourront être utilisés
 	int dice[4];
@@ -782,7 +784,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		dice[2] = -1;
 		dice[3] = -1;	
 	}
-	printf("GA3\n");
+	printf("GA4\n");
 	// récupération des mouvements
 	if ( nbMoves == 0 ){
 		prompt(c, "Pas de coup possible"); // prévient le joueur qu'il n'a pas de coup possible
@@ -833,7 +835,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		moves[2] = move3;
 		moves[3] = move4;
 	}
-	printf("GA4\n");
+	printf("GA5\n");
 	return nbMoves;
 }
 

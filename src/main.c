@@ -110,7 +110,6 @@ int main (int argc, char *argv[])
 	player1 = (rand() % 2);
 	if (player1 == WHITE)
 	{
-
 		sprintf(msg,"%s joue les blancs",p1Name);
 	    player2 = BLACK;
 	}

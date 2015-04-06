@@ -15,7 +15,7 @@ debug = 0
 # compiler options
 CFlags = -Wall
 # linker options
-LDFlags = -rdynamic
+LDFlags = -rdynamic -ldl
 # library names
 libs = SDL2 SDL2_image SDL2_ttf
 # additionnal library directories

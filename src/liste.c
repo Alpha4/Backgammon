@@ -15,6 +15,7 @@ SList* CreateList()
 	list->table=malloc(sizeof(STab));
 	list->table->nb=0;
 	list->table->next=NULL;
+	list->nb=0;
 	return list;
 }
 
@@ -66,6 +67,7 @@ SCell* GetNewCell(SList *list) // Fonction renvoyant la cellule à ajouter à la
 		temp=&newTab->tab[0]; //la cellule a renvoyer est alors la première du nouveau tableau
 		list->table->nb++; //On incrémente le nb d'éléments du tableau
 	}
+	list->nb++;
 	return temp;
 }
 
@@ -147,6 +149,27 @@ void DeleteCell(SList *list,SCell *cell)
 		
 		cell->next=list->freespots; // Ajout de la cellule en tete de la liste de cellules libres
 		list->freespots=cell; // MAJ de la tete de cells libres
+		list->nb--;
+}
+
+void printList(SList *list)
+{
+	SCell* pCell=list->head;
+	while(pCell!=NULL)
+	{
+		printf("@prev %d |@me %d | @next %d | %d | Move1 s=%d d=%d | Move2 s=%d d=%d | Move3 s=%d d=%d | Move4 s=%d d=%d\n",pCell->previous,pCell,pCell->next,pCell->value.nbMoves,pCell->value.moves[0].src_point,pCell->value.moves[0].dest_point,pCell->value.moves[1].src_point,pCell->value.moves[1].dest_point,pCell->value.moves[2].src_point,pCell->value.moves[2].dest_point,pCell->value.moves[3].src_point,pCell->value.moves[3].dest_point);
+		pCell=pCell->next;
+	}
+}
+
+void printListTab(SList *list)
+{
+	STab* pTab=list->table;
+	while(pTab!=NULL)
+	{
+		printf("@me %d | @next %d | %d \n",pTab,pTab->next,pTab->nb);
+		pTab=pTab->next;
+	}
 }
 
 SCell* GetFirstElement(SList *list)
