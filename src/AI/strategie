@@ -1,0 +1,43 @@
+Si c'est à son tour :
+
+* lancer les dés
+* si dames dans le bar, les sortir
+* si possibilité de sortir dames dans le out, le faire
+* avancer en priorité les dames les plus proches du but
+
+* deplacement :
+    * Si WHITE : sens 1 -> 24
+    * Si BLACK : sens 24 -> 1
+    * fleche dest forcement ouverte
+    * si possibilité de manger une dame ennemi le faire
+    * eviter si possible de laisser une dame seul
+
+
+Fleches ouvertes : fleches m'appartenant
+                   fleches vides
+                   fleches avec 1 seul ennemi
+                   
+Cacul mouvement possible :
+    * gestion des dés :
+        * si double : 4 * valeur
+        * sinon valeurs des deux
+    * pour chaque fleche a moi :
+        * incrementer des valeurs dispo
+        * test mouvement légaux
+        * si légal, classer :
+            * attaque (mange dame ennemi)
+            * defense (va avec dame seul)
+            * neutre (de plusieurs vers plusieurs)
+            * dangereux ( laisse une dame seul)
+            
+Variables :
+
+player : couleur du joueur
+        Player me;
+owned : fleches a nous (indice de la fleche, nb de dames)
+        owned = CreateList();
+canOut : boolean, peut sortir dans l'out
+        int canOut;
+diceValues : valeurs des dés dispo, si vide : 0
+        int diceValues[4];
+mustBar : boolean, doit sortir des dames du bar
