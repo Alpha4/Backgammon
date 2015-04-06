@@ -26,8 +26,6 @@ void cleanup(Context* c)
 		if(c->doublingCube[i]!=NULL)
 			SDL_DestroyTexture(c->doublingCube[i]);
 	}
-	if(c->font!=NULL)
-		TTF_CloseFont(c->font);
 	if(c->pawnOut[0]!=NULL)
 		SDL_DestroyTexture(c->pawnOut[0]);
 	if(c->pawnOut[1]!=NULL)
@@ -136,6 +134,8 @@ int loadImages(Context* c)
 {
 	
 	c->board=loadTexture("img/board.png",c);
+	c->prompt=loadTexture("img/prompt.png",c);
+	c->button=loadTexture("img/button.png",c);
 	c->pawn[WHITE]=loadTexture("img/whitePawn.png",c);
 	c->pawnOut[WHITE]=loadTexture("img/whitePawnOut.png",c);
 	c->pawn[BLACK]=loadTexture("img/blackPawn.png",c);
@@ -201,14 +201,6 @@ int init(Context *c, char* title)
 	}
 
 	loadImages(c);
-	
-	c->font=TTF_OpenFont("img/GeosansLight.ttf",42);
-	if (c->font==NULL)
-	{
-		logSDLError("TTF_OpenFont");
-		cleanup(c);
-		return 1;
-	}
 
 	return 0;
 }
@@ -273,11 +265,11 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 
 	//mise à jour des out
 	char out[4];
-	
+	SDL_Color white={0,0,0,0};
 	sprintf(out,"%d",gs.out[WHITE]);
-	renderTextureAsIs(renderText(out,c),c->pRenderer,682,397);
+	renderTextureAsIs(renderText(out,c,42,white),c->pRenderer,682,397);
 	sprintf(out,"%d",gs.out[BLACK]);
-	renderTextureAsIs(renderText(out,c),c->pRenderer,682,116);
+	renderTextureAsIs(renderText(out,c,42,white),c->pRenderer,682,116);
 
 
 	for (i=0;i<gs.out[WHITE];i++)
@@ -295,10 +287,10 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	char bar[4];
 	sprintf(bar,"%d",gs.bar[BLACK]);
 	renderTextureAsIs(c->pawn[BLACK],c->pRenderer,510,280);
-	renderTextureAsIs(renderText(bar,c),c->pRenderer,470,280);
+	renderTextureAsIs(renderText(bar,c,42,white),c->pRenderer,470,280);
 	sprintf(bar,"%d",gs.bar[WHITE]);
 	renderTextureAsIs(c->pawn[WHITE],c->pRenderer,110,280);
-	renderTextureAsIs(renderText(bar,c),c->pRenderer,70,280);
+	renderTextureAsIs(renderText(bar,c,42,white),c->pRenderer,70,280);
 
 
 
@@ -341,10 +333,26 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	return 0;
 }
 
-SDL_Texture* renderText(char* text,Context* c)
+/**
+ * Render du texte
+ * @param char* text
+ *	le texte à afficher
+ * @param Context c
+ *	le context contient la police
+ * @param int size
+ *	la taille en pt du texte
+ * @param SDL_Color color
+ *	la couleur du texte en RGBa
+ */
+SDL_Texture* renderText(char* text,Context* c,int size,SDL_Color color)
 {
-	SDL_Color color={0,0,0,0};
-	SDL_Surface* surf=TTF_RenderText_Blended(c->font,text,color);
+	TTF_Font* font=TTF_OpenFont("img/GeosansLight.ttf",size);
+	if (font==NULL)
+	{
+		logSDLError("TTF_OpenFont");
+		TTF_CloseFont(font);
+	}
+	SDL_Surface* surf=TTF_RenderText_Blended(font,text,color);
 	if (surf == NULL)
 	{
 		logSDLError("TTF_RenderText");
@@ -358,4 +366,243 @@ SDL_Texture* renderText(char* text,Context* c)
 	SDL_FreeSurface(surf);
 
 	return texture;
+}
+
+/**
+ *	Fonction qui affiche le prompt pour le doublage de la mise
+ * @param Context* c
+ *	le context de l'affichage
+ * @param int qoa
+ *	question or answer 
+ */
+void doubleQuery(Context* c,int qoa)
+{
+	SDL_Color white={0,0,0,0};
+
+	renderTextureAsIs(c->prompt,c->pRenderer,85,260);
+	renderTextureAsIs(c->button,c->pRenderer,175,320);
+	renderTextureAsIs(c->button,c->pRenderer,357,320);
+	if(!qoa)
+		renderTextureAsIs(renderText("Doubler la mise ?",c,36,white),c->pRenderer,85,260);
+	else
+		renderTextureAsIs(renderText("Acceptez vous de doubler la mise ?",c,36,white),c->pRenderer,85,260);
+
+	SDL_RenderPresent(c->pRenderer);
+
+}
+
+/** Fonction qui attend que le joueur clic sur une des cases du plateau et renvoie le numéro de celle ci
+ * @param Player player
+ *    joueur qui clic sur la case
+ * @return int pointClicked
+ *    numéro de la cellule sur laquelle le joueur a cliqué
+ */
+int pointClicked(Player player){
+
+
+	// initialisation du numéro de case cliquée
+	int pointClicked = -1;
+
+	int i = -1;
+
+	int x;
+	int y;
+
+	// déclaration de l'événement
+	SDL_Event event;
+
+	// traitement de l'événement
+	while (i == 0){
+
+		if (SDL_PollEvent(&event)){
+
+			switch (event.type){
+				// cas d'un clic ( souris)
+				case SDL_MOUSEBUTTONDOWN: 
+
+					// définition des coordonnées du clic :
+					x = event.button.x;
+					y = event.button.y;
+
+					// on ne traite que le cas d'un clic gauche
+					if ( event.button.button == 1 ){ 
+						
+						// surface représentant la premiere case
+						int xMin = 560;
+						int xMax = 610;
+						int yMin = 360;
+						int yMax = 610;
+
+						// parcours des cases "basses" du plateau
+						int j;
+						for ( j=1; j<13; j++ ){ 
+
+							// si le clic est sur cette case, on retourne le numéro de celle ci
+							if (  (x>xMin) && (x<xMax) && (y>yMin) && (y<yMax) ){ 
+								pointClicked = j;
+							}
+
+							// actualisation des coordonnées pour la surface de la prochaine case
+							xMin -= 50;
+							xMax -= 50;
+						}
+
+						// surface représentant la 13e case
+						xMin = 10;
+						xMax = 60;
+						yMin = 10;
+						yMax = 260;
+
+						//parcours des cases "hautes" du plateau
+						for ( j=13; j<25; j++){
+
+							// si le clic est sur cette case, on retourne le numéro de celle ci
+							if (  (x>xMin) && (x<xMax) && (y>yMin) && (y<yMax) ){ 
+								pointClicked = j;
+							}
+
+							// actualisation des coordonnées pour la surface de la prochaine case
+							xMin += 50;
+							xMax += 50;
+						}
+
+						// cas spécifiques du joueur blanc
+						if ( player == WHITE ){
+
+							// clic sur le bar
+
+							// surface du bar
+							xMin = 110;
+							xMax = 160;
+							yMin = 280;
+							yMax = 330;
+
+							if ( (x>xMin) && (x<xMax) && (y>yMin) && (y<yMax) ){
+								pointClicked = 0;
+							}
+
+							// clic sur le out
+
+							// surface du out
+							xMin = 622;
+							xMax = 672;
+							yMin = 397;
+							yMax = 502;
+
+							if ( (x>xMin) && (x<xMax) && (y>yMin) && (y<yMax) ){
+								pointClicked = 25;
+							}
+						}
+
+						// cas spécifiques du joueur noir
+						if ( player == BLACK ){
+
+							// clic sur le bar
+
+							// surface du bar
+							xMin = 510;
+							xMax = 560;
+							yMin = 280;
+							yMax = 330;
+
+							if ( (x>xMin) && (x<xMax) && (y>yMin) && (y<yMax) ){
+								pointClicked = 0;
+							}
+
+							// clic sur le out
+
+							// surface du out
+							xMin = 622;
+							xMax = 672;
+							yMin = 116;
+							yMax = 221;
+
+							if ( (x>xMin) && (x<xMax) && (y>yMin) && (y<yMax) ){
+								pointClicked = 25;				
+							}
+						}
+					}
+				break;
+			}
+		}
+	}
+	return pointClicked;
+}
+
+/**
+ * Fonction qui renvoie le mouvement effectué par le joueur
+ * @return SMove move
+ *    mouvement effectué par le joueur
+ */
+SMove getMoveDone(Player player){
+	SMove move;
+	unsigned int numSrcCell = pointClicked(player);
+	unsigned int numDestCell = pointClicked(player);
+	move.src_point = numSrcCell;
+	move.dest_point = numDestCell;
+	return move;
+}
+
+/**
+ * Fonction qui renvoie si le joueur a répondu 'oui' ou 'non' à une question posée
+ * @return int response
+ *   réponse du joueur : 0-->oui   1-->non
+ */
+int yesOrNo(){
+
+	// déclaration de la réponse
+	int response = -1;
+
+	// déclaration de l'événement
+	SDL_Event event;
+
+	int x;
+	int y;
+
+	// traitement de l'événement
+	int i = 0;
+	while ( i == 0 ){
+
+		if (SDL_PollEvent(&event)){
+
+			switch (event.type){
+
+				// cas d'un clic (souris)
+				case SDL_MOUSEBUTTONDOWN:
+				
+					// définition des coordonnées du clic :
+					x = event.button.x;
+					y = event.button.y;
+
+					// on ne traite que le cas d'un clic gauche
+					if ( event.button.button == 1){
+
+						// surface représentant les boutons "oui" et "non"
+						int xMinNo = 175;
+						int xMaxNo = 263;
+
+						int yMin = 320;
+						int yMax = 350;
+
+						int xMinYes = 357;
+						int xMaxYes = 445;
+
+						// si le joueur clic sur le bouton "non", la réponse est 1
+						if ( (x>xMinNo) && (x<xMaxNo) && (y>yMin) && (y<yMax) ){
+							response = 1;
+							i++; // on sort de la boucle --> l'événement souhaité est passé
+						}
+
+						// si le joueur clic sur le bouton "oui", la réponse est 0
+						if ( (x>xMinYes) && (x<xMaxYes) && (y>yMin) && (y<yMax) ){
+							response = 0;
+							i++; // on sort de la boucle --> l'événement souahité est passé
+						}
+
+					}
+				break;
+			}
+		}
+	}
+	return response;
 }

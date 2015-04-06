@@ -182,12 +182,6 @@ int main (int argc, char *argv[])
 				dices[1]=rand()%6+1;
 
 				update(&c,gameState,dices);
-				SDL_Delay(2000);
-				/* Inutile ?
-				if(dices[0]==dices[1])
-					nbMoves=4;
-				else
-					nbMoves=2;*/
 
 				//Tableau vide pour les moves
 				SMove vide;
@@ -217,7 +211,8 @@ int main (int argc, char *argv[])
 							}
 							else //Le joueur 2 est humain
 							{
-								if(1)//VIDEAU_TAKE J2
+								doubleQuery(&c,1);
+								if(yesOrNo()==1)//VIDEAU_TAKE J2
 								{
 									result=current;
 									break;//Sortie de la boucle while
@@ -226,13 +221,16 @@ int main (int argc, char *argv[])
 									gameState.stake*=2;
 							}
 						}
+						update(&c,gameState,dices);
 						ai1.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
 					}
-					else //Le joueur 1 est humain
-					{
-						if(1)//VIDEAU_DOUBLE HUMAIN J1
+					else //Le joueur 1 est humain -->2joueurs humains
+					{	
+						doubleQuery(&c,0);
+						if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J1
 						{
-							if(1)//VIDEAU_TAKE HUMAIN J2
+							doubleQuery(&c,1);
+							if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J2
 							{
 									result=current;
 									break;//Sortie de la boucle while
@@ -240,6 +238,7 @@ int main (int argc, char *argv[])
 							else
 								gameState.stake*=2;
 						}
+						update(&c,gameState,dices);
 						//COUP HUMAIN J1
 					}
 				}
@@ -258,13 +257,15 @@ int main (int argc, char *argv[])
 							else
 								gameState.stake*=2;
 						}
+						update(&c,gameState,dices);
 						ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
 					}
 					else // Le joueur 2 est humain
 					{
 						if (nbHumanPlayers==1) // Le joueur 1 est IA
 						{
-							if (1)//VIDEAU HUMAIN
+							doubleQuery(&c,0);
+							if (yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
 							{
 								if(!(ai1.TakeDouble(&gameState)))
 								{
@@ -278,9 +279,11 @@ int main (int argc, char *argv[])
 
 						else // Le joueur 1 est humain
 						{
-							if (1)//VIDEAU_DOUBLE HUMAIN J2
+							doubleQuery(&c,0);
+							if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
 							{
-								if(1)//VIDEAU_TAKE HUMAIN J1
+								doubleQuery(&c,1);
+								if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J1
 								{
 									result=current;
 									break; //Sortie de la boucle while
@@ -290,6 +293,7 @@ int main (int argc, char *argv[])
 							}
 
 						}
+						update(&c,gameState,dices);
 						//COUP HUMAIN J2
 					}
 				}

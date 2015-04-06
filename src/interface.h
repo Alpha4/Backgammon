@@ -16,8 +16,8 @@ struct Context
 	SDL_Texture* pawn[2]; //Texture des pions
 	SDL_Texture* pawnOut[2]; //Texture des pions Out
 	SDL_Texture* doublingCube[6]; //Texture du videau
-
-	TTF_Font* font;
+	SDL_Texture* prompt; //Texture pour les prompts
+	SDL_Texture* button; //Texture pour les boutons
 
 };
 
@@ -108,7 +108,40 @@ int update(Context *c, SGameState gs,unsigned char* dices);
  *	le texte à afficher
  * @param Context c
  *	le context contient la police
+ * @param int size
+ *	la taille en pt du texte
+ * @param SDL_Color color
+ *	la couleur du texte en RGBa
  */
-SDL_Texture* renderText(char* text,Context* c);
+SDL_Texture* renderText(char* text,Context* c,int size,SDL_Color color);
+
+/**
+ *	Fonction qui affiche le prompt pour le doublage de la mise
+ * @param Context* c
+ *	le context de l'affichage
+ * @param int qoa
+ *	question or answer 
+ */
+void doubleQuery(Context* c,int qoa);
+
+/** Fonction qui attend que le joueur clic sur une des cases du plateau et renvoie le numéro de celle ci
+ * @return int piontClicked
+ *    numéro de la cellule sur laquelle le joueur a cliqué
+ */
+int pointClicked(Player player);
+
+/**
+ * Fonction qui renvoie le mouvement effectué par le joueur
+ * @return SMove move
+ *    mouvement effectué par le joueur
+ */
+SMove getMoveDone();
+
+/**
+ * Fonction qui renvoie si le joueur a répondu 'oui' ou 'non' à une question posée
+ * @return int response
+ *   réponse du joueur : 0-->oui   1-->non
+ */
+int yesOrNo();
 
 #endif
