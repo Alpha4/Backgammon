@@ -110,8 +110,8 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 
 	// si tous les pions du joueur sont dans les 6 dernieres cases (du joueur) --> il peut mettre des pions dans out[]
 
-	// cas du joueur blanc
-	if (player == WHITE ){
+	// cas du joueur noir
+	if (player == BLACK ){
 		int add = 0; // nb de pionts dans les 6 dernieres cases
 		for ( i=18; i < 34; i++){
 			if (gameState.board[i].owner == player){
@@ -124,8 +124,8 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 		}
 	}
 
-	// cas du joueur noir
-	if ( player == BLACK ){	
+	// cas du joueur blanc
+	if ( player == WHITE ){	
 		int add = 0; // nb de pionts dans les 6 dernieres cases
 		for (i=0; i < 6; i++){
 			if (gameState.board[i].owner == player){
@@ -156,8 +156,8 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 int thereIsFartherPiece(int numSrcCell, Player player, SGameState gameState){
 	int thereIsFartherPiece = 0;
 
-	// cas du joueur blanc
-	if ( player == WHITE){
+	// cas du joueur noir
+	if ( player == BLACK){
 		int i;
 		// de la 6e case jusqu'a la case source du mouvement voulu (exclue) ( sens décroissant)
 		// on regarde si le joueur possède des pions
@@ -168,8 +168,8 @@ int thereIsFartherPiece(int numSrcCell, Player player, SGameState gameState){
 		}
 	}
 
-	//cas du joueur noir
-	if (player == BLACK){
+	//cas du joueur blanc
+	if (player == WHITE){
 		int i;
 		// de la 19e case jusqu'a la case source du mouvement voulu (exclue) (sens croissant)
 		// on regarde si le joueur possède des pions
@@ -206,8 +206,8 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 	// vérification que tous les pions du joueur sont dans ses 6 dernieres cases
 	int piecesWellPlaced = 0;
 
-	// cas du joueur blanc
-	if (player == WHITE ){
+	// cas du joueur noir
+	if (player == BLACK ){
 
 		int add = 0; // nombre de pions dans les 6 dernieres cases
 
@@ -221,8 +221,8 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 		}
 	}
 
-	// cas du joueur noir
-	if ( player == BLACK ){	
+	// cas du joueur blanc
+	if ( player == WHITE ){	
 		int add = 0; // nombre de pions dans les 6 dernieres cases
 		for (i=0; i < 6; i++){
 			if (gameState.board[i].owner == player){
@@ -239,11 +239,11 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 	if (piecesWellPlaced){
 
 		// si le mouvement correspond pile au dé le mouvement est autorisé
-		if ( ((player = WHITE) && (numSrcCell == numDice)) || ((player = BLACK) &&  ((25-numSrcCell) == numDice) )){
+		if ( ((player = BLACK) && (numSrcCell == numDice)) || ((player = WHITE) &&  ((25-numSrcCell) == numDice) )){
 			canGoToOut = 1;
 		}
 		// sinon s'il n'y pas de pions plus loin et que le dé est plus grand que la distance entre le pion et le out, le mouvement est également autorisé
-		else if( (!(thereIsFartherPiece(numSrcCell, player, gameState))) && ( (player == WHITE && numDice>numSrcCell) || (player == BLACK && numDice > (25-numSrcCell)) ) ){
+		else if( (!(thereIsFartherPiece(numSrcCell, player, gameState))) && ( (player == BLACK && numDice>numSrcCell) || (player == WHITE && numDice > (25-numSrcCell)) ) ){
 			canGoToOut = 1;
 		}
 	}
@@ -396,7 +396,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 
 			// vérification que le mouvement est dans le bon sens suivant le joueur
 			// cas particulier : si la cellule de départ est bar[]  ou celle d'arrivée le out[] alors on ne compte pas le sens
-			if ( (player == WHITE && destCells[j] < srcCells[i]) || (player == BLACK && destCells[j] > srcCells[i]) || srcCells[i] == 0 
+			if ( (player == BLACK && destCells[j] < srcCells[i]) || (player == WHITE && destCells[j] > srcCells[i]) || srcCells[i] == 0 
 					|| destCells[i] == 25 ) {
 
 				// cas où la cellule destination n'est pas le out
@@ -430,23 +430,23 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 						data->dice[2] = dice[2];
 						data->dice[3] = dice[3];
 	
-						if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || ( (player == WHITE) && (25-destCells[j] == dice[0])) 
-									|| ( (player == BLACK) && (destCells[j] == dice[0])) ){ // cas 1 : premier dé utilisé
+						if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || ( (player == BLACK) && (25-destCells[j] == dice[0])) 
+									|| ( (player == WHITE) && (destCells[j] == dice[0])) ){ // cas 1 : premier dé utilisé
 	
 							data->dice[0] = -1; // "supprime " le dé utilisé
 						}
-						else if ( (fabs(destCells[j] - srcCells[i]) == dice[1]) || (player == WHITE && 25-destCells[j] == dice[1]) 
-									|| (player == BLACK && destCells[j] == dice[1]) ){ // cas 2 : 2e dé utilisé
+						else if ( (fabs(destCells[j] - srcCells[i]) == dice[1]) || (player == BLACK && 25-destCells[j] == dice[1]) 
+									|| (player == WHITE && destCells[j] == dice[1]) ){ // cas 2 : 2e dé utilisé
 	
 							data->dice[1] = -1; // "supprime " le dé utilisé
 						}
-						else if ( (fabs(destCells[j] - srcCells[i]) == dice[2]) || (player == WHITE && 25-destCells[j] == dice[2]) 
-									|| (player == BLACK && destCells[j] == dice[2]) ){ // cas 3 : 3e dé utilisé
+						else if ( (fabs(destCells[j] - srcCells[i]) == dice[2]) || (player == BLACK && 25-destCells[j] == dice[2]) 
+									|| (player == WHITE && destCells[j] == dice[2]) ){ // cas 3 : 3e dé utilisé
 	
 							data->dice[2] = -1; // "supprime " le dé utilisé
 						}
-						else if ( (fabs(destCells[j] - srcCells[i]) == dice[3]) || (player == WHITE && 25-destCells[j] == dice[3]) 
-									|| (player == BLACK && destCells[j] == dice[3]) ){ // cas 4 : 4e dé utilisé
+						else if ( (fabs(destCells[j] - srcCells[i]) == dice[3]) || (player == BLACK&& 25-destCells[j] == dice[3]) 
+									|| (player == WHITE && destCells[j] == dice[3]) ){ // cas 4 : 4e dé utilisé
 	
 							data->dice[3] = -1; // "supprime " le dé utilisé
 						}
@@ -636,7 +636,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 
 				// vérification que le mouvement est dans le bon sens suivant le joueur
 				// cas particulier : si la cellule de départ est bar[]  ou celle d'arrivée le out[] alors on ne compte pas le sens
-				if ( (player == WHITE && destCells[j] < srcCells[i]) || (player == BLACK && destCells[j] > srcCells[i]) || srcCells[i] == 0 
+				if ( (player == BLACK && destCells[j] < srcCells[i]) || (player == WHITE && destCells[j] > srcCells[i]) || srcCells[i] == 0 
 						|| destCells[i] == 25 ){
 					
 					// cas où la cellule destination n'est pas le out
@@ -671,23 +671,23 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 							data->dice[2] = diceCell[2];
 							data->dice[3] = diceCell[3];
 	
-							if ( (fabs(destCells[j] - srcCells[i]) == diceCell[0]) || (player == WHITE && 25-destCells[j] == diceCell[0]) 
-									|| (player == BLACK && destCells[j] == diceCell[0]) ){ // cas 1 : premier dé utilisé
+							if ( (fabs(destCells[j] - srcCells[i]) == diceCell[0]) || (player == BLACK && 25-destCells[j] == diceCell[0]) 
+									|| (player == WHITE && destCells[j] == diceCell[0]) ){ // cas 1 : premier dé utilisé
 	
 								data->dice[0] = -1; // "supprime " le dé utilisé
 							}
-							else if ( (fabs(destCells[j] - srcCells[i]) == diceCell[1]) || (player == WHITE && 25-destCells[j] == diceCell[1])
-										|| (player == BLACK && destCells[j] == diceCell[1]) ){ // cas 2 : 2e dé utilisé
+							else if ( (fabs(destCells[j] - srcCells[i]) == diceCell[1]) || (player == BLACK && 25-destCells[j] == diceCell[1])
+										|| (player == WHITE && destCells[j] == diceCell[1]) ){ // cas 2 : 2e dé utilisé
 	
 								data->dice[1] = -1; // "supprime " le dé utilisé
 							}
-							else if ( (fabs(destCells[j] - srcCells[i]) == diceCell[2]) || (player == WHITE && 25-destCells[j] == diceCell[2]) 
-										|| (player == BLACK && destCells[j] == diceCell[2]) ){ // cas 3 : 3e dé utilisé
+							else if ( (fabs(destCells[j] - srcCells[i]) == diceCell[2]) || (player == BLACK && 25-destCells[j] == diceCell[2]) 
+										|| (player == WHITE && destCells[j] == diceCell[2]) ){ // cas 3 : 3e dé utilisé
 	
 								data->dice[2] = -1; // "supprime " le dé utilisé
 							}
-							else if ( (fabs(destCells[j] - srcCells[i]) == diceCell[3]) || (player == WHITE && 25-destCells[j] == diceCell[3]) 
-										|| (player == BLACK && destCells[j] == diceCell[3]) ){ // cas 4 : 4e dé utilisé
+							else if ( (fabs(destCells[j] - srcCells[i]) == diceCell[3]) || (player == BLACK && 25-destCells[j] == diceCell[3]) 
+										|| (player == WHITE && destCells[j] == diceCell[3]) ){ // cas 4 : 4e dé utilisé
 	
 								data->dice[3] = -1; // "supprime " le dé utilisé
 							}
@@ -861,7 +861,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 
 int getMovesPossible(SGameState gameState, Player player, unsigned char diceGiven[2], SList* movesPossible){
 
-	//transformation du dé en en un tableau de 4 cases
+	//transformation du dé en en un tableau de 4 entiers
 	// pour pouvoir traiter le cas d'un double --> 4 dés pourront être utilisés
 	int dice[4];
 
@@ -892,9 +892,9 @@ int getMovesPossible(SGameState gameState, Player player, unsigned char diceGive
 		nbMovesPossible = fillIn_2_MovesPossible( player, movesPossible, 1);
 	}
 
-	// si le joueur ne peut pas jouer les 2 dés ( ne concerne pas le cas d'un double)
+	// si le joueur ne peut jouer qu'un dé ( ne concerne pas le cas d'un double)
 	// alors il est obligé de jouer le dé le plus élevé
-	if (nbMovesPossible < 2){
+	if (nbMovesPossible == 1){
 
 		// dé le plus élevé :
 		int diceToPlay;
@@ -977,10 +977,6 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
 	return valide;
 	
 }
-
-
-
-
 /**
  * Sauvegarde du résultat du round
  * @param char* winner
@@ -1015,14 +1011,15 @@ void saveResult(char* winner, int pointsWin){
  *	nom joueur 2
  * @param Player player1
  *	couleur du joueur 1
- *
+ * @return char*
+ *	le nom du gagnant
  *	FORMAT
  *	nomGagnant	points	nomPerdant	points\n
  */
-void saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1){
+char* saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1){
 
 	FILE *file = NULL;  // Pointeur vers le fichier
-
+	char* winner=NULL;
     file = fopen("result.txt", "a");  // Ouverture du fichier en mode "ajout" (on ajoute du contenu à la fin du fichier)
 
     if (file != NULL)  // Le fichier s'est bien ouvert
@@ -1032,10 +1029,12 @@ void saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1){
     		if(player1==WHITE)
     		{
     			fprintf(file, "%s\t%d\t%s\t%d\n",p1Name,gs.whiteScore,p2Name,gs.blackScore);
+    			winner=p1Name;
     		}
     		else
     		{
     			fprintf(file, "%s\t%d\t%s\t%d\n",p2Name,gs.blackScore,p1Name,gs.whiteScore);
+    			winner=p2Name;
     		}
     	}
     	else
@@ -1043,13 +1042,16 @@ void saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1){
     		if(player1==WHITE)
     		{
     			fprintf(file, "%s\t%d\t%s\t%d\n",p2Name,gs.blackScore,p1Name,gs.whiteScore);
+    			winner=p2Name;
     		}
     		else
     		{
     			fprintf(file, "%s\t%d\t%s\t%d\n",p1Name,gs.whiteScore,p2Name,gs.blackScore);
+    			winner=p1Name;
     		}
     	}
     	fclose(file);  // On ferme le fichier
     }
+    return winner;
 
 }

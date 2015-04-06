@@ -179,18 +179,19 @@ void saveResult(char* winner, int pointsWin);
 /**
  * Sauvegarde du résultat du match
  * @param GameState gs
- *	l'état du jeu courant
+ *  l'état du jeu courant
  * @param char* p1Name
- *	nom joueur 1
+ *  nom joueur 1
  * @param char* p2Name
- *	nom joueur 2
+ *  nom joueur 2
  * @param Player player1
- *	couleur du joueur 1
- *
- *	FORMAT
- *	nomGagnant	points	nomPerdant	points\n
+ *  couleur du joueur 1
+ * @return char*
+ *  le nom du gagnant
+ *  FORMAT
+ *  nomGagnant  points  nomPerdant  points\n
  */
-void saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1);
+char* saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1);
 
 
 #endif

@@ -17,6 +17,7 @@ Programme principal gérant l'interface, l'arbitre et les interface
 #include "libs.h"
 #include "arbitre.h" 
 #include "interface.h"
+#include "liste.h"
 
 
 
@@ -35,6 +36,7 @@ int main (int argc, char *argv[])
 
 	/*Variables pour l'affichage*/
 	Context c;
+	char msg[40];
 
 	/* Variables pour le jeu*/
 	Player player1,player2;
@@ -51,7 +53,7 @@ int main (int argc, char *argv[])
 	int penalty[2]={0,0}; // Pénalité pour chacun des joueurs
 
 	unsigned int nbMoves;
-	int pts=1; //Points pour remporter le match
+	int pts=3; //Points pour remporter le match
 	unsigned char dices[2];
 
 	SMove moves[4];
@@ -90,6 +92,16 @@ int main (int argc, char *argv[])
 
 	/* Jeu */
 
+	if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
+		{
+			ai1.InitLibrary(p1Name);  // On lui demande son nom
+
+			if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
+			{
+				ai2.InitLibrary(p2Name);  // On lui demande son nom
+			}
+		}
+
 	/**
 	 * Randomisation de la couleur des joueurs
 	 */
@@ -98,26 +110,27 @@ int main (int argc, char *argv[])
 	player1 = (rand() % 2);
 	if (player1 == WHITE)
 	{
+
+		sprintf(msg,"%s joue les blancs",p1Name);
 	    player2 = BLACK;
 	}
 	else
 	{
+		sprintf(msg,"%s joue les blancs",p2Name);
 	    player2=WHITE;
 	}
-
+	prompt(&c,msg);
 	int m; //Nombre de matchs
 	for (m=0;m<atoi(argv[1]);m++)
 	{
-
-
+		sprintf(msg,"Match %d",m+1);
+		prompt(&c,msg);
 		if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 		{
-			ai1.InitLibrary(p1Name);  // On lui demande son nom
 			ai1.StartMatch(pts);  // On l'initialise
 
 			if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
 			{
-				ai2.InitLibrary(p2Name);  // On lui demande son nom
 				ai2.StartMatch(pts);  // On l'initialise
 			}
 		}
@@ -125,7 +138,7 @@ int main (int argc, char *argv[])
 
 		gameState.whiteScore=0;
 		gameState.blackScore=0;
-
+		int g=0;
 		while(gameState.whiteScore<=pts && gameState.blackScore<=pts)
 		{
 			if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
@@ -137,6 +150,9 @@ int main (int argc, char *argv[])
 					ai2.StartGame(player2);
 				}
 			}
+
+			sprintf(msg,"Game %d",g+1);
+			prompt(&c,msg);
 
 			/*Initialisation du plateau*/
 			int i;
@@ -177,6 +193,8 @@ int main (int argc, char *argv[])
 			while (result==-1) //Boucle pour chaque tour (result est à -1 si pas de gagnant)
 			{
 
+				sprintf(msg,"Tour %d",gameState.turn);
+				prompt(&c,msg);
 				// Tirage des dés
 				srand(time(NULL));
 				dices[0]=rand()%6+1;
@@ -196,6 +214,8 @@ int main (int argc, char *argv[])
 
 				if (player1==current) // Au joueur 1 de jouer
 				{
+					sprintf(msg,"A %s de jouer",p1Name);
+					prompt(&c,msg);
 					if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 					{
 						if (ai1.DoubleStack(&gameState))
@@ -246,6 +266,8 @@ int main (int argc, char *argv[])
 
 				else // Au joueur 2 de jouer
 				{
+					sprintf(msg,"A %s de jouer",p2Name);
+					prompt(&c,msg);
 					if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
 					{
 						if (ai2.DoubleStack(&gameState))
@@ -359,6 +381,8 @@ int main (int argc, char *argv[])
 				}
 
 				result=isGameFinished(gameState,penalty); // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
+
+
 				
 				//Prochain joueur
 				if (current==WHITE)
@@ -377,11 +401,19 @@ int main (int argc, char *argv[])
 				gameState.blackScore+=gameState.stake;
 			//On sauvegarde le résultat
 			if (result==player1)
+			{
+				sprintf(msg,"%s gagne le game",p1Name);
 				saveResult(p1Name,gameState.stake);
+			}
 			else
+				sprintf(msg,"%s gagne le game!",p2Name);
 				saveResult(p2Name,gameState.stake);
+
+			prompt(&c,msg);
+			g++;
 		}
-		saveMatch(gameState,p1Name,p2Name,player1);
+		
+		sprintf(msg,"%s remporte le match !",saveMatch(gameState,p1Name,p2Name,player1));
 
 		// Inversion des sides
 		if (player1 == WHITE)
