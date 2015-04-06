@@ -260,7 +260,11 @@ int main (int argc, char *argv[])
 								gameState.stake*=2;
 						}
 						update(&c,gameState,dices);
-						//COUP HUMAIN J1
+						printf("BP1\n");
+						memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
+						printf("BP2\n");
+						nbMoves=getArrayMoves(moves,gameStateCopy,dices,current,&c);
+						printf("BP3\n");
 					}
 				}
 
@@ -317,7 +321,11 @@ int main (int argc, char *argv[])
 
 						}
 						update(&c,gameState,dices);
-						//COUP HUMAIN J2
+						printf("BP1J2\n");
+						memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
+						printf("BP2J2\n");
+						nbMoves=getArrayMoves(moves,gameStateCopy,dices,current,&c);
+						printf("BP3J2\n");
 					}
 				}
 

@@ -611,7 +611,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 	int movAdd =0; // pour savoir si on a rajouté des mouvements dans movesPossible ou non
 	
 	int i,j;
-
+	printf("FI21\n");
 	while ( cellEnTraitement != GetLastElement(movesPossible)){ // parcours des cellules de la liste
 		
 		// etat du jeu courant de cette cellule ( appliquant au gameState les mouvement précédents contenus dans la celulle)
@@ -626,13 +626,14 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 		// création des listes contenant les cases de départ et d'arrivée possibles
 		int srcCells[25];
 		int indexSrc = getSrcCells(gameStateCell, player, srcCells);
-
+		printf("FI22\n");
 		int destCells[25];
 		int indexDest= getDestCells(gameStateCell, player, destCells);
-
+		printf("FI23\n");
+		printf("%d | %d\n",indexSrc,indexDest);
 		for (i=0; i < indexSrc; i++){ // i --> parcours de srcCells
 			for (j=0; j < indexDest; j++){ // j --> parcours de destCells
-
+				printf("i=%d | j=%d \n",i,j);
 
 				// vérification que le mouvement est dans le bon sens suivant le joueur
 				// cas particulier : si la cellule de départ est bar[]  ou celle d'arrivée le out[] alors on ne compte pas le sens
@@ -641,16 +642,17 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 					
 					// cas où la cellule destination n'est pas le out
 					if ( destCells[i] != 25){
-
+						printf("if1\n");
 						// vérification que le mouvement correspond à un dé
 						if ( (fabs(destCells[j] - srcCells[i]) == diceCell[0]) || (fabs(destCells[j] - srcCells[i]) == diceCell[1])  // cas "normal" 
 							|| (fabs(destCells[j] - srcCells[i]) == diceCell[2]) || (fabs(destCells[j] - srcCells[i]) == diceCell[3])
 							|| 25-destCells[j] == diceCell[0] || 25-destCells[j] == diceCell[1] // cas le joueur blanc sort un pion du bar
 							|| 25-destCells[j] == diceCell[2] || 25-destCells[j] == diceCell[3] 
 							){  // remarque : cas ou un pion noir sort du bar est traité dans "normal"
-							
+							printf("if2\n");
 							// remplissage de la liste chainée avec une nouvelle cellule
 							Data* data = malloc(sizeof(data));
+							printf("mallocOK\n");
 							initData(data);
 	
 							//copie des mouvements déjà présents
@@ -704,6 +706,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 					}
 					// cas ou la cellule destination est le out ET le mouvement est possible avec 1er dé
 					else if ( destCells[j] == 25 && canGoToOut(gameStateCell, player, diceCell[0], srcCells[i]) ){
+						printf("elif1\n");
 						// remplissage de la liste chainée avec une nouvelle cellule
 						Data* data = malloc(sizeof(data));
 						initData(data);
@@ -735,6 +738,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 					}
 					// cas ou la cellule destination est le out ET le mouvement est possible avec le 2e dé
 					else if ( destCells[j] == 25 && canGoToOut(gameStateCell, player, diceCell[1], srcCells[i]) ){
+						printf("elif2\n");
 						// remplissage de la liste chainée avec une nouvelle cellule
 						Data* data = malloc(sizeof(data));
 						initData(data);
@@ -765,6 +769,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 					}
 					// cas ou la cellule destination est le out ET le mouvement est possible avec le 3e dé
 					else if ( destCells[j] == 25 && canGoToOut(gameStateCell, player, diceCell[2], srcCells[i]) ){
+						printf("elif3\n");
 						// remplissage de la liste chainée avec une nouvelle cellule
 						Data* data = malloc(sizeof(data));
 						initData(data);
@@ -795,6 +800,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 					}
 					// cas ou la cellule destination est le out ET le mouvement est possible avec le 4e dé
 					else if ( destCells[j] == 25 && canGoToOut(gameStateCell, player, diceCell[3], srcCells[i]) ){
+						printf("elif4\n");
 						// remplissage de la liste chainée avec une nouvelle cellule
 						Data* data = malloc(sizeof(data));
 						initData(data);
@@ -829,7 +835,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 			cellEnTraitement = cellEnTraitement->next;	
 		}
 	}
-
+	printf("outofWhile\n");
 	// si on a rajouté au moins un mouvement alors il faut voir si on peut encore en rajouter
 	if (movAdd != 0){ 
 
@@ -882,8 +888,10 @@ int getMovesPossible(SGameState gameState, Player player, unsigned char diceGive
 	// nombre de mouvements contenus dans les cellules de movesPossible
 	int nbMovesPossible = 0;
 
+	printf("GM1\n");
 	//remplissage des premiers mouvements possibles
 	movesPossible = fillIn_1_MovesPossible( player, dice, gameState);
+	printf("GM2\n");
 
 	// si movesPossible n'est pas vide
 	if (!(IsEmpty(movesPossible)) ){
@@ -891,7 +899,7 @@ int getMovesPossible(SGameState gameState, Player player, unsigned char diceGive
 		// remplissage des mouvements suivants:
 		nbMovesPossible = fillIn_2_MovesPossible( player, movesPossible, 1);
 	}
-
+	printf("GM3\n");
 	// si le joueur ne peut jouer qu'un dé ( ne concerne pas le cas d'un double)
 	// alors il est obligé de jouer le dé le plus élevé
 	if (nbMovesPossible == 1){
@@ -921,6 +929,7 @@ int getMovesPossible(SGameState gameState, Player player, unsigned char diceGive
 			cellEnTraitement = cellNext;
 		}
 	}
+	printf("GM4\n");
 	return nbMovesPossible;
 }
 
@@ -943,7 +952,7 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
 	int valide = 0; // initialisation à "mouvements non correctes"
 
 	//récupération des mouvements possibles :
-	SList* movesPossible = malloc(sizeof(SList));
+	SList* movesPossible = NULL;
 	int nbMovesPossible;
 	nbMovesPossible = getMovesPossible(gameState, player, dice, movesPossible);
 

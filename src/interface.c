@@ -264,7 +264,7 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 
 	SDL_Color white={0,0,0,0};
 
-	//Score cumulés à AJOUTER
+	//Score cumulé
 	char sW[20];
 	char sB[20];
 	sprintf(sW,"Score %d",gs.whiteScore);
@@ -415,7 +415,7 @@ void prompt(Context* c,char* text)
 	renderTextureAsIs(msg,c->pRenderer,xMiddleOf(c->prompt,msg,85),yMiddleOf(c->prompt,msg,260));
 	SDL_RenderPresent(c->pRenderer);
 	SDL_DestroyTexture(msg);
-	SDL_Delay(2000);
+	playerClicked();
 }
 
 
@@ -641,6 +641,8 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice){
 	// récupération des cellules qui peuvent etre destination du mouvement
 	int* destCells=NULL;
 	int indexDest = fillInDestCells(movesPossible, numSrcCell, destCells );
+	//Libération mémoire allouée pour la liste movesPossible
+	DeleteList(movesPossible);
 
 	// affichage en surbrillance des cellules qui peuvent etre destination du mouvement
 	int i;
@@ -756,8 +758,13 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 	// liste contenant les mouvements possibles
 	SList* movesPossible=NULL;
+	printf("GA1\n");
 	int nbMoves = getMovesPossible(gameState, player, diceGiven, movesPossible);
+	printf("GA2\n");
 
+	//Libération mémoire allouée pour la liste movesPossible
+	DeleteList(movesPossible);
+	
 	//transformation du dé en en un tableau de 4 entiers
 	// pour pouvoir traiter le cas d'un double --> 4 dés pourront être utilisés
 	int dice[4];
@@ -775,7 +782,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		dice[2] = -1;
 		dice[3] = -1;	
 	}
-
+	printf("GA3\n");
 	// récupération des mouvements
 	if ( nbMoves == 0 ){
 		prompt(c, "Pas de coup possible"); // prévient le joueur qu'il n'a pas de coup possible
@@ -790,6 +797,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	else if ( nbMoves==2 ){
 		SMove move1, move2;
 		move1 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		update(c,gameState,diceGiven);
 		move2 = getMoveDone( player, &gameState, dice); 
 
 		// remplissage du tableau de mouvements:
@@ -799,7 +807,9 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	else if ( nbMoves == 3 ){
 		SMove move1, move2, move3;
 		move1 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		update(c,gameState,diceGiven);
 		move2 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		update(c,gameState,diceGiven);
 		move3 = getMoveDone(player, &gameState, dice); 
 
 		//remplissage du tableau de mouvements:
@@ -810,8 +820,11 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	else if ( nbMoves == 4 ){
 		SMove move1, move2, move3, move4;
 		move1 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		update(c,gameState,diceGiven);
 		move2 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		update(c,gameState,diceGiven);
 		move3 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		update(c,gameState,diceGiven);
 		move4 = getMoveDone(player, &gameState, dice); 
 
 		//remplissage du tableau de mouvements:
@@ -820,6 +833,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		moves[2] = move3;
 		moves[3] = move4;
 	}
+	printf("GA4\n");
 	return nbMoves;
 }
 
