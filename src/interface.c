@@ -262,6 +262,10 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 		}
 	}
 
+	//Score cumulés à AJOUTER
+
+
+	//Tour en cours
 
 	//mise à jour des out
 	char out[4];
@@ -382,10 +386,16 @@ void doubleQuery(Context* c,int qoa)
 	renderTextureAsIs(c->prompt,c->pRenderer,85,260);
 	renderTextureAsIs(c->button,c->pRenderer,175,320);
 	renderTextureAsIs(c->button,c->pRenderer,357,320);
+	renderTextureAsIs(renderText("Oui",c,24,white),c->pRenderer,382,323);
+	renderTextureAsIs(renderText("Non",c,24,white),c->pRenderer,200,320);
 	if(!qoa)
-		renderTextureAsIs(renderText("Doubler la mise ?",c,36,white),c->pRenderer,85,260);
+	{
+		renderTextureAsIs(renderText("Doubler la mise ?",c,36,white),c->pRenderer,100,260);
+	}
 	else
-		renderTextureAsIs(renderText("Acceptez vous de doubler la mise ?",c,36,white),c->pRenderer,85,260);
+	{	
+		renderTextureAsIs(renderText("Acceptez ?",c,36,white),c->pRenderer,100,260);
+	}
 
 	SDL_RenderPresent(c->pRenderer);
 

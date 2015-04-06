@@ -46,10 +46,12 @@ int main (int argc, char *argv[])
 	int nbHumanPlayers;
 
 	char p1Name[50], p2Name[50]; // Nom des joueurs
+	strcpy(p1Name,"Joueur1");// pour le cas de parties avec humain
+	strcpy(p2Name,"Joueur2");
 	int penalty[2]={0,0}; // Pénalité pour chacun des joueurs
 
 	unsigned int nbMoves;
-	int pts=7; //Points pour remporter le match
+	int pts=1; //Points pour remporter le match
 	unsigned char dices[2];
 
 	SMove moves[4];
@@ -106,7 +108,6 @@ int main (int argc, char *argv[])
 	int m; //Nombre de matchs
 	for (m=0;m<atoi(argv[1]);m++)
 	{
-		
 
 
 		if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
@@ -125,7 +126,7 @@ int main (int argc, char *argv[])
 		gameState.whiteScore=0;
 		gameState.blackScore=0;
 
-		while(gameState.whiteScore<pts || gameState.blackScore<pts)
+		while(gameState.whiteScore<=pts && gameState.blackScore<=pts)
 		{
 			if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 			{
@@ -298,15 +299,6 @@ int main (int argc, char *argv[])
 					}
 				}
 
-				/* Calcul du nombre de moves effectués
-				Inutile car fait par l'IA
-				int n,nbMovesDone=4;
-				for (n=0;n<nbMoves;n++)
-				{
-					if(moves[n].dest_point==0 && moves[n].src_point==0)
-						nbMovesDone--;
-				}*/
-
 				int n;
 				memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
 				if(validMoves(nbMoves,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
@@ -376,13 +368,13 @@ int main (int argc, char *argv[])
 
 				gameState.turn++;
 			}
-
+			
+			
 			//MAJ du score du gagnant
 			if(result==WHITE)
 				gameState.whiteScore+=gameState.stake;
 			else
 				gameState.blackScore+=gameState.stake;
-
 			//On sauvegarde le résultat
 			if (result==player1)
 				saveResult(p1Name,gameState.stake);

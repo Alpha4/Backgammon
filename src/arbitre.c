@@ -996,7 +996,6 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
 void saveResult(char* winner, int pointsWin){
 
 	FILE *file = NULL;  // Pointeur vers le fichier
-
     file = fopen("result.txt", "a");  // Ouverture du fichier en mode "ajout" (on ajoute du contenu à la fin du fichier)
 
     if (file != NULL)  // Le fichier s'est bien ouvert
