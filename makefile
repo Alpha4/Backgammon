@@ -17,9 +17,9 @@ CFlags = -Wall
 # linker options
 LDFlags = -rdynamic
 # library names
-libs = SDL2
+libs = SDL2 SDL2_image SDL2_ttf
 # additionnal library directories
-libDir = libs/
+libDir = lib/
 # additionnal include directories
 incDir =
 

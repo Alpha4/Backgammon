@@ -7,9 +7,17 @@ Programme principal gérant l'interface, l'arbitre et les interface
 #include <dlfcn.h>
 #include <time.h>
 
+/*include de SDL*/
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
+/*include du projet*/
 #include "backgammon.h"
 #include "libs.h"
-#include "arbitre.h" // Fonction de l'arbitre
+#include "arbitre.h" 
+#include "interface.h"
+#include "liste.h"
 
 
 
@@ -26,6 +34,9 @@ int main (int argc, char *argv[])
 	/*Librairies des IA*/
 	AI ai1,ai2;
 
+	/*Variables pour l'affichage*/
+	Context c;
+	char msg[40];
 
 	/* Variables pour le jeu*/
 	Player player1,player2;
@@ -37,10 +48,12 @@ int main (int argc, char *argv[])
 	int nbHumanPlayers;
 
 	char p1Name[50], p2Name[50]; // Nom des joueurs
+	strcpy(p1Name,"Joueur1");// pour le cas de parties avec humain
+	strcpy(p2Name,"Joueur2");
 	int penalty[2]={0,0}; // Pénalité pour chacun des joueurs
 
 	unsigned int nbMoves;
-	int pts=7; //Points pour remporter le match
+	int pts=3; //Points pour remporter le match
 	unsigned char dices[2];
 
 	SMove moves[4];
@@ -74,7 +87,20 @@ int main (int argc, char *argv[])
 
 	}
 
+	/* Initialisation affichage*/
+	init(&c,"Backgammon");
+
 	/* Jeu */
+
+	if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
+		{
+			ai1.InitLibrary(p1Name);  // On lui demande son nom
+
+			if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
+			{
+				ai2.InitLibrary(p2Name);  // On lui demande son nom
+			}
+		}
 
 	/**
 	 * Randomisation de la couleur des joueurs
@@ -84,36 +110,36 @@ int main (int argc, char *argv[])
 	player1 = (rand() % 2);
 	if (player1 == WHITE)
 	{
+
+		sprintf(msg,"%s joue les blancs",p1Name);
 	    player2 = BLACK;
 	}
 	else
 	{
+		sprintf(msg,"%s joue les blancs",p2Name);
 	    player2=WHITE;
 	}
-
+	prompt(&c,msg);
 	int m; //Nombre de matchs
-	for (m=0;m<(int)argv[1];m++)
+	for (m=0;m<atoi(argv[1]);m++)
 	{
-		
-
-
+		sprintf(msg,"Match %d",m+1);
+		prompt(&c,msg);
 		if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 		{
-			ai1.InitLibrary(p1Name);  // On lui demande son nom
 			ai1.StartMatch(pts);  // On l'initialise
 
 			if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
 			{
-				ai2.InitLibrary(p2Name);  // On lui demande son nom
 				ai2.StartMatch(pts);  // On l'initialise
 			}
 		}
 
 
 		gameState.whiteScore=0;
-		gameState.whiteScore=0;
-
-		while(gameState.whiteScore<pts || gameState.blackScore<pts)
+		gameState.blackScore=0;
+		int g=0;
+		while(gameState.whiteScore<=pts && gameState.blackScore<=pts)
 		{
 			if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 			{
@@ -125,8 +151,16 @@ int main (int argc, char *argv[])
 				}
 			}
 
-			/*Initialisation du plateau*/
+			sprintf(msg,"Game %d",g+1);
+			prompt(&c,msg);
 
+			/*Initialisation du plateau*/
+			int i;
+			for (i = 0; i < 24; ++i)
+			{	
+				gameState.board[i].owner=NOBODY;
+				gameState.board[i].nbDames=0;
+			}
 			//WHITE
 			gameState.board[0].owner=WHITE;
 			gameState.board[0].nbDames=2;
@@ -153,21 +187,20 @@ int main (int argc, char *argv[])
 			gameState.bar[1]=0;
 			gameState.turn=1;
 			gameState.stake=1;
-
-
+	
 
 			int result=-1;
 			while (result==-1) //Boucle pour chaque tour (result est à -1 si pas de gagnant)
 			{
+
+				sprintf(msg,"Tour %d",gameState.turn);
+				prompt(&c,msg);
 				// Tirage des dés
 				srand(time(NULL));
 				dices[0]=rand()%6+1;
 				dices[1]=rand()%6+1;
 
-				if(dices[0]==dices[1])
-					nbMoves=4;
-				else
-					nbMoves=2;
+				update(&c,gameState,dices);
 
 				//Tableau vide pour les moves
 				SMove vide;
@@ -179,57 +212,142 @@ int main (int argc, char *argv[])
 					moves[i]=vide;
 				}
 
-				if (player1==current)
+				if (player1==current) // Au joueur 1 de jouer
 				{
-					if (ai1.DoubleStack(&gameState))
-						if(!(ai2.TakeDouble(&gameState)))
+					sprintf(msg,"A %s de jouer",p1Name);
+					prompt(&c,msg);
+					if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
+					{
+						if (ai1.DoubleStack(&gameState))
 						{
-							result=current;
-							break;//Sortie de la boucle while
+							if(nbHumanPlayers==0) //Le joueur 2 est une IA
+							{
+								if(!(ai2.TakeDouble(&gameState)))
+								{
+									result=current;
+									break;//Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
+							}
+							else //Le joueur 2 est humain
+							{
+								doubleQuery(&c,1);
+								if(yesOrNo()==1)//VIDEAU_TAKE J2
+								{
+									result=current;
+									break;//Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
+							}
 						}
-						else
-							gameState.stake*=2;
-					ai1.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
-				}
-				else
-				{
-					if (ai2.DoubleStack(&gameState))
-						if(!(ai1.TakeDouble(&gameState)))
+						update(&c,gameState,dices);
+						ai1.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
+					}
+					else //Le joueur 1 est humain -->2joueurs humains
+					{	
+						doubleQuery(&c,0);
+						if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J1
 						{
-							result=current;
-							break; //Sortie de la boucle while
+							doubleQuery(&c,1);
+							if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J2
+							{
+									result=current;
+									break;//Sortie de la boucle while
+							}
+							else
+								gameState.stake*=2;
 						}
-						else
-							gameState.stake*=2;
-					ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
+						update(&c,gameState,dices);
+						printf("BP1\n");
+						memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
+						printf("BP2\n");
+						nbMoves=getArrayMoves(moves,gameStateCopy,dices,current,&c);
+						printf("BP3\n");
+					}
 				}
 
-				/* Calcul du nombre de moves effectués*/
-				int n,nbMovesDone=4;
-				for (n=0;n<nbMoves;n++)
+				else // Au joueur 2 de jouer
 				{
-					if(moves[n].dest_point==0 && moves[n].src_point==0)
-						nbMovesDone--;
+					sprintf(msg,"A %s de jouer",p2Name);
+					prompt(&c,msg);
+					if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
+					{
+						if (ai2.DoubleStack(&gameState))
+						{
+							if(!(ai1.TakeDouble(&gameState)))
+							{
+								result=current;
+								break; //Sortie de la boucle while
+							}
+							else
+								gameState.stake*=2;
+						}
+						update(&c,gameState,dices);
+						ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
+					}
+					else // Le joueur 2 est humain
+					{
+						if (nbHumanPlayers==1) // Le joueur 1 est IA
+						{
+							doubleQuery(&c,0);
+							if (yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
+							{
+								if(!(ai1.TakeDouble(&gameState)))
+								{
+									result=current;
+									break; //Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
+							}
+						}
+
+						else // Le joueur 1 est humain
+						{
+							doubleQuery(&c,0);
+							if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
+							{
+								doubleQuery(&c,1);
+								if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J1
+								{
+									result=current;
+									break; //Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
+							}
+
+						}
+						update(&c,gameState,dices);
+						printf("BP1J2\n");
+						memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
+						printf("BP2J2\n");
+						nbMoves=getArrayMoves(moves,gameStateCopy,dices,current,&c);
+						printf("BP3J2\n");
+					}
 				}
 
+				int n;
 				memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
-				if(validMoves(nbMovesDone,moves,current,dices,gameStateCopy))//Fonction de l'arbitre
+				if(validMoves(nbMoves,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
 				{
-					for (n=0;n<nbMovesDone;n++) 
+					for (n=0;n<nbMoves;n++) 
 					{
 						Square *dest;
 						Square *src;
 						Square nul;
 
-						if (moves[n].src_point!=25)
-							dest=&gameState.board[moves[n].dest_point-1]
-						else
-							dest=&nul;
-
-						if (moves[n].dest_point!=0)
-							src=&gameState.board[moves[n].src_point-1]
-						else
+						if (moves[n].src_point!=0)
+							src=&gameState.board[moves[n].src_point-1];
+						else // si la source est le bar les opération habituelles seront appliquées sur un Square vide
 							src=&nul;
+
+						if (moves[n].dest_point!=25)
+							dest=&gameState.board[moves[n].dest_point-1];
+						else // si la destination est le out les opération habituelles seront appliquées sur un Square vide
+							dest=&nul; 
 
 						//La case sur laquelle on arrive était vide
 						if(dest->nbDames==0)
@@ -248,7 +366,7 @@ int main (int argc, char *argv[])
 						{
 							Player p=dest->owner; //Ancien owner de la case prise
 							dest->owner=current; //Changement d'owner
-							gameState.out[p]++; // L'adversaire a une dame supplémentaire de sortie du jeu
+							gameState.bar[p]++; // L'adversaire a une dame supplémentaire dans le bar
 							dest->nbDames=0; // Le placement de la dame est géré dans le cas général
 						}
 
@@ -257,12 +375,12 @@ int main (int argc, char *argv[])
 						dest->nbDames++;
 
 						//Une dame est remise en jeu
-						if (moves[n].src_point==25)
-							gameState.out[current]--;
+						if (moves[n].src_point==0)
+							gameState.bar[current]--;
 
-						//Une dame est placée dans le bar
-						if (moves[n].dest_point==0)
-							gameState.bar[current]++;
+						//Une dame est sortie
+						if (moves[n].dest_point==25)
+							gameState.out[current]++;
 					}
 				}
 				else // mouvement(s) non valide(s)
@@ -271,6 +389,8 @@ int main (int argc, char *argv[])
 				}
 
 				result=isGameFinished(gameState,penalty); // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
+
+
 				
 				//Prochain joueur
 				if (current==WHITE)
@@ -280,20 +400,28 @@ int main (int argc, char *argv[])
 
 				gameState.turn++;
 			}
-
+			
+			
 			//MAJ du score du gagnant
 			if(result==WHITE)
 				gameState.whiteScore+=gameState.stake;
 			else
 				gameState.blackScore+=gameState.stake;
-
 			//On sauvegarde le résultat
 			if (result==player1)
+			{
+				sprintf(msg,"%s gagne le game",p1Name);
 				saveResult(p1Name,gameState.stake);
+			}
 			else
+				sprintf(msg,"%s gagne le game!",p2Name);
 				saveResult(p2Name,gameState.stake);
+
+			prompt(&c,msg);
+			g++;
 		}
-		saveMatch(gameState,p1Name,p2Name,player1);
+		
+		sprintf(msg,"%s remporte le match !",saveMatch(gameState,p1Name,p2Name,player1));
 
 		// Inversion des sides
 		if (player1 == WHITE)
@@ -307,5 +435,7 @@ int main (int argc, char *argv[])
 		    player2=BLACK;
 		}
 	}
+
+	cleanup(&c);
 	return 0;
 }

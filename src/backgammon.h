@@ -1,3 +1,5 @@
+#ifndef _BACKGAMMON_H
+    #define _BACKGAMMON_H
 /////////// Strutures à utiliser
 
 /**
@@ -29,8 +31,8 @@ typedef struct {
  */
 typedef struct {
     Square board[24];           /*!< Les 24 cases du tableau, en partant du bord blanc. */
-	unsigned int bar[2];           // Pions sortis (validés)
-	unsigned int out[2];          // Pions pris
+	unsigned int bar[2];           // Pions pris (mangés)
+	unsigned int out[2];          // Pions sortis (validés)
     unsigned int whiteScore;    /*!< Score du joueur blanc */
     unsigned int blackScore;    /*!< Score du joueur noir */
     unsigned int turn;          /*!< Numéro du tour en cours (initialisé à 0) */
@@ -113,3 +115,5 @@ typedef int (*pfTakeDouble)(const SGameState * const);
  */
 //void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], SMove moves[4], unsigned int *nbMove, unsigned int tries);
 typedef void (*pfPlayTurn)(const SGameState * const,  const unsigned char[2], SMove[4], unsigned int*, unsigned int);
+
+#endif

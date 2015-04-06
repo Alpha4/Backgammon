@@ -1,7 +1,7 @@
 #ifndef _LISTE_H
 	#define _LISTE_H
 
-
+#include "backgammon.h"
 
 typedef struct Data Data;
 
@@ -15,7 +15,7 @@ struct Data {
 	SMove moves[4];
 	int nbMoves;
 	int dice[4]; // représente les nombres disponibles sur les dés 
-	SGameState gamestate;
+	SGameState gameState;
 	/* EXEMPLE :
 	les dé affichent 3 et 4 --> dice est rempli de la sorte : [3,4,-1,-1]
 	( -1 représente un 'dé' inutilisable)
@@ -63,5 +63,7 @@ SCell* GetLastElement(SList *list);
 SCell* GetPrevElement(SCell *cell);
 SCell* GetNextElement(SCell *cell);
 Data GetData(SCell *cell);
+
+int IsEmpty(SList *list);
 
 #endif
