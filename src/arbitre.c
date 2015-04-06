@@ -581,7 +581,7 @@ void deleteCellsLessMoves(SList* movesPossible, int nbMoves){
 	SCell* cellEnTraitement = GetFirstElement(movesPossible);
 
 	// parcours des cellules de la liste
-	while ( cellEnTraitement != GetLastElement(movesPossible)){ 
+	while ( cellEnTraitement != NULL){ 
 		
 		SCell* cellNext = cellEnTraitement->next;
 
@@ -619,11 +619,8 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 	
 	int i,j;
 
-	while ( cellEnTraitement != GetLastElement(movesPossible)){ // parcours des cellules de la liste
+	while ( cellEnTraitement != NULL){ // parcours des cellules de la liste
 
-
-
-		printf("@me %d\n",cellEnTraitement);
 		
 		// etat du jeu courant de cette cellule ( appliquant au gameState les mouvement précédents contenus dans la celulle)
 		SGameState gameStateCell = cellEnTraitement->value.gameState;
@@ -637,11 +634,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 		// création des listes contenant les cases de départ et d'arrivée possibles
 		int srcCells[25];
 		int indexSrc = getSrcCells(gameStateCell, player, srcCells);
-
-
-		printf("Move0 : src=%d | dest=%d\n",cellEnTraitement->value.moves[0].src_point,cellEnTraitement->value.moves[0].dest_point);
 		
-
 
 		int destCells[25];
 		int indexDest= getDestCells(gameStateCell, player, destCells);
@@ -890,10 +883,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 			
 		}
 		cellEnTraitement = cellEnTraitement->next;
-		printList(movesPossible);
-		printf("\n\n\n\n\n\n");
 	}
-	printf("outOfWhile\n");
 	// si on a rajouté au moins un mouvement alors il faut voir si on peut encore en rajouter
 	if ( movAdd != 0 ){ 
 
@@ -981,7 +971,7 @@ int getMovesPossible(SGameState gameState, Player player, unsigned char diceGive
 		SCell* cellNext = cellEnTraitement->next;
 
 		// parcours des cellules de la liste
-		while ( cellEnTraitement != GetLastElement(movesPossible)){ 
+		while ( cellEnTraitement != NULL){ 
 
 			// si le dé la plus élevé n'est pas utilisé alors on supprime la cellule des movesPossible
 			if ( cellEnTraitement->value.dice[diceToPlay] != -1 ){ 					
@@ -1023,7 +1013,7 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
 
 	// parcours des mouvements possibles (correctes ) :
 	SCell* cellEnTraitement = GetFirstElement(movesPossible);
-	while ( cellEnTraitement != GetLastElement(movesPossible)){ 
+	while ( cellEnTraitement != NULL){ 
 
 		// vérification que le nombre de mouvements est correcte ( = vérification que le joueur ne doit pas effectuer + de coups)
 		if (nbMovesPossible == nbMoves){

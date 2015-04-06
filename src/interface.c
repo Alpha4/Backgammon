@@ -508,8 +508,6 @@ int pointClicked(Player player){
 	// initialisation du numéro de case cliquée
 	int pointClicked = -1;
 
-	int i = -1;
-
 	int x;
 	int y;
 
@@ -517,7 +515,7 @@ int pointClicked(Player player){
 	SDL_Event event;
 
 	// traitement de l'événement
-	while (i == 0){
+	while (pointClicked == -1){
 
 		if (SDL_PollEvent(&event)){
 
@@ -619,44 +617,60 @@ int pointClicked(Player player){
  *    mouvement effectué par le joueur
  */
 SMove getMoveDone(Player player, SGameState* gameState, int* dice){
-
+	
 	// mouvement qui sera effectué par le joueur
 	SMove move;
 
 
 	// récupération des cellules qui peuvent etre source d'un mouvement
-	int* srcCells=NULL;
+	int srcCells[30];
 	int indexSrc = getSrcCells( *gameState, player, srcCells);
+	
 
 	// tant que la case voulue pour la source du mouvement n'est pas dans srcCells on la "redemande"
+	printf("src?\n");
 	unsigned int numSrcCell = 100;
 	while ( !(isIn(numSrcCell, indexSrc, srcCells)) ){
+		printf("LastPointClicked  %d\n", numSrcCell);
 		numSrcCell = pointClicked(player); // on récupère la case source voulue pour le mouvement
 	}
 
-
 	//récupération des mouvements possibles
 	SList* movesPossible = fillIn_1_MovesPossible( player, dice, *gameState);
+	printList(movesPossible);
 
 	// récupération des cellules qui peuvent etre destination du mouvement
-	int* destCells=NULL;
+	int destCells[30];
 	int indexDest = fillInDestCells(movesPossible, numSrcCell, destCells );
+	
+	int a;
+	for(a=0;a<indexDest;a++)
+	{
+		printf("DestPossible : %d\n",destCells[a]);
+	}
+
 	//Libération mémoire allouée pour la liste movesPossible
 	DeleteList(movesPossible);
 
 	// affichage en surbrillance des cellules qui peuvent etre destination du mouvement
-	int i;
-	for (i=0; i<indexSrc; i++){
+	//int i;
+	/*for (i=0; i<indexSrc; i++){
 		//mettreEnSurbrillance(i); /////// !!!!!!!!!!!!!!!!!  A FAIIIIIIIIIIIIRE	!!!!!!!!!!!!!!!!!! //////////////////
-	}
+	}*/
 
+	printf("dest?\n");
 	// tant que la case voulue par le joueur pour la destination n'est pas dans destCells on la "redemande"
 	unsigned int numDestCell = 100;
-	while ( !(isIn(numDestCell, indexDest, destCells)) ){
+	while ( !(isIn(numDestCell, indexDest, destCells)) )
+	{
+		printf("LastPointClicked  %d\n", numDestCell);
+
 		//si le joueur cliques sur undo : on reprend la fonction au début
-		if (numDestCell == 26){
+		if (numDestCell == 26)
+		{
 			move = getMoveDone(player, gameState, dice);
 		}
+		numDestCell = pointClicked(player);
 	}
 
 	// actualisation du gameSate par rapport au mouvement effectué
@@ -758,15 +772,15 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 	// liste contenant les mouvements possibles
 	SList* movesPossible=NULL;
-	printf("%d | %d \n",diceGiven[0],diceGiven[1]);
+	printf("Dés : %d | %d \n",diceGiven[0],diceGiven[1]);
 	int nbMoves = getMovesPossible(gameState, player, diceGiven, movesPossible);
-	printf("GA2\n");
 
-	//Libération mémoire allouée pour la liste movesPossible
+
+	/*//Libération mémoire allouée pour la liste movesPossible
 	printList(movesPossible);
 	printListTab(movesPossible);
-	DeleteList(movesPossible);
-	printf("GA3\n");
+	DeleteList(movesPossible);*/
+
 	//transformation du dé en en un tableau de 4 entiers
 	// pour pouvoir traiter le cas d'un double --> 4 dés pourront être utilisés
 	int dice[4];
@@ -784,7 +798,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		dice[2] = -1;
 		dice[3] = -1;	
 	}
-	printf("GA4\n");
+	printf("nbMoves=%d\n",nbMoves);
 	// récupération des mouvements
 	if ( nbMoves == 0 ){
 		prompt(c, "Pas de coup possible"); // prévient le joueur qu'il n'a pas de coup possible
@@ -793,12 +807,14 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		SMove move1;
 		move1 = getMoveDone(player, &gameState, dice);
 
+
 		//remplissage du tableau de mouvements:
 		moves[0] = move1;
 	}
 	else if ( nbMoves==2 ){
 		SMove move1, move2;
 		move1 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+
 		update(c,gameState,diceGiven);
 		move2 = getMoveDone( player, &gameState, dice); 
 
@@ -809,6 +825,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	else if ( nbMoves == 3 ){
 		SMove move1, move2, move3;
 		move1 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+
 		update(c,gameState,diceGiven);
 		move2 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 		update(c,gameState,diceGiven);
@@ -822,6 +839,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	else if ( nbMoves == 4 ){
 		SMove move1, move2, move3, move4;
 		move1 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+
 		update(c,gameState,diceGiven);
 		move2 = getMoveDone(player, &gameState, dice); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 		update(c,gameState,diceGiven);
@@ -835,7 +853,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		moves[2] = move3;
 		moves[3] = move4;
 	}
-	printf("GA5\n");
+
 	return nbMoves;
 }
 
@@ -926,10 +944,14 @@ int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells){
 
 	// parcours de la liste movesPossible
 	SCell* cellEnTraitement = GetFirstElement(movesPossible);
-	while ( cellEnTraitement != GetLastElement(movesPossible)){
+
+	while ( cellEnTraitement != NULL)
+	{
 		// la cellule source du mouvement correspond à notre cellule numSrcCell
-		if (cellEnTraitement->value.moves[0].src_point == numSrcCell){
+		if (cellEnTraitement->value.moves[0].src_point == numSrcCell)
+		{
 			destCells[index] = cellEnTraitement->value.moves[0].dest_point; // on ajoute la cellule destination au tableau destCells
+			printf("FID:%d\n",destCells[index]);
 			index ++;
 		}
 
@@ -952,15 +974,18 @@ int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells){
  *   0 : l'élément ne se trouve pas dans le tableau
  *   1 : l'élément se trouve dans le tableau
  */
-int isIn(int elem, int index, int* tab){
+int isIn(int elem, int index, int* tab)
+{
 	
 	int result = 0; // initalisation à " l'élément n'est pas dans le tableau"
 
 	// parcours du tableau
 	int i;
-	for (i=0; i<index; i++){
+	for (i=0; i<index; i++)
+	{
 		// si l'élément correspond à la case du tableau alors on change la valeur de result
-		if ( elem == tab[i] ){
+		if ( elem == tab[i] )
+		{
 			result = 1; 
 		}
 	}

@@ -328,10 +328,13 @@ int main (int argc, char *argv[])
 					}
 				}
 
+
+				printf("BP4\n");
 				int n;
 				memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
 				if(validMoves(nbMoves,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
 				{
+					printf("BP5\n");
 					for (n=0;n<nbMoves;n++) 
 					{
 						Square *dest;
@@ -386,7 +389,7 @@ int main (int argc, char *argv[])
 				{
 					penalty[current]++; //Pénalité pour le joueur 
 				}
-
+				printf("BP6\n");
 				result=isGameFinished(gameState,penalty); // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
 
 
