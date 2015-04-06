@@ -412,8 +412,8 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 					// vérification que le mouvement correspond à un dé
 					if ( (fabs(destCells[j] - srcCells[i]) == dice[0]) || (fabs(destCells[j] - srcCells[i]) == dice[1])  // cas "normal" 
 						|| (fabs(destCells[j] - srcCells[i]) == dice[2]) || (fabs(destCells[j] - srcCells[i]) == dice[3])
-						|| (srcCells[i]==0 && 25-destCells[j] == dice[0])|| (srcCells[j]==0 && 25-destCells[j] == dice[1]) // cas le joueur noir sort un pion du bar
-						|| (srcCells[i]==0 && 25-destCells[j] == dice[2]) || (srcCells[j]==0 && 25-destCells[j] == dice[3]) 
+						|| (srcCells[i]==0 && 25-destCells[j] == dice[0])|| (srcCells[i]==0 && 25-destCells[j] == dice[1]) // cas le joueur noir sort un pion du bar
+						|| (srcCells[i]==0 && 25-destCells[j] == dice[2]) || (srcCells[i]==0 && 25-destCells[j] == dice[3]) 
 						){  // remarque : cas ou un pion blanc sort du bar est traité dans "normal"
 	
 	
@@ -623,7 +623,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 
 
 
-		
+		printf("@me %d\n",cellEnTraitement);
 		
 		// etat du jeu courant de cette cellule ( appliquant au gameState les mouvement précédents contenus dans la celulle)
 		SGameState gameStateCell = cellEnTraitement->value.gameState;
@@ -638,9 +638,13 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 		int srcCells[25];
 		int indexSrc = getSrcCells(gameStateCell, player, srcCells);
 
+
+		printf("Move0 : src=%d | dest=%d\n",cellEnTraitement->value.moves[0].src_point,cellEnTraitement->value.moves[0].dest_point);
+		
+
+
 		int destCells[25];
 		int indexDest= getDestCells(gameStateCell, player, destCells);
-
 
 
 		for (i=0; i < indexSrc; i++){ // i --> parcours de srcCells
@@ -650,16 +654,16 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 				// vérification que le mouvement est dans le bon sens suivant le joueur
 				// cas particulier : si la cellule de départ est bar[]  ou celle d'arrivée le out[] alors on ne compte pas le sens
 				if ( (player == BLACK && destCells[j] < srcCells[i]) || (player == WHITE && destCells[j] > srcCells[i]) || srcCells[i] == 0 
-						|| destCells[i] == 25 ){
+						|| destCells[j] == 25 ){
 					
 					// cas où la cellule destination n'est pas le out
-					if ( destCells[i] != 25){
+					if ( destCells[j] != 25){
 
 						// vérification que le mouvement correspond à un dé
 						if ( (fabs(destCells[j] - srcCells[i]) == diceCell[0]) || (fabs(destCells[j] - srcCells[i]) == diceCell[1])  // cas "normal" 
 							|| (fabs(destCells[j] - srcCells[i]) == diceCell[2]) || (fabs(destCells[j] - srcCells[i]) == diceCell[3])
-							|| (srcCells[i]==0 && 25-destCells[j] == diceCell[0])|| (srcCells[j]==0 && 25-destCells[j] == diceCell[1]) // cas le joueur noir sort un pion du bar
-							|| (srcCells[i]==0 && 25-destCells[j] == diceCell[2]) || (srcCells[j]==0 && 25-destCells[j] == diceCell[3]) 
+							|| (srcCells[i]==0 && 25-destCells[j] == diceCell[0])|| (srcCells[i]==0 && 25-destCells[j] == diceCell[1]) // cas le joueur noir sort un pion du bar
+							|| (srcCells[i]==0 && 25-destCells[j] == diceCell[2]) || (srcCells[i]==0 && 25-destCells[j] == diceCell[3]) 
 							){  // remarque : cas ou un pion blanc sort du bar est traité dans "normal"
 
 							// remplissage de la liste chainée avec une nouvelle cellule
@@ -716,7 +720,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 	
 							// ajout du dernier mouvement
 							data.moves[nbMovesInCells].src_point = srcCells[i];
-							data.moves[nbMovesInCells].dest_point = destCells[i];
+							data.moves[nbMovesInCells].dest_point = destCells[j];
 							data.nbMoves ++;
 	
 							// nouveau jeu de dé
@@ -886,7 +890,10 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 			
 		}
 		cellEnTraitement = cellEnTraitement->next;
+		printList(movesPossible);
+		printf("\n\n\n\n\n\n");
 	}
+	printf("outOfWhile\n");
 	// si on a rajouté au moins un mouvement alors il faut voir si on peut encore en rajouter
 	if ( movAdd != 0 ){ 
 
@@ -983,7 +990,6 @@ int getMovesPossible(SGameState gameState, Player player, unsigned char diceGive
 			cellEnTraitement = cellNext;
 		}
 	}
-	printList(movesPossible);
 	return nbMovesPossible;
 }
 

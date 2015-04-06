@@ -758,7 +758,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 	// liste contenant les mouvements possibles
 	SList* movesPossible=NULL;
-	printf("GA1\n");
+	printf("%d | %d \n",diceGiven[0],diceGiven[1]);
 	int nbMoves = getMovesPossible(gameState, player, diceGiven, movesPossible);
 	printf("GA2\n");
 
