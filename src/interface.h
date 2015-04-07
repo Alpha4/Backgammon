@@ -21,6 +21,11 @@ struct Context
 	SDL_Texture* doublingCube[6]; //Texture du videau
 	SDL_Texture* prompt; //Texture pour les prompts
 	SDL_Texture* button; //Texture pour les boutons
+	SDL_Texture* highlightUp; //Texture pour highlight point
+	SDL_Texture* highlightDown;
+	SDL_Texture* highlightPawn;
+	SDL_Texture* highlightOut;
+	SDL_Texture* grayedOutDice; //Texture pour griser les dés
 };
 
 /**

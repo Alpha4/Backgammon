@@ -136,6 +136,11 @@ int loadImages(Context* c)
 	c->board=loadTexture("img/board.png",c);
 	c->prompt=loadTexture("img/prompt.png",c);
 	c->button=loadTexture("img/button.png",c);
+	c->highlightUp=loadTexture("img/highlightUp.png",c);
+	c->highlightDown=loadTexture("img/highlightDown.png",c);
+	c->grayedOutDice=loadTexture("img/grayedOutDice.png",c);
+	c->highlightOut=loadTexture("img/highlightOut.png",c);
+	c->highlightPawn=loadTexture("img/highlightPawn.png",c);
 	c->pawn[WHITE]=loadTexture("img/whitePawn.png",c);
 	c->pawnOut[WHITE]=loadTexture("img/whitePawnOut.png",c);
 	c->pawn[BLACK]=loadTexture("img/blackPawn.png",c);
@@ -445,7 +450,42 @@ void button(Context* c,char* name)
 	SDL_DestroyTexture(msg);
 }
 
+/**
+ *	Fonction affichantun bouton et son nom
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param char* name
+ *	le nom du bouton
+*/
+void highlight(Context* c,int i,Player p)
+{
+	//0 bar
+	//25 out
+	int x,y;
+	if(i==0)
+	{
+		if(p==BLACK)
+			renderTextureAsIs(c->highlightPawn,c->pRenderer,510,280);
+		else
+			renderTextureAsIs(c->highlightPawn,c->pRenderer,110,280);
+	}
+	else if (i==25)
+	{
+		if(p==BLACK)
+			renderTextureAsIs(c->highlightOut,c->pRenderer,682,116);
+		else
+			renderTextureAsIs(c->highlightOut,c->pRenderer,682,397);
+	}
+	else if(i<12)
+	{
+		renderTextureAsIs(c->highlightUp,c->pRenderer,x,350);
+	}
+	else
+	{
+		renderTextureAsIs(c->highlightUp,c->pRenderer,10+50*(i-12),10);
+	}
 
+}
 
 
 /**
