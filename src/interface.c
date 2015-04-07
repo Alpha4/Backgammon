@@ -186,13 +186,13 @@ void highlight(Context* c,int i,Player p)
 		else
 			renderTextureAsIs(c->highlightOut,c->pRenderer,682,397);
 	}
-	else if(i<12)
+	else if(i<13)
 	{
-		renderTextureAsIs(c->highlightUp,c->pRenderer,560-50*i,350);
+		renderTextureAsIs(c->highlightUp,c->pRenderer,560-50*(i-1),360);
 	}
 	else
 	{
-		renderTextureAsIs(c->highlightUp,c->pRenderer,10+50*(i-12),10);
+		renderTextureAsIs(c->highlightDown,c->pRenderer,10+50*(i-13),10);
 	}
 
 	SDL_RenderPresent(c->pRenderer);
@@ -715,7 +715,7 @@ int pointClicked(Player player){
  * @return SMove move
  *    mouvement effectué par le joueur
  */
-SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c){
+SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven){
 	
 	// mouvement qui sera effectué par le joueur
 	SMove move;
@@ -724,12 +724,23 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c){
 	// récupération des cellules qui peuvent etre source d'un mouvement
 	int srcCells[30];
 	int indexSrc = getSrcCells( *gameState, player, srcCells);
+	/*
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 APPELER FILLIN 1 POUR AVOIR LES VRAIES SOURCES 
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 */
 	
 	printf("getMovesDone : cellules sources possibles :\n");
 	int a;
 	for(a=0;a<indexSrc;a++)
 	{
 		printf("SrcPossible : %d\n",srcCells[a]);
+	}
+
+	// affichage en surbrillance des cellules qui peuvent etre source du mouvement
+	int i;
+	for (i=0; i<indexSrc; i++){
+		highlight(c, srcCells[i] , player);
 	}
 
 	// tant que la case voulue pour la source du mouvement n'est pas dans srcCells on la "redemande"
@@ -740,6 +751,8 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c){
 		numSrcCell = pointClicked(player); // on récupère la case source voulue pour le mouvement
 	}
 	printf("LastLastPointClicked  %d\n", numSrcCell);
+
+	update(c, *gameState, diceGiven);
 
 	//récupération des mouvements possibles
 	SList* movesPossible = fillIn_1_MovesPossible( player, dice, *gameState);
@@ -760,10 +773,9 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c){
 	//DeleteList(movesPossible);
 
 	// affichage en surbrillance des cellules qui peuvent etre destination du mouvement
-	//int i;
-	/*for (i=0; i<indexSrc; i++){
-		//mettreEnSurbrillance(Context* c, int i , Player player); /////// !!!!!!!!!!!!!!!!!  A FAIIIIIIIIIIIIRE	!!!!!!!!!!!!!!!!!! //////////////////
-	}*/
+	for (i=0; i<indexDest; i++){
+		highlight(c, destCells[i] , player);
+	}
 
 	button(c, "Undo");
 
@@ -777,7 +789,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c){
 		//si le joueur cliques sur undo : on reprend la fonction au début
 		if (numDestCell == 26)
 		{
-			return getMoveDone(player, gameState, dice, c);
+			return getMoveDone(player, gameState, dice, c, diceGiven);
 		}
 		numDestCell = pointClicked(player);
 	}
@@ -887,6 +899,13 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	int nbMoves;
 	printf("GA1\n");
 	getMovesPossible(gameState, player, diceGiven, &nbMoves);
+	/*
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 A FAIRE RECUPERE GETMOVESPOSSIBLE POUR DELETE
+	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	*/
+
+
 	printf("GA2\n");
 
 
@@ -919,7 +938,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	}
 	else if ( nbMoves == 1 ){
 		SMove move1;
-		move1 = getMoveDone(player, &gameState, dice, c);
+		move1 = getMoveDone(player, &gameState, dice, c, diceGiven);
 
 
 		//remplissage du tableau de mouvements:
@@ -927,10 +946,10 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	}
 	else if ( nbMoves==2 ){
 		SMove move1, move2;
-		move1 = getMoveDone(player, &gameState, dice, c); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
 		update(c,gameState,diceGiven);
-		move2 = getMoveDone( player, &gameState, dice, c); 
+		move2 = getMoveDone( player, &gameState, dice, c, diceGiven); 
 
 		// remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -938,12 +957,12 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	}
 	else if ( nbMoves == 3 ){
 		SMove move1, move2, move3;
-		move1 = getMoveDone(player, &gameState, dice, c); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
 		update(c,gameState,diceGiven);
-		move2 = getMoveDone(player, &gameState, dice, c); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		move2 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 		update(c,gameState,diceGiven);
-		move3 = getMoveDone(player, &gameState, dice, c); 
+		move3 = getMoveDone(player, &gameState, dice, c, diceGiven); 
 
 		//remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -952,14 +971,14 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	}
 	else if ( nbMoves == 4 ){
 		SMove move1, move2, move3, move4;
-		move1 = getMoveDone(player, &gameState, dice, c); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
 		update(c,gameState,diceGiven);
-		move2 = getMoveDone(player, &gameState, dice, c); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		move2 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 		update(c,gameState,diceGiven);
-		move3 = getMoveDone(player, &gameState, dice, c); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		move3 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 		update(c,gameState,diceGiven);
-		move4 = getMoveDone(player, &gameState, dice, c); 
+		move4 = getMoveDone(player, &gameState, dice, c, diceGiven); 
 
 		//remplissage du tableau de mouvements:
 		moves[0] = move1;

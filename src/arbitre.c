@@ -69,7 +69,7 @@ int getSrcCells(SGameState gameState, Player player, int* srcCells ){
 
 	// si le joueur a au moins 1 pion dans le bar il ne peut que partir du bar
 	if ( gameState.bar[player] > 0){
-		srcCells[0] = 0;
+		srcCells[index] = 0;
 		index ++;
 	}
 	// sinon on prend les cellules possédées par le joueur
@@ -396,7 +396,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 	int destCells[30];
 	int indexDest= getDestCells(gameState, player, destCells);
 
-	printf("fillIn_1 : ")
+	printf("fillIn_1 : ");
 
 
 	// création de la liste chainée contenant les mouvements possibles

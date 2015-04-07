@@ -212,10 +212,16 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell);
 
 /**
  * Fonction qui renvoie le mouvement effectué par le joueur
+ * @param Player player
+ *   joueur qui doit effectuer le mouvement
+ * @param SGameState
+ *   état du jeu courant
+ * @param int* dice
+ *   dés obtenus pour le mouvement
  * @return SMove move
  *    mouvement effectué par le joueur
  */
-SMove getMoveDone(Player player, SGameState* gameState, int* dice);
+SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven);
 
 
 /**
