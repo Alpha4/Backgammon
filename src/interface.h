@@ -296,4 +296,13 @@ void button(Context* c,char* name);
 */
 void highlight(Context* c,int i,Player p);
 
+/**
+ *	Fonction grisant le dé indiqué
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param int i
+ *	numéro du dé à griser
+*/
+void grayOut(Context* c,int i);
+
 #endif

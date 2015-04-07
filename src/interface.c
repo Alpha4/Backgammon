@@ -196,6 +196,28 @@ void highlight(Context* c,int i,Player p)
 		renderTextureAsIs(c->highlightUp,c->pRenderer,10+50*(i-12),10);
 	}
 
+	SDL_RenderPresent(c->pRenderer);
+}
+
+/**
+ *	Fonction grisant le dé indiqué
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param int i
+ *	numéro du dé à griser
+*/
+void grayOut(Context* c,int i)
+{
+	if(i==0)
+	{
+		renderTextureAsIs(c->grayedOutDice,c->pRenderer,250,285);
+	}
+	else
+	{
+		renderTextureAsIs(c->grayedOutDice,c->pRenderer,320,285);
+	}
+
+	SDL_RenderPresent(c->pRenderer);
 }
 
 
