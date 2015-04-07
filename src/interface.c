@@ -172,7 +172,6 @@ void highlight(Context* c,int i,Player p)
 {
 	//0 bar
 	//25 out
-	int x,y;
 	if(i==0)
 	{
 		if(p==BLACK)
@@ -189,7 +188,7 @@ void highlight(Context* c,int i,Player p)
 	}
 	else if(i<12)
 	{
-		renderTextureAsIs(c->highlightUp,c->pRenderer,x,350);
+		renderTextureAsIs(c->highlightUp,c->pRenderer,560-50*i,350);
 	}
 	else
 	{
