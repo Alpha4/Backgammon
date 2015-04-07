@@ -637,6 +637,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice){
 
 	//récupération des mouvements possibles
 	SList* movesPossible = fillIn_1_MovesPossible( player, dice, *gameState);
+	printf("GetMoveDone\n");
 	printList(movesPossible);
 
 	// récupération des cellules qui peuvent etre destination du mouvement
@@ -951,7 +952,6 @@ int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells){
 		if (cellEnTraitement->value.moves[0].src_point == numSrcCell)
 		{
 			destCells[index] = cellEnTraitement->value.moves[0].dest_point; // on ajoute la cellule destination au tableau destCells
-			printf("FID:%d\n",destCells[index]);
 			index ++;
 		}
 

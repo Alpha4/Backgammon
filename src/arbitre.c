@@ -1000,29 +1000,42 @@ int getMovesPossible(SGameState gameState, Player player, unsigned char diceGive
 int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char dice[2], Player player){
 	
 	int valide = 0; // initialisation à "mouvements non correctes"
-
+	printf("VM1\n");
 	//récupération des mouvements possibles :
-	SList* movesPossible = NULL;
+	SList* movesPossible;
 	int nbMovesPossible;
 	nbMovesPossible = getMovesPossible(gameState, player, dice, movesPossible);
 
+	//printList(movesPossible);
+	//ERREUR DU AU getMovesPossible
+	// Je propose de changer la valeur de retour par le pointeur sur la List et de passer l'entier par référence 
+	//voir si ça marche 
+
+	printf("VM2\n");
 	// si le joueur ne peut jouer aucun des 2 dés et qu'il donne un tableau de mouvement vide, celui ci est accepté
-	if ( (nbMovesPossible == nbMoves) && (nbMoves == 0) ){
+	if ( (nbMovesPossible == nbMoves) && (nbMoves == 0) )
+	{
 		valide = 1;
 	}
-
+	printf("VM3\n");
 	// parcours des mouvements possibles (correctes ) :
 	SCell* cellEnTraitement = GetFirstElement(movesPossible);
-	while ( cellEnTraitement != NULL){ 
-
+	while ( cellEnTraitement != NULL)
+	{
+		printf("VM4\n");
 		// vérification que le nombre de mouvements est correcte ( = vérification que le joueur ne doit pas effectuer + de coups)
-		if (nbMovesPossible == nbMoves){
-			
+		if (nbMovesPossible == nbMoves)
+		{
+			printf("VM5\n");
 			// vérification que chaque mouvement des tableaux sont identiques
 			int same = 1; // initialisation à " mouvements identiques"
 			int i;
-			for (i=0; i<nbMoves; i++){
-				if ( !(cellEnTraitement->value.moves[i].src_point == moves[i].src_point) && (cellEnTraitement->value.moves[i].dest_point == moves[i].dest_point) ){
+			for (i=0; i<nbMoves; i++)
+			{
+				printf("VMFOR : %d\n", i);
+				if ( !(cellEnTraitement->value.moves[i].src_point == moves[i].src_point) && (cellEnTraitement->value.moves[i].dest_point == moves[i].dest_point) )
+				{
+					printf("VM7\n");
 					same = 0;
 				}
 			}
@@ -1036,7 +1049,7 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
 
 	// libération de la mémoire allouée pour la liste movesPossible
 	DeleteList(movesPossible);
-
+	printf("VMReturn\n");
 	return valide;
 	
 }
