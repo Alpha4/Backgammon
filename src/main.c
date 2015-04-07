@@ -57,6 +57,7 @@ int main (int argc, char *argv[])
 	unsigned char dices[2];
 
 	SMove moves[4];
+	int videau=-1;
 
 
 	/*Chargement des librairies*/
@@ -88,6 +89,7 @@ int main (int argc, char *argv[])
 	}
 
 	/* Initialisation affichage*/
+
 	init(&c,"Backgammon");
 
 	/* Jeu */
@@ -102,9 +104,8 @@ int main (int argc, char *argv[])
 			}
 		}
 
-	/**
-	 * Randomisation de la couleur des joueurs
-	 */
+	
+	/* Randomisation de la couleur des joueurs */
 
 	srand(time(NULL));
 	player1 = (rand() % 2);
@@ -119,6 +120,8 @@ int main (int argc, char *argv[])
 	    player2=WHITE;
 	}
 	prompt(&c,msg);
+
+	/* JEU */
 	int m; //Nombre de matchs
 	for (m=0;m<atoi(argv[1]);m++)
 	{
@@ -186,14 +189,12 @@ int main (int argc, char *argv[])
 			gameState.bar[1]=0;
 			gameState.turn=1;
 			gameState.stake=1;
-	
+			
+			videau=-1;
 
 			int result=-1;
 			while (result==-1) //Boucle pour chaque tour (result est à -1 si pas de gagnant)
 			{
-
-				sprintf(msg,"Tour %d",gameState.turn);
-				prompt(&c,msg);
 				// Tirage des dés
 				srand(time(NULL));
 				dices[0]=rand()%6+1;
@@ -215,30 +216,35 @@ int main (int argc, char *argv[])
 				{
 					sprintf(msg,"A %s de jouer",p1Name);
 					prompt(&c,msg);
+
 					if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 					{
-						if (ai1.DoubleStack(&gameState))
+						if(videau!=current)
 						{
-							if(nbHumanPlayers==0) //Le joueur 2 est une IA
+							if (ai1.DoubleStack(&gameState))
 							{
-								if(!(ai2.TakeDouble(&gameState)))
+								videau=current;
+								if(nbHumanPlayers==0) //Le joueur 2 est une IA
 								{
-									result=current;
-									break;//Sortie de la boucle while
+									if(!(ai2.TakeDouble(&gameState)))
+									{
+										result=current;
+										break;//Sortie de la boucle while
+									}
+									else
+										gameState.stake*=2;
 								}
-								else
-									gameState.stake*=2;
-							}
-							else //Le joueur 2 est humain
-							{
-								doubleQuery(&c,1);
-								if(yesOrNo()==1)//VIDEAU_TAKE J2
+								else //Le joueur 2 est humain
 								{
-									result=current;
-									break;//Sortie de la boucle while
+									doubleQuery(&c,1);
+									if(yesOrNo()==1)//VIDEAU_TAKE J2
+									{
+										result=current;
+										break;//Sortie de la boucle while
+									}
+									else
+										gameState.stake*=2;
 								}
-								else
-									gameState.stake*=2;
 							}
 						}
 						update(&c,gameState,dices);
@@ -246,17 +252,21 @@ int main (int argc, char *argv[])
 					}
 					else //Le joueur 1 est humain -->2joueurs humains
 					{	
-						doubleQuery(&c,0);
-						if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J1
+						if(videau!=current)
 						{
-							doubleQuery(&c,1);
-							if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J2
+							doubleQuery(&c,0);
+							if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J1
 							{
-									result=current;
-									break;//Sortie de la boucle while
+								videau=current;
+								doubleQuery(&c,1);
+								if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J2
+								{
+										result=current;
+										break;//Sortie de la boucle while
+								}
+								else
+									gameState.stake*=2;
 							}
-							else
-								gameState.stake*=2;
 						}
 						update(&c,gameState,dices);
 						printf("BP1\n");
@@ -273,26 +283,11 @@ int main (int argc, char *argv[])
 					prompt(&c,msg);
 					if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
 					{
-						if (ai2.DoubleStack(&gameState))
+						if(videau!=current)
 						{
-							if(!(ai1.TakeDouble(&gameState)))
+							if (ai2.DoubleStack(&gameState))
 							{
-								result=current;
-								break; //Sortie de la boucle while
-							}
-							else
-								gameState.stake*=2;
-						}
-						update(&c,gameState,dices);
-						ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
-					}
-					else // Le joueur 2 est humain
-					{
-						if (nbHumanPlayers==1) // Le joueur 1 est IA
-						{
-							doubleQuery(&c,0);
-							if (yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
-							{
+								videau=current;
 								if(!(ai1.TakeDouble(&gameState)))
 								{
 									result=current;
@@ -302,20 +297,47 @@ int main (int argc, char *argv[])
 									gameState.stake*=2;
 							}
 						}
+						update(&c,gameState,dices);
+						ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
+					}
+					else // Le joueur 2 est humain
+					{
+						if (nbHumanPlayers==1) // Le joueur 1 est IA
+						{
+							if(videau!=current)
+							{
+								doubleQuery(&c,0);
+								if (yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
+								{
+									videau=current;
+									if(!(ai1.TakeDouble(&gameState)))
+									{
+										result=current;
+										break; //Sortie de la boucle while
+									}
+									else
+										gameState.stake*=2;
+								}
+							}
+						}
 
 						else // Le joueur 1 est humain
 						{
-							doubleQuery(&c,0);
-							if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
+							if(videau!=current)
 							{
-								doubleQuery(&c,1);
-								if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J1
+								doubleQuery(&c,0);
+								if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
 								{
-									result=current;
-									break; //Sortie de la boucle while
+									videau=current;
+									doubleQuery(&c,1);
+									if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J1
+									{
+										result=current;
+										break; //Sortie de la boucle while
+									}
+									else
+										gameState.stake*=2;
 								}
-								else
-									gameState.stake*=2;
 							}
 
 						}
@@ -401,8 +423,6 @@ int main (int argc, char *argv[])
 					current=WHITE;
 
 				gameState.turn++;
-				button(&c,"Undo");
-				SDL_Delay(3000);
 			}
 			
 			

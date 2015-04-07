@@ -201,6 +201,7 @@ int init(Context *c, char* title)
 	}
 
 	loadImages(c);
+	renderTextureAsIs(c->board,c->pRenderer,0,0);
 
 	return 0;
 }
