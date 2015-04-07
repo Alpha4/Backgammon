@@ -279,6 +279,11 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 
 
 	//Tour en cours
+	char turn[20];
+	sprintf(turn,"Tour %d",gs.turn);
+	SDL_Texture* texturn=renderText(turn,c,36,white);
+	renderTextureAsIs(texturn,c->pRenderer,620,580);
+	renderTextureAsIs(c->pawn[((gs.turn)%2)],c->pRenderer,720,580);
 
 	//mise à jour des out
 	char out[4];
@@ -345,11 +350,11 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 		break;
 
 	}
-	renderTextureAsIs(c->doublingCube[face],c->pRenderer,685,285);
+	renderTextureAsIs(c->doublingCube[face],c->pRenderer,625,285);
 
 	//Dés
 	renderTextureAsIs(c->dice[dices[0]-1],c->pRenderer,250,285);
-	renderTextureAsIs(c->dice[dices[1]-1],c->pRenderer,370,285);
+	renderTextureAsIs(c->dice[dices[1]-1],c->pRenderer,320,285);
 
 	SDL_RenderPresent(c->pRenderer);
 
@@ -359,6 +364,7 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	SDL_DestroyTexture(nbOutB);
 	SDL_DestroyTexture(scoreW);
 	SDL_DestroyTexture(scoreB);
+	SDL_DestroyTexture(texturn);
 
 	return 0;
 }
@@ -405,7 +411,6 @@ SDL_Texture* renderText(char* text,Context* c,int size,SDL_Color color)
  * @param char* text
  *	le message à afficher
 */
-
 void prompt(Context* c,char* text)
 {
 	SDL_Color white={0,0,0,0};
@@ -417,6 +422,29 @@ void prompt(Context* c,char* text)
 	SDL_DestroyTexture(msg);
 	playerClicked();
 }
+
+/**
+ *	Fonction affichantun bouton et son nom
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param char* name
+ *	le nom du bouton
+*/
+void button(Context* c,char* name)
+{
+	SDL_Color white={0,0,0,0};
+
+	renderTextureAsIs(c->button,c->pRenderer,685,292);
+
+	SDL_Texture* msg=renderText(name,c,24,white);
+
+	renderTextureAsIs(msg,c->pRenderer,xMiddleOf(c->button,msg,685),yMiddleOf(c->button,msg,292));
+
+	SDL_RenderPresent(c->pRenderer);
+	SDL_DestroyTexture(msg);
+}
+
+
 
 
 /**
@@ -626,6 +654,12 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice){
 	int srcCells[30];
 	int indexSrc = getSrcCells( *gameState, player, srcCells);
 	
+	printf("getMovesDone : cellules sources possibles :\n");
+	int a;
+	for(a=0;a<indexSrc;a++)
+	{
+		printf("SrcPossible : %d\n",srcCells[a]);
+	}
 
 	// tant que la case voulue pour la source du mouvement n'est pas dans srcCells on la "redemande"
 	printf("src?\n");
@@ -638,20 +672,20 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice){
 	//récupération des mouvements possibles
 	SList* movesPossible = fillIn_1_MovesPossible( player, dice, *gameState);
 	printf("GetMoveDone\n");
+	printf("liste des premiers mouvements dispo dans getMoveDone:\n");
 	printList(movesPossible);
 
 	// récupération des cellules qui peuvent etre destination du mouvement
 	int destCells[30];
 	int indexDest = fillInDestCells(movesPossible, numSrcCell, destCells );
 	
-	int a;
 	for(a=0;a<indexDest;a++)
 	{
 		printf("DestPossible : %d\n",destCells[a]);
 	}
 
 	//Libération mémoire allouée pour la liste movesPossible
-	DeleteList(movesPossible);
+	//DeleteList(movesPossible);
 
 	// affichage en surbrillance des cellules qui peuvent etre destination du mouvement
 	//int i;
@@ -675,7 +709,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice){
 	}
 
 	// actualisation du gameSate par rapport au mouvement effectué
-	actualizeGameState(numSrcCell, numDestCell, *gameState, player);
+	actualizeGameState(numSrcCell, numDestCell, gameState, player);
 
 	
 	// recherche du dé qui a été utilisé :
@@ -770,11 +804,14 @@ int yesOrNo(){
  *   nombre de mouvements contenus dans la liste
  */
 int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, Player player, Context* c){
-
-	// liste contenant les mouvements possibles
-	SList* movesPossible=NULL;
+	
 	printf("Dés : %d | %d \n",diceGiven[0],diceGiven[1]);
-	int nbMoves = getMovesPossible(gameState, player, diceGiven, movesPossible);
+	
+	
+	//SList* movesPossible;
+	// nombre de mouvements que le joueur doit faire
+	int nbMoves;
+	getMovesPossible(gameState, player, diceGiven, &nbMoves);
 
 
 	/*//Libération mémoire allouée pour la liste movesPossible

@@ -81,19 +81,18 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 void initData(Data* data);
 
 /**
- * Fonction qui actualise le gameSate donné en appliquant le mouvement d'un pion
+ * Fonction qui actualise le gameState donné en appliquant le mouvement d'un pion
  * @param int numSrcCell
  *   numéro de la cellule de départ du mouvement
  * @param int numDestCell
  *   numéro de la cellule d'arrivée du mouvement
- * @param SGameState gameState
- *   état du jeu courant
+ * @param SGameState* gameState
+ *   pointeur vers l'état du jeu courant
  * @param Player player
  *   joueur effectuant le mouvement
- * @return SGameState gameState
- *   état du jeu actualisé 
  */
-SGameState actualizeGameState(int numSrcCell, int numDestCell, SGameState gameState, Player player);
+
+void actualizeGameState(int numSrcCell, int numDestCell, SGameState* gameState, Player player);
 
 /**
  * Fonction qui créer et remplit les premiers mouvements possibles dans movesPossible
@@ -136,18 +135,18 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 
 /**
  * Fontion qui renvoie la liste de tous les mouvements possibles en fonction de l'état du jeu, du joueur et des dés
- * @param SGameState gameSate
+ * @param SGameState gameState
  *   état du jeu courant
  * @param Player player
  *   joueur pour lequel on souhaite avoir une liste de mouvements possibles
  * @param unsigned char diceGiven[2]
  *   tableau contenant les valeurs des dés 
- * @rparam SList* movesPossible
- *   liste de tous les mouvements possibles suivant le contexte de jeu
- * @return int nbMovesPossible
- *   nombre de mouvements contenus dans les cellule de movesPossible
+ * @rparam int nbMovesPossible
+ *   nombre de mouvement contenu dans les tableaux de movesPossible
+ * @return SList* movesPossible
+ *   liste chainée contenant tous les tableaux de mouvements possible
  */ 
-int getMovesPossible(SGameState gameState, Player player, unsigned char diceGiven[2], SList* movesPossible);
+SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceGiven[2], int* nbMovesPossible);
 
 /**
  * Fonction qui renvoie un booléen indiquant si un tableau de mouvement est correcte ( suivant l'état du jeu)

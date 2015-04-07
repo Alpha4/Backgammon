@@ -271,4 +271,13 @@ int yMiddleOf(SDL_Texture* texOut,SDL_Texture* texIn,int yOut);
 
 void prompt(Context* c,char* text);
 
+/**
+ *	Fonction affichantun bouton et son nom
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param char* name
+ *	le nom du bouton
+*/
+void button(Context* c,char* name);
+
 #endif

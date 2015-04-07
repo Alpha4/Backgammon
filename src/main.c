@@ -401,6 +401,8 @@ int main (int argc, char *argv[])
 					current=WHITE;
 
 				gameState.turn++;
+				button(&c,"Undo");
+				SDL_Delay(3000);
 			}
 			
 			
@@ -422,7 +424,7 @@ int main (int argc, char *argv[])
 			prompt(&c,msg);
 			g++;
 		}
-		
+		printf("BP6\n");
 		sprintf(msg,"%s remporte le match !",saveMatch(gameState,p1Name,p2Name,player1));
 
 		// Inversion des sides
