@@ -69,7 +69,7 @@ int getSrcCells(SGameState gameState, Player player, int* srcCells ){
 
 	// si le joueur a au moins 1 pion dans le bar il ne peut que partir du bar
 	if ( gameState.bar[player] > 0){
-		srcCells[0] = 25;
+		srcCells[0] = 0;
 		index ++;
 	}
 	// sinon on prend les cellules possédées par le joueur
@@ -382,16 +382,28 @@ void actualizeGameState(int numSrcCell, int numDestCell, SGameState* gameState, 
 SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState){
 
 	// création des listes contenant les cases de départ et d'arrivée possibles
-	int srcCells[25];
+	int srcCells[30];
 	int indexSrc = getSrcCells(gameState, player, srcCells);
 
-	int destCells[25];
+	printf("fillIn_1 : srcCells : \n");
+	int a;
+	for(a=0;a<indexSrc;a++)
+	{
+		printf("SrcPossible : %d\n",srcCells[a]);
+	}
+
+
+	int destCells[30];
 	int indexDest= getDestCells(gameState, player, destCells);
+
+	printf("fillIn_1 : ")
 
 
 	// création de la liste chainée contenant les mouvements possibles
 	SList* movesPossible;
 	movesPossible = CreateList();
+
+	printf("fillIn 1\n");
 
 	int i, j;
 	for (i=0; i < indexSrc; i++){ // i --> parcours de srcCells
@@ -411,7 +423,8 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 						|| (srcCells[i]==0 && 25-destCells[j] == dice[0])|| (srcCells[i]==0 && 25-destCells[j] == dice[1]) // cas le joueur noir sort un pion du bar
 						|| (srcCells[i]==0 && 25-destCells[j] == dice[2]) || (srcCells[i]==0 && 25-destCells[j] == dice[3]) 
 						){  // remarque : cas ou un pion blanc sort du bar est traité dans "normal"
-	
+						
+						printf("fillIn 2\n");
 	
 						// remplissage de la liste chainée avec une nouvelle cellule contenant le premier mouvement et l'état du jeu
 						//initialisation de data
@@ -937,9 +950,10 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
 	// nombre de mouvements contenus dans les cellules de movesPossible
 	*nbMovesPossible = 0;
 
-
+	printf("getMovesPossible 1\n");
 	//remplissage des premiers mouvements possibles
 	SList* movesPossible = fillIn_1_MovesPossible( player, dice, gameState);
+	printf("getMovesPossible 2\n");
 
 
 	// si movesPossible n'est pas vide

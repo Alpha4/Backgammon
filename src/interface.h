@@ -285,4 +285,15 @@ void prompt(Context* c,char* text);
 */
 void button(Context* c,char* name);
 
+/**
+ *	Fonction mettant en surbrillance les points / bar / out
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param int i
+ *	numéro du point à highlight
+ * @param Player p
+ *	le joueur qui joue (nécessaire pour le bar et out)
+*/
+void highlight(Context* c,int i,Player p);
+
 #endif
