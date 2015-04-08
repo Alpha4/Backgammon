@@ -213,9 +213,9 @@ void highlight(Context* c,int i,Player p)
 	if(i==0)
 	{
 		if(p==BLACK)
-			renderTextureAsIs(c->highlightPawn,c->pRenderer,510,280);
+			renderTextureAsIs(c->highlightPawn,c->pRenderer,450,280);
 		else
-			renderTextureAsIs(c->highlightPawn,c->pRenderer,110,280);
+			renderTextureAsIs(c->highlightPawn,c->pRenderer,50,280);
 	}
 	else if (i==25)
 	{
@@ -914,23 +914,17 @@ int yesOrNo(){
  *   nombre de mouvements contenus dans la liste
  */
 int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, Player player, Context* c){
-	
-	printf("Dés : %d | %d \n",diceGiven[0],diceGiven[1]);
-	
+		
 	
 	//SList* movesPossible;
 	// nombre de mouvements que le joueur doit faire
 	int nbMoves;
-	printf("GA1\n");
 	getMovesPossible(gameState, player, diceGiven, &nbMoves);
 	/*
 	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	 A FAIRE RECUPERE GETMOVESPOSSIBLE POUR DELETE
 	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	*/
-
-
-	printf("GA2\n");
 
 
 	/*//Libération mémoire allouée pour la liste movesPossible
@@ -955,7 +949,6 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		dice[2] = -1;
 		dice[3] = -1;	
 	}
-	printf("nbMoves=%d\n",nbMoves);
 	// récupération des mouvements
 	if ( nbMoves == 0 )
 	{
@@ -1027,7 +1020,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		moves[2] = move3;
 		moves[3] = move4;
 	}
-	printf("avant update\n");
+
 	SDL_RenderClear(c->pRenderer);
 		update(c,gameState,diceGiven);
 	SDL_RenderPresent(c->pRenderer);
