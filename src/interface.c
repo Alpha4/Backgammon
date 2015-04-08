@@ -963,6 +963,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 			update(c,gameState,diceGiven);
 			prompt(c, "Pas de coup possible"); // prévient le joueur qu'il n'a pas de coup possible
 		SDL_RenderPresent(c->pRenderer);
+		playerClicked();
 	}
 	else if ( nbMoves == 1 ){
 		SMove move1;
