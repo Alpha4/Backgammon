@@ -238,18 +238,39 @@ void highlight(Context* c,int i,Player p)
  *	Fonction grisant le dé indiqué
  * @param Context* c
  *	le context pour l'affichage
- * @param int i
- *	numéro du dé à griser
+ * @param int* dice
+ *	tableau des dés
 */
-void grayOut(Context* c,int i)
+void grayOut(Context* c,int* dice)
 {
-	if(i==0)
+	if(dice[2]==dice[3]&&dice[2]==-1) // pas de double
 	{
-		renderTextureAsIs(c->grayedOutDice,c->pRenderer,250,285);
+		if(dice[0]==-1)
+		{
+			renderTextureAsIs(c->grayedOutDice,c->pRenderer,250,285);
+		}
+		if(dice[1]==-1)
+		{
+			renderTextureAsIs(c->grayedOutDice,c->pRenderer,320,285);
+		}
 	}
-	else
+	else //Double
 	{
-		renderTextureAsIs(c->grayedOutDice,c->pRenderer,320,285);
+		int i;
+		for (i=0;i<4;i++)
+		{
+			if (dice[i]==-1)
+			{
+				if(i%2==0)
+				{
+					renderTextureAsIs(c->grayedOutDice,c->pRenderer,250,285);
+				}
+				else if (i%2==1)
+				{
+					renderTextureAsIs(c->grayedOutDice,c->pRenderer,320,285);
+				}
+			}
+		}
 	}
 }
 
@@ -755,6 +776,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 		{
 			highlight(c, srcCells[i] , player);
 		}
+		grayOut(c,dice);
 	SDL_RenderPresent(c->pRenderer);
 	
 
@@ -769,6 +791,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 
 	SDL_RenderClear(c->pRenderer);
 		update(c,*gameState,diceGiven);
+		grayOut(c,dice);
 	SDL_RenderPresent(c->pRenderer);
 
 	//récupération des mouvements possibles
@@ -798,6 +821,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 			highlight(c, destCells[i] , player);
 		}
 		button(c, "Undo");
+		grayOut(c,dice);
 	SDL_RenderPresent(c->pRenderer);
 
 
@@ -960,7 +984,9 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	{
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
+			grayOut(c,dice);
 			prompt(c, "Pas de coup possible"); // prévient le joueur qu'il n'a pas de coup possible
+
 		SDL_RenderPresent(c->pRenderer);
 		playerClicked();
 	}
@@ -978,6 +1004,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
+			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
 		move2 = getMoveDone( player, &gameState, dice, c, diceGiven); 
 
@@ -991,10 +1018,12 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
+			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
 		move2 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
+			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
 		move3 = getMoveDone(player, &gameState, dice, c, diceGiven); 
 
@@ -1009,15 +1038,23 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
+			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
+
 		move2 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
+			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
+		
 		move3 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
+			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
+		
 		move4 = getMoveDone(player, &gameState, dice, c, diceGiven); 
 
 		//remplissage du tableau de mouvements:
@@ -1029,6 +1066,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 	SDL_RenderClear(c->pRenderer);
 		update(c,gameState,diceGiven);
+		grayOut(c,dice);
 	SDL_RenderPresent(c->pRenderer);
 	return nbMoves;
 }
@@ -1054,7 +1092,7 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell){
 
 	// cas "normal"
 	if ( (numSrcCell != 0) &&  (numDestCell != 25) ){
-		for (i=0; i<4; i++){
+		for (i=3; i>-1; i--){
 			if (dice[i] == fabs(numDestCell - numSrcCell)){
 				diceUsed = i;
 			}
@@ -1065,7 +1103,7 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell){
 	if ( player == WHITE ){
 		// sort du bar
 		if ( numSrcCell == 0 ){
-			for (i=0; i<4; i++){
+			for (i=3; i>-1; i--){
 				if (dice[i] == numDestCell){
 					diceUsed = i;
 				}
@@ -1073,7 +1111,7 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell){
 		}
 		// vas dans le out
 		if ( numDestCell == 25 ){
-			for(i=0; i<4; i++){
+			for (i=3; i>-1; i--){
 				if ( dice[i] == (25-numSrcCell) ){
 					diceUsed = i;
 				}
@@ -1085,7 +1123,7 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell){
 	if ( player == BLACK ){
 		// sort du bar
 		if ( numSrcCell == 0 ){
-			for (i=0; i<4; i++){
+			for (i=3; i>-1; i--){
 				if (dice[i] == (25-numDestCell)){
 					diceUsed = i;
 				}
@@ -1093,7 +1131,7 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell){
 		}
 		// vas dans le out
 		if ( numDestCell == 25 ){
-			for(i=0; i<4; i++){
+			for (i=3; i>-1; i--){
 				if ( dice[i] == numSrcCell ){
 					diceUsed = i;
 				}

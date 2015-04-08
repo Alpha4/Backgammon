@@ -155,6 +155,8 @@ int main (int argc, char *argv[])
 	}
 
 	initGS(&gameState);
+	gameState.whiteScore=0;
+	gameState.blackScore=0;
 
 	SDL_RenderClear(c.pRenderer);
 		update(&c,gameState,dices);
@@ -187,6 +189,7 @@ int main (int argc, char *argv[])
 
 		gameState.whiteScore=0;
 		gameState.blackScore=0;
+		
 		int g=0;
 		while(gameState.whiteScore<=pts && gameState.blackScore<=pts)
 		{
@@ -210,39 +213,6 @@ int main (int argc, char *argv[])
 			playerClicked();
 
 			initGS(&gameState);
-			/*Initialisation du plateau
-			int i;
-			for (i = 0; i < 24; ++i)
-			{	
-				gameState.board[i].owner=NOBODY;
-				gameState.board[i].nbDames=0;
-			}
-			//WHITE
-			gameState.board[0].owner=WHITE;
-			gameState.board[0].nbDames=2;
-			gameState.board[11].owner=WHITE;
-			gameState.board[11].nbDames=5;
-			gameState.board[16].owner=WHITE;
-			gameState.board[16].nbDames=3;
-			gameState.board[18].owner=WHITE;
-			gameState.board[18].nbDames=5;
-
-			//BLACK
-			gameState.board[23].owner=BLACK;
-			gameState.board[23].nbDames=2;
-			gameState.board[12].owner=BLACK;
-			gameState.board[12].nbDames=5;
-			gameState.board[7].owner=BLACK;
-			gameState.board[7].nbDames=3;
-			gameState.board[5].owner=BLACK;
-			gameState.board[5].nbDames=5;
-
-			gameState.out[0]=0;
-			gameState.out[1]=0;
-			gameState.bar[0]=0;
-			gameState.bar[1]=0;
-			gameState.turn=1;
-			gameState.stake=1;*/
 			
 			videau=-1;
 

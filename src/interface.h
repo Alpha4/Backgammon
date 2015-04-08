@@ -321,6 +321,6 @@ void highlight(Context* c,int i,Player p);
  * @param int i
  *	numéro du dé à griser
 */
-void grayOut(Context* c,int i);
+void grayOut(Context* c,int *dice);
 
 #endif
