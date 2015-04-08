@@ -970,6 +970,8 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
 
 	//transformation du dé en en un tableau de 4 entiers
 	// pour pouvoir traiter le cas d'un double --> 4 dés pourront être utilisés
+	printf("\n\n\nDébut getMovesPossible\n\n\n");
+
 	int dice[4];
 
 	 // si cest un double
@@ -986,23 +988,20 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
 		dice[3] = -1;	
 	}
 
+	//AFFICHAGE CONSOLE
+	int a;
+	printf("Dés :\n");
+	for (a=0; a<4; a++)
+	{
+		printf("%i\n", dice[a]);
+	}
+
 	// nombre de mouvements contenus dans les cellules de movesPossible
 	*nbMovesPossible = 0;
 
-	printf("getMovesPossible 1\n");
 	//remplissage des premiers mouvements possibles
 	SList* movesPossible;
 	movesPossible = fillIn_1_MovesPossible( player, dice, gameState);
-	if(movesPossible==NULL)
-		printf("movesPossibleNULL");
-	/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-						AURELIIIIIIIIIIIEN :)
-	la fonction fillIn_1 se déroule bien il me semble ( printf("fillIn_1 va return") s'affiche)
-	le pb est dans l'affectation du return dans ma liste movesPossible ?
-	peut etre parce que jai pas fait de malloc sur movesPossible ? mais c'est bizarre car fillIn_1 le fait le malloc normalement
-
-	*///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	printf("getMovesPossible 2\n");
 
 
 	// si movesPossible n'est pas vide
@@ -1010,6 +1009,7 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
 
 		// remplissage des mouvements suivants:
 		*nbMovesPossible = fillIn_2_MovesPossible( player, movesPossible, 1);
+		printf("fill in 2 dit: nbMoves = %i\n", *nbMovesPossible);
 	}
 
 	// si le joueur ne peut jouer qu'un dé ( ne concerne pas le cas d'un double)
@@ -1043,8 +1043,6 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
 			cellEnTraitement = cellNext;
 		}
 	}
-	printf("movesPossible envoyé par getMovesPossible: \n");
-	printList(movesPossible);
 	return movesPossible;
 }
 

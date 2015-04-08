@@ -918,8 +918,14 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	
 	//SList* movesPossible;
 	// nombre de mouvements que le joueur doit faire
-	int nbMoves;
-	getMovesPossible(gameState, player, diceGiven, &nbMoves);
+	int nbMoves; 
+	SList* movesPossible = getMovesPossible(gameState, player, diceGiven, &nbMoves);
+
+	// AFFICHAGE CONSOLE	
+	printf("\ngetArrayMoves :movesPossible : \n");
+	printList(movesPossible);
+	printf("nbMoves = %i\n", nbMoves);
+
 	/*
 	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	 A FAIRE RECUPERE GETMOVESPOSSIBLE POUR DELETE
