@@ -117,8 +117,8 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 
 	// si tous les pions du joueur sont dans les 6 dernieres cases (du joueur) --> il peut mettre des pions dans out[]
 
-	// cas du joueur noir
-	if (player == BLACK ){
+	// cas du joueur blanc
+	if (player == WHITE ){
 		int add = 0; // nb de pionts dans les 6 dernieres cases
 		for ( i=18; i < 24; i++){
 			if (gameState.board[i].owner == player){
@@ -131,8 +131,8 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 		}
 	}
 
-	// cas du joueur blanc
-	if ( player == WHITE ){	
+	// cas du joueur noir
+	if ( player == BLACK ){	
 		int add = 0; // nb de pionts dans les 6 dernieres cases
 		for (i=0; i < 6; i++){
 			if (gameState.board[i].owner == player){
@@ -170,7 +170,7 @@ int thereIsFartherPiece(int numSrcCell, Player player, SGameState gameState){
 		// de la 6e case jusqu'a la case source du mouvement voulu (exclue) ( sens décroissant)
 		// on regarde si le joueur possède des pions
 		for (i=6; i>numSrcCell; i--){
-			if (gameState.board[numSrcCell-1].owner == player){
+			if (gameState.board[i-1].owner == player){
 				thereIsFartherPiece = 1;
 			}
 		}
@@ -182,7 +182,7 @@ int thereIsFartherPiece(int numSrcCell, Player player, SGameState gameState){
 		// de la 19e case jusqu'a la case source du mouvement voulu (exclue) (sens croissant)
 		// on regarde si le joueur possède des pions
 		for (i=19; i<numSrcCell; i++){
-			if (gameState.board[numSrcCell-1].owner == player){
+			if (gameState.board[i-1].owner == player){
 				thereIsFartherPiece = 1;
 			}
 		}
@@ -214,12 +214,12 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 	// vérification que tous les pions du joueur sont dans ses 6 dernieres cases
 	int piecesWellPlaced = 0;
 
-	// cas du joueur noir
+	// cas du joueur blanc
 	if (player == WHITE ){
 
 		int add = 0; // nombre de pions dans les 6 dernieres cases
 
-		for ( i=18; i < 34; i++){
+		for ( i=18; i < 24; i++){
 			if (gameState.board[i].owner == player){
 				add += gameState.board[i].nbDames;
 			}
@@ -229,7 +229,7 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 		}	
 	}
 
-	// cas du joueur blanc
+	// cas du joueur noir
 	if ( player == BLACK ){	
 		int add = 0; // nombre de pions dans les 6 dernieres cases
 		for (i=0; i < 6; i++){
