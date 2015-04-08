@@ -5,5 +5,5 @@ clean:
 	rm -rf *.so
 
 lib:
-	gcc -fPIC -c NOMDEVOTREIA.c -Wall
-	gcc -shared NOMDEVOTREIA.o -o NOMDEVOTREIA.so -Wall
+	gcc -fPIC -c bot.c liste.c -Wall
+	gcc -shared bot.o liste.o -o libalta.so -Wall

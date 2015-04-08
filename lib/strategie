@@ -9,8 +9,8 @@ Si c'est à son tour :
     * Si WHITE : sens 1 -> 24
     * Si BLACK : sens 24 -> 1
     * fleche dest forcement ouverte
-    * si possibilité de manger une dame ennemi le faire
-    * eviter si possible de laisser une dame seul
+    * SI POSSIBILITÉ DE MANGER UNE DAME ENNEMI LE FAIRE
+    * EVITER SI POSSIBLE DE LAISSER UNE DAME SEUL
 
 
 Fleches ouvertes : fleches m'appartenant
@@ -41,3 +41,11 @@ canOut : boolean, peut sortir dans l'out
 diceValues : valeurs des dés dispo, si vide : 0
         int diceValues[4];
 mustBar : boolean, doit sortir des dames du bar
+
+
+PlayTurn :
+
+On récupère la liste des tableaux de mouvements possibles
+On test le premier mouvement de chaque tableau, on en choisit un.
+On supprime tous les tableaux dont le premier mouvement est différent de celui choisi
+On recommence avec le mouvement suivant.
