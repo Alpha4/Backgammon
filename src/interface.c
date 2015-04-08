@@ -18,6 +18,7 @@
  */
 void cleanup(Context* c)
 {
+	//Images
 	int i;
 	for (i=0;i<6;i++)
 	{
@@ -26,6 +27,20 @@ void cleanup(Context* c)
 		if(c->doublingCube[i]!=NULL)
 			SDL_DestroyTexture(c->doublingCube[i]);
 	}
+	if(c->prompt!=NULL)
+		SDL_DestroyTexture(c->prompt); //Texture pour les prompts
+	if(c->button!=NULL)
+		SDL_DestroyTexture(c->button); //Texture pour les boutons
+	if(c->highlightUp!=NULL)
+		SDL_DestroyTexture(c->highlightUp); //Texture pour highlight point
+	if(c->highlightDown!=NULL)
+		SDL_DestroyTexture(c->highlightDown);
+	if(c->highlightPawn!=NULL)
+		SDL_DestroyTexture(c->highlightPawn);
+	if(c->highlightOut!=NULL)
+		SDL_DestroyTexture(c->highlightOut);
+	if(c->grayedOutDice!=NULL)
+		SDL_DestroyTexture(c->grayedOutDice); //Texture pour griser les dés
 	if(c->pawnOut[0]!=NULL)
 		SDL_DestroyTexture(c->pawnOut[0]);
 	if(c->pawnOut[1]!=NULL)
@@ -34,12 +49,35 @@ void cleanup(Context* c)
 		SDL_DestroyTexture(c->pawn[0]);
 	if(c->pawn[1]!=NULL)
 		SDL_DestroyTexture(c->pawn[1]);
-	if(c->pawnOut[0]!=NULL)
-		SDL_DestroyTexture(c->pawnOut[0]);
-	if(c->pawnOut[1]!=NULL)
-		SDL_DestroyTexture(c->pawnOut[1]);
 	if(c->board!=NULL)
 		SDL_DestroyTexture(c->board);
+
+	//Textes
+	if(c->msg!=NULL)
+		SDL_DestroyTexture(c->msg); //Texte prompt et butto
+	if(c->nbBarW!=NULL)
+		SDL_DestroyTexture(c->nbBarW);
+	if(c->nbBarB!=NULL)
+		SDL_DestroyTexture(c->nbBarB);
+	if(c->nbOutW!=NULL)
+		SDL_DestroyTexture(c->nbOutW);
+	if(c->nbOutB!=NULL)
+		SDL_DestroyTexture(c->nbOutB);
+	if(c->scoreW!=NULL)
+		SDL_DestroyTexture(c->scoreW);
+	if(c->scoreB!=NULL)
+		SDL_DestroyTexture(c->scoreB);
+	if(c->texturn!=NULL)
+		SDL_DestroyTexture(c->texturn);
+	if(c->oui!=NULL)
+		SDL_DestroyTexture(c->oui);
+	if(c->non!=NULL)
+		SDL_DestroyTexture(c->non);
+	if(c->doubler!=NULL)
+		SDL_DestroyTexture(c->doubler);
+
+
+	//else
 	if(c->pRenderer!=NULL)
 		SDL_DestroyRenderer(c->pRenderer);
 	if(c->pWindow!=NULL)
@@ -194,8 +232,6 @@ void highlight(Context* c,int i,Player p)
 	{
 		renderTextureAsIs(c->highlightDown,c->pRenderer,10+50*(i-13),10);
 	}
-
-	SDL_RenderPresent(c->pRenderer);
 }
 
 /**
@@ -215,8 +251,6 @@ void grayOut(Context* c,int i)
 	{
 		renderTextureAsIs(c->grayedOutDice,c->pRenderer,320,285);
 	}
-
-	SDL_RenderPresent(c->pRenderer);
 }
 
 
@@ -266,7 +300,13 @@ int init(Context *c, char* title)
 	}
 
 	loadImages(c);
-	renderTextureAsIs(c->board,c->pRenderer,0,0);
+
+	SDL_Color black={0,0,0,0};
+	c->accept=renderText("Accepter ?",c,36,black);
+	c->doubler=renderText("Doubler la mise ?",c,36,black);
+	c->oui=renderText("Oui",c,24,black);
+	c->non=renderText("Non",c,24,black);
+
 
 	return 0;
 }
@@ -284,7 +324,6 @@ int init(Context *c, char* title)
  */
 int update(Context *c, SGameState gs,unsigned char* dices)
 {
-	SDL_RenderClear(c->pRenderer);
 
 	renderTextureAsIs(c->board,c->pRenderer,0,0);
 
@@ -336,30 +375,30 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	sprintf(sW,"Score %d",gs.whiteScore);
 	sprintf(sB,"Score %d",gs.blackScore);
 
-	SDL_Texture* scoreB=renderText(sB,c,42,white);
-	SDL_Texture* scoreW=renderText(sW,c,42,white);
+	c->scoreB=renderText(sB,c,42,white);
+	c->scoreW=renderText(sW,c,42,white);
 
-	renderTextureAsIs(scoreB,c->pRenderer,620,10);
-	renderTextureAsIs(scoreW,c->pRenderer,620,530);
+	renderTextureAsIs(c->scoreB,c->pRenderer,620,10);
+	renderTextureAsIs(c->scoreW,c->pRenderer,620,530);
 
 
 
 	//Tour en cours
 	char turn[20];
 	sprintf(turn,"Tour %d",gs.turn);
-	SDL_Texture* texturn=renderText(turn,c,36,white);
-	renderTextureAsIs(texturn,c->pRenderer,620,580);
+	c->texturn=renderText(turn,c,36,white);
+	renderTextureAsIs(c->texturn,c->pRenderer,620,580);
 	renderTextureAsIs(c->pawn[((gs.turn)%2)],c->pRenderer,720,580);
 
 	//mise à jour des out
 	char out[4];
 	
 	sprintf(out,"%d",gs.out[WHITE]);
-	SDL_Texture* nbOutW=renderText(out,c,42,white);
-	renderTextureAsIs(nbOutW,c->pRenderer,682,397);
-	SDL_Texture* nbOutB=renderText(out,c,42,white);
+	c->nbOutW=renderText(out,c,42,white);
+	renderTextureAsIs(c->nbOutW,c->pRenderer,682,397);
+	c->nbOutB=renderText(out,c,42,white);
 	sprintf(out,"%d",gs.out[BLACK]);
-	renderTextureAsIs(nbOutB,c->pRenderer,682,116);
+	renderTextureAsIs(c->nbOutB,c->pRenderer,682,116);
 
 
 	for (i=0;i<gs.out[WHITE];i++)
@@ -377,14 +416,14 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	char bar[4];
 	sprintf(bar,"%d",gs.bar[BLACK]);
 	renderTextureAsIs(c->pawn[BLACK],c->pRenderer,510,280);
-	SDL_Texture* nbBarB=renderText(bar,c,42,white);
-	renderTextureAsIs(nbBarB,c->pRenderer,470,280);
+	c->nbBarB=renderText(bar,c,42,white);
+	renderTextureAsIs(c->nbBarB,c->pRenderer,470,280);
 
 	
 	sprintf(bar,"%d",gs.bar[WHITE]);
 	renderTextureAsIs(c->pawn[WHITE],c->pRenderer,110,280);
-	SDL_Texture* nbBarW=renderText(bar,c,42,white);
-	renderTextureAsIs(nbBarW,c->pRenderer,70,280);
+	c->nbBarW=renderText(bar,c,42,white);
+	renderTextureAsIs(c->nbBarW,c->pRenderer,70,280);
 
 
 
@@ -421,16 +460,6 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	//Dés
 	renderTextureAsIs(c->dice[dices[0]-1],c->pRenderer,250,285);
 	renderTextureAsIs(c->dice[dices[1]-1],c->pRenderer,320,285);
-
-	SDL_RenderPresent(c->pRenderer);
-
-	SDL_DestroyTexture(nbBarW);
-	SDL_DestroyTexture(nbBarB);
-	SDL_DestroyTexture(nbOutW);
-	SDL_DestroyTexture(nbOutB);
-	SDL_DestroyTexture(scoreW);
-	SDL_DestroyTexture(scoreB);
-	SDL_DestroyTexture(texturn);
 
 	return 0;
 }
@@ -480,13 +509,9 @@ SDL_Texture* renderText(char* text,Context* c,int size,SDL_Color color)
 void prompt(Context* c,char* text)
 {
 	SDL_Color white={0,0,0,0};
-
 	renderTextureAsIs(c->prompt,c->pRenderer,85,260);
-	SDL_Texture* msg=renderText(text,c,36,white);
-	renderTextureAsIs(msg,c->pRenderer,xMiddleOf(c->prompt,msg,85),yMiddleOf(c->prompt,msg,260));
-	SDL_RenderPresent(c->pRenderer);
-	SDL_DestroyTexture(msg);
-	playerClicked();
+	c->msg=renderText(text,c,36,white);
+	renderTextureAsIs(c->msg,c->pRenderer,xMiddleOf(c->prompt,c->msg,85),yMiddleOf(c->prompt,c->msg,260));
 }
 
 /**
@@ -502,12 +527,9 @@ void button(Context* c,char* name)
 
 	renderTextureAsIs(c->button,c->pRenderer,685,292);
 
-	SDL_Texture* msg=renderText(name,c,24,white);
+	c->msg=renderText(name,c,24,white);
 
-	renderTextureAsIs(msg,c->pRenderer,xMiddleOf(c->button,msg,685),yMiddleOf(c->button,msg,292));
-
-	SDL_RenderPresent(c->pRenderer);
-	SDL_DestroyTexture(msg);
+	renderTextureAsIs(c->msg,c->pRenderer,xMiddleOf(c->button,c->msg,685),yMiddleOf(c->button,c->msg,292));
 }
 
 
@@ -522,33 +544,21 @@ void button(Context* c,char* name)
  */
 void doubleQuery(Context* c,int qoa)
 {
-	SDL_Color white={0,0,0,0};
-
 	renderTextureAsIs(c->prompt,c->pRenderer,85,260);
 	renderTextureAsIs(c->button,c->pRenderer,175,320);
 	renderTextureAsIs(c->button,c->pRenderer,357,320);
-	SDL_Texture* oui=renderText("Oui",c,24,white);
-	SDL_Texture* non=renderText("Non",c,24,white);
 
-	renderTextureAsIs(oui,c->pRenderer,xMiddleOf(c->button,oui,357),yMiddleOf(c->button,oui,320));
-	renderTextureAsIs(non,c->pRenderer,xMiddleOf(c->button,non,175),yMiddleOf(c->button,non,320));
-	SDL_Texture* doubler;
+	renderTextureAsIs(c->oui,c->pRenderer,xMiddleOf(c->button,c->oui,357),yMiddleOf(c->button,c->oui,320));
+	renderTextureAsIs(c->non,c->pRenderer,xMiddleOf(c->button,c->non,175),yMiddleOf(c->button,c->non,320));
+	
 	if(!qoa)
 	{	
-		doubler=renderText("Doubler la mise ?",c,36,white);
-		renderTextureAsIs(doubler,c->pRenderer,xMiddleOf(c->prompt,doubler,85),260);
+		renderTextureAsIs(c->doubler,c->pRenderer,xMiddleOf(c->prompt,c->doubler,85),260);
 	}
 	else
 	{	
-		doubler=renderText("Accepter ?",c,36,white);
-		renderTextureAsIs(doubler,c->pRenderer,xMiddleOf(c->prompt,doubler,85),260);
+		renderTextureAsIs(c->accept,c->pRenderer,xMiddleOf(c->prompt,c->accept,85),260);
 	}
-
-	SDL_RenderPresent(c->pRenderer);
-
-	SDL_DestroyTexture(oui);
-	SDL_DestroyTexture(non);
-	SDL_DestroyTexture(doubler);
 
 }
 
@@ -739,9 +749,14 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 
 	// affichage en surbrillance des cellules qui peuvent etre source du mouvement
 	int i;
-	for (i=0; i<indexSrc; i++){
-		highlight(c, srcCells[i] , player);
-	}
+	SDL_RenderClear(c->pRenderer);
+		update(c,*gameState,diceGiven);
+		for (i=0; i<indexSrc; i++)
+		{
+			highlight(c, srcCells[i] , player);
+		}
+	SDL_RenderPresent(c->pRenderer);
+	
 
 	// tant que la case voulue pour la source du mouvement n'est pas dans srcCells on la "redemande"
 	printf("src?\n");
@@ -752,7 +767,9 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 	}
 	printf("LastLastPointClicked  %d\n", numSrcCell);
 
-	update(c, *gameState, diceGiven);
+	SDL_RenderClear(c->pRenderer);
+		update(c,*gameState,diceGiven);
+	SDL_RenderPresent(c->pRenderer);
 
 	//récupération des mouvements possibles
 	SList* movesPossible = fillIn_1_MovesPossible( player, dice, *gameState);
@@ -773,11 +790,18 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 	//DeleteList(movesPossible);
 
 	// affichage en surbrillance des cellules qui peuvent etre destination du mouvement
-	for (i=0; i<indexDest; i++){
-		highlight(c, destCells[i] , player);
-	}
 
-	button(c, "Undo");
+	SDL_RenderClear(c->pRenderer);
+		update(c,*gameState,diceGiven);
+		for (i=0; i<indexDest; i++)
+		{
+			highlight(c, destCells[i] , player);
+		}
+		button(c, "Undo");
+	SDL_RenderPresent(c->pRenderer);
+
+
+	
 
 	printf("dest?\n");
 	// tant que la case voulue par le joueur pour la destination n'est pas dans destCells on la "redemande"
@@ -933,8 +957,12 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	}
 	printf("nbMoves=%d\n",nbMoves);
 	// récupération des mouvements
-	if ( nbMoves == 0 ){
-		prompt(c, "Pas de coup possible"); // prévient le joueur qu'il n'a pas de coup possible
+	if ( nbMoves == 0 )
+	{
+		SDL_RenderClear(c->pRenderer);
+			update(c,gameState,diceGiven);
+			prompt(c, "Pas de coup possible"); // prévient le joueur qu'il n'a pas de coup possible
+		SDL_RenderPresent(c->pRenderer);
 	}
 	else if ( nbMoves == 1 ){
 		SMove move1;
@@ -948,7 +976,9 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		SMove move1, move2;
 		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
-		update(c,gameState,diceGiven);
+		SDL_RenderClear(c->pRenderer);
+			update(c,gameState,diceGiven);
+		SDL_RenderPresent(c->pRenderer);
 		move2 = getMoveDone( player, &gameState, dice, c, diceGiven); 
 
 		// remplissage du tableau de mouvements:
@@ -959,9 +989,13 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		SMove move1, move2, move3;
 		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
-		update(c,gameState,diceGiven);
+		SDL_RenderClear(c->pRenderer);
+			update(c,gameState,diceGiven);
+		SDL_RenderPresent(c->pRenderer);
 		move2 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
-		update(c,gameState,diceGiven);
+		SDL_RenderClear(c->pRenderer);
+			update(c,gameState,diceGiven);
+		SDL_RenderPresent(c->pRenderer);
 		move3 = getMoveDone(player, &gameState, dice, c, diceGiven); 
 
 		//remplissage du tableau de mouvements:
@@ -973,11 +1007,17 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		SMove move1, move2, move3, move4;
 		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
-		update(c,gameState,diceGiven);
+		SDL_RenderClear(c->pRenderer);
+			update(c,gameState,diceGiven);
+		SDL_RenderPresent(c->pRenderer);
 		move2 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
-		update(c,gameState,diceGiven);
+		SDL_RenderClear(c->pRenderer);
+			update(c,gameState,diceGiven);
+		SDL_RenderPresent(c->pRenderer);
 		move3 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
-		update(c,gameState,diceGiven);
+		SDL_RenderClear(c->pRenderer);
+			update(c,gameState,diceGiven);
+		SDL_RenderPresent(c->pRenderer);
 		move4 = getMoveDone(player, &gameState, dice, c, diceGiven); 
 
 		//remplissage du tableau de mouvements:
@@ -987,7 +1027,9 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		moves[3] = move4;
 	}
 	printf("avant update\n");
-	update(c, gameState, diceGiven);
+	SDL_RenderClear(c->pRenderer);
+		update(c,gameState,diceGiven);
+	SDL_RenderPresent(c->pRenderer);
 	return nbMoves;
 }
 

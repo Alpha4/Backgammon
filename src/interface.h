@@ -26,6 +26,18 @@ struct Context
 	SDL_Texture* highlightPawn;
 	SDL_Texture* highlightOut;
 	SDL_Texture* grayedOutDice; //Texture pour griser les dés
+	SDL_Texture* msg; //Texte prompt et button
+	SDL_Texture* nbBarW;
+	SDL_Texture* nbBarB;
+	SDL_Texture* nbOutW;
+	SDL_Texture* nbOutB;
+	SDL_Texture* scoreW;
+	SDL_Texture* scoreB;
+	SDL_Texture* texturn;
+	SDL_Texture* oui;
+	SDL_Texture* non;
+	SDL_Texture* doubler;
+	SDL_Texture* accept;
 };
 
 /**

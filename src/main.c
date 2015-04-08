@@ -19,8 +19,42 @@ Programme principal gérant l'interface, l'arbitre et les interface
 #include "interface.h"
 #include "liste.h"
 
+void initGS(SGameState* gameState)
+{
+	/*Initialisation du plateau*/
+	int i;
+	for (i = 0; i < 24; ++i)
+	{	
+		gameState->board[i].owner=NOBODY;
+		gameState->board[i].nbDames=0;
+	}
+	//WHITE
+	gameState->board[0].owner=WHITE;
+	gameState->board[0].nbDames=2;
+	gameState->board[11].owner=WHITE;
+	gameState->board[11].nbDames=5;
+	gameState->board[16].owner=WHITE;
+	gameState->board[16].nbDames=3;
+	gameState->board[18].owner=WHITE;
+	gameState->board[18].nbDames=5;
 
+	//BLACK
+	gameState->board[23].owner=BLACK;
+	gameState->board[23].nbDames=2;
+	gameState->board[12].owner=BLACK;
+	gameState->board[12].nbDames=5;
+	gameState->board[7].owner=BLACK;
+	gameState->board[7].nbDames=3;
+	gameState->board[5].owner=BLACK;
+	gameState->board[5].nbDames=5;
 
+	gameState->out[0]=0;
+	gameState->out[1]=0;
+	gameState->bar[0]=0;
+	gameState->bar[1]=0;
+	gameState->turn=1;
+	gameState->stake=1;
+}
 
 int main (int argc, char *argv[])
 {
@@ -54,7 +88,7 @@ int main (int argc, char *argv[])
 
 	unsigned int nbMoves;
 	int pts=3; //Points pour remporter le match
-	unsigned char dices[2];
+	unsigned char dices[2]={1,1};
 
 	SMove moves[4];
 	int videau=-1;
@@ -95,14 +129,14 @@ int main (int argc, char *argv[])
 	/* Jeu */
 
 	if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
-		{
-			ai1.InitLibrary(p1Name);  // On lui demande son nom
+	{
+		ai1.InitLibrary(p1Name);  // On lui demande son nom
 
-			if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
-			{
-				ai2.InitLibrary(p2Name);  // On lui demande son nom
-			}
+		if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
+		{
+			ai2.InitLibrary(p2Name);  // On lui demande son nom
 		}
+	}
 
 	
 	/* Randomisation de la couleur des joueurs */
@@ -119,14 +153,27 @@ int main (int argc, char *argv[])
 		sprintf(msg,"%s joue les blancs",p2Name);
 	    player2=WHITE;
 	}
-	prompt(&c,msg);
+
+	initGS(&gameState);
+
+	SDL_RenderClear(c.pRenderer);
+		update(&c,gameState,dices);
+		prompt(&c,msg);
+	SDL_RenderPresent(c.pRenderer);
+	playerClicked();
 
 	/* JEU */
 	int m; //Nombre de matchs
 	for (m=0;m<atoi(argv[1]);m++)
 	{
 		sprintf(msg,"Match %d",m+1);
-		prompt(&c,msg);
+
+		SDL_RenderClear(c.pRenderer);
+			update(&c,gameState,dices);
+			prompt(&c,msg);
+		SDL_RenderPresent(c.pRenderer);
+		playerClicked();
+
 		if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 		{
 			ai1.StartMatch(pts);  // On l'initialise
@@ -154,9 +201,16 @@ int main (int argc, char *argv[])
 			}
 
 			sprintf(msg,"Game %d",g+1);
-			prompt(&c,msg);
+			
 
-			/*Initialisation du plateau*/
+			SDL_RenderClear(c.pRenderer);
+				update(&c,gameState,dices);
+				prompt(&c,msg);
+			SDL_RenderPresent(c.pRenderer);
+			playerClicked();
+
+			initGS(&gameState);
+			/*Initialisation du plateau
 			int i;
 			for (i = 0; i < 24; ++i)
 			{	
@@ -188,7 +242,7 @@ int main (int argc, char *argv[])
 			gameState.bar[0]=0;
 			gameState.bar[1]=0;
 			gameState.turn=1;
-			gameState.stake=1;
+			gameState.stake=1;*/
 			
 			videau=-1;
 
@@ -200,7 +254,9 @@ int main (int argc, char *argv[])
 				dices[0]=rand()%6+1;
 				dices[1]=rand()%6+1;
 
-				update(&c,gameState,dices);
+				SDL_RenderClear(c.pRenderer);
+					update(&c,gameState,dices);
+				SDL_RenderPresent(c.pRenderer);
 
 				//Tableau vide pour les moves
 				SMove vide;
@@ -215,7 +271,12 @@ int main (int argc, char *argv[])
 				if (player1==current) // Au joueur 1 de jouer
 				{
 					sprintf(msg,"A %s de jouer",p1Name);
-					prompt(&c,msg);
+					
+					SDL_RenderClear(c.pRenderer);
+						update(&c,gameState,dices);
+						prompt(&c,msg);
+					SDL_RenderPresent(c.pRenderer);
+					playerClicked();
 
 					if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 					{
@@ -236,7 +297,11 @@ int main (int argc, char *argv[])
 								}
 								else //Le joueur 2 est humain
 								{
-									doubleQuery(&c,1);
+									SDL_RenderClear(c.pRenderer);
+										update(&c,gameState,dices);
+										doubleQuery(&c,1);
+									SDL_RenderPresent(c.pRenderer);
+
 									if(yesOrNo()==1)//VIDEAU_TAKE J2
 									{
 										result=current;
@@ -247,18 +312,29 @@ int main (int argc, char *argv[])
 								}
 							}
 						}
-						update(&c,gameState,dices);
+
+						SDL_RenderClear(c.pRenderer);
+							update(&c,gameState,dices);
+						SDL_RenderPresent(c.pRenderer);
+
 						ai1.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
 					}
 					else //Le joueur 1 est humain -->2joueurs humains
 					{	
 						if(videau!=current)
 						{
-							doubleQuery(&c,0);
+							SDL_RenderClear(c.pRenderer);
+								update(&c,gameState,dices);
+								doubleQuery(&c,0);
+							SDL_RenderPresent(c.pRenderer);
+
 							if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J1
 							{
 								videau=current;
-								doubleQuery(&c,1);
+								SDL_RenderClear(c.pRenderer);
+									update(&c,gameState,dices);
+									doubleQuery(&c,1);
+								SDL_RenderPresent(c.pRenderer);
 								if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J2
 								{
 										result=current;
@@ -268,7 +344,11 @@ int main (int argc, char *argv[])
 									gameState.stake*=2;
 							}
 						}
-						update(&c,gameState,dices);
+
+						SDL_RenderClear(c.pRenderer);
+							update(&c,gameState,dices);
+						SDL_RenderPresent(c.pRenderer);
+
 						printf("BP1\n");
 						memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
 						printf("BP2\n");
@@ -280,7 +360,12 @@ int main (int argc, char *argv[])
 				else // Au joueur 2 de jouer
 				{
 					sprintf(msg,"A %s de jouer",p2Name);
-					prompt(&c,msg);
+					SDL_RenderClear(c.pRenderer);
+						update(&c,gameState,dices);
+						prompt(&c,msg);
+					SDL_RenderPresent(c.pRenderer);
+					playerClicked();
+					
 					if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
 					{
 						if(videau!=current)
@@ -297,7 +382,9 @@ int main (int argc, char *argv[])
 									gameState.stake*=2;
 							}
 						}
-						update(&c,gameState,dices);
+						SDL_RenderClear(c.pRenderer);
+							update(&c,gameState,dices);
+						SDL_RenderPresent(c.pRenderer);
 						ai2.PlayTurn(&gameState,dices,moves,&nbMoves,3-penalty[current]);
 					}
 					else // Le joueur 2 est humain
@@ -306,7 +393,11 @@ int main (int argc, char *argv[])
 						{
 							if(videau!=current)
 							{
-								doubleQuery(&c,0);
+								SDL_RenderClear(c.pRenderer);
+									update(&c,gameState,dices);
+									doubleQuery(&c,0);
+								SDL_RenderPresent(c.pRenderer);
+
 								if (yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
 								{
 									videau=current;
@@ -325,11 +416,18 @@ int main (int argc, char *argv[])
 						{
 							if(videau!=current)
 							{
-								doubleQuery(&c,0);
+								SDL_RenderClear(c.pRenderer);
+									update(&c,gameState,dices);
+									doubleQuery(&c,0);
+								SDL_RenderPresent(c.pRenderer);
+
 								if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
 								{
 									videau=current;
-									doubleQuery(&c,1);
+									SDL_RenderClear(c.pRenderer);
+										update(&c,gameState,dices);
+										doubleQuery(&c,1);
+									SDL_RenderPresent(c.pRenderer);
 									if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J1
 									{
 										result=current;
@@ -341,7 +439,9 @@ int main (int argc, char *argv[])
 							}
 
 						}
-						update(&c,gameState,dices);
+						SDL_RenderClear(c.pRenderer);
+							update(&c,gameState,dices);
+						SDL_RenderPresent(c.pRenderer);
 						printf("BP1J2\n");
 						memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
 						printf("BP2J2\n");
@@ -438,14 +538,24 @@ int main (int argc, char *argv[])
 				saveResult(p1Name,gameState.stake);
 			}
 			else
+			{
 				sprintf(msg,"%s gagne le game!",p2Name);
 				saveResult(p2Name,gameState.stake);
-
-			prompt(&c,msg);
+			}
+			SDL_RenderClear(c.pRenderer);
+				update(&c,gameState,dices);
+				prompt(&c,msg);
+			SDL_RenderPresent(c.pRenderer);
+			playerClicked();
 			g++;
 		}
 		printf("BP6\n");
 		sprintf(msg,"%s remporte le match !",saveMatch(gameState,p1Name,p2Name,player1));
+		SDL_RenderClear(c.pRenderer);
+			update(&c,gameState,dices);
+			prompt(&c,msg);
+		SDL_RenderPresent(c.pRenderer);
+		playerClicked();
 
 		// Inversion des sides
 		if (player1 == WHITE)

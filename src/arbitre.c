@@ -144,6 +144,7 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 			index ++;
 		}	
 	}
+
 	return index;
 }
 
@@ -385,19 +386,28 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 	int srcCells[30];
 	int indexSrc = getSrcCells(gameState, player, srcCells);
 
+	// affichage des srcCells
 	printf("fillIn_1 : srcCells : \n");
 	int a;
 	for(a=0;a<indexSrc;a++)
 	{
 		printf("SrcPossible : %d\n",srcCells[a]);
 	}
-
+	printf("fin affichage srcCells\n");
+	printf("indexSrcCells = %i\n", indexSrc);
+	
 
 	int destCells[30];
 	int indexDest= getDestCells(gameState, player, destCells);
 
-	printf("fillIn_1 : ");
-
+	// affichage des destCells
+	printf("fillIn_1 : destCells : \n");
+	for(a=0;a<indexDest;a++)
+		{
+			printf("destPossible : %d\n",destCells[a]);
+		}
+	printf("fin affichage destCells\n");
+	
 
 	// création de la liste chainée contenant les mouvements possibles
 	SList* movesPossible;
@@ -407,7 +417,9 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 
 	int i, j;
 	for (i=0; i < indexSrc; i++){ // i --> parcours de srcCells
+		printf("i = %i\n", i);
 		for (j=0; j < indexDest; j++){ // j --> parcours de destCells
+			printf("i = %i | j = %i\n", i, j);
 
 			// vérification que le mouvement est dans le bon sens suivant le joueur
 			// cas particulier : si la cellule de départ est bar[]  ou celle d'arrivée le out[] alors on ne compte pas le sens
@@ -576,8 +588,11 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 				}
 			}
 		}
+		printf("fin i = %i\n", i);
 	}
-
+	printf("on sort de la boucle sur srcCells\n");
+	printf("FillIn_1 va return la liste:\n");
+	printList(movesPossible);
 	return movesPossible;
 }
 
@@ -952,7 +967,15 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
 
 	printf("getMovesPossible 1\n");
 	//remplissage des premiers mouvements possibles
-	SList* movesPossible = fillIn_1_MovesPossible( player, dice, gameState);
+	SList* movesPossible;
+	movesPossible = fillIn_1_MovesPossible( player, dice, gameState);
+	/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+						AURELIIIIIIIIIIIEN :)
+	la fonction fillIn_1 se déroule bien il me semble ( printf("fillIn_1 va return") s'affiche)
+	le pb est dans l'affectation du return dans ma liste movesPossible ?
+	peut etre parce que jai pas fait de malloc sur movesPossible ? mais c'est bizarre car fillIn_1 le fait le malloc normalement
+
+	*///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	printf("getMovesPossible 2\n");
 
 
