@@ -38,6 +38,8 @@ struct Context
 	SDL_Texture* non;
 	SDL_Texture* doubler;
 	SDL_Texture* accept;
+
+	TTF_Font* fonts[3];
 };
 
 /**

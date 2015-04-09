@@ -294,6 +294,11 @@ void initData(Data* data){
 
 void actualizeGameState(int numSrcCell, int numDestCell, SGameState* gameState, Player player){
 
+
+	printf("\n\nDebut actualzeGameState\n\n");
+	printf("mouvement effectué : %i->%i\n", numSrcCell, numDestCell);
+	printf("ancien bar: black : %i pions   |   white : %i pions\n", gameState->bar[0], gameState->bar[1]);
+
 	/*printf("\n\nDebut actualizeGameSate\n\n");
 
 	// si le pion sort du bar
@@ -413,6 +418,8 @@ void actualizeGameState(int numSrcCell, int numDestCell, SGameState* gameState, 
 		if (numDestCell==25)
 			gameState->out[player]++;
 					
+	printf("nouveau bar: black : %i pions   |   white : %i pions\n\n", gameState->bar[0], gameState->bar[1]);
+
 }
 /**
  * Fonction qui créer et remplit les premiers mouvements possibles dans movesPossible
@@ -428,6 +435,7 @@ void actualizeGameState(int numSrcCell, int numDestCell, SGameState* gameState, 
 SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState){
 
 	printf("\n\nDebut fill in 1\n\n");
+	printf("pions dans le bar : BLACK : %i |  WHITE : %i\n", gameState.bar[0], gameState.bar[1]);
 
 	// création des listes contenant les cases de départ et d'arrivée possibles
 	int srcCells[30];
@@ -506,7 +514,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 							//nouveau gameState
 							data.gameState = gameState; 
 							printf("fill in 1 lance : actualiezGameState avec src : %i | dest : %i\n", srcCells[i], destCells[j]);
-							actualizeGameState(srcCells[i], destCells[j], &gameState, player);
+							actualizeGameState(srcCells[i], destCells[j], &data.gameState, player);
 							
 		
 							// ajout de la cellule
@@ -565,7 +573,7 @@ SList* fillIn_1_MovesPossible( Player player, int dice[4], SGameState gameState)
 						//nouveau gameState
 						data.gameState = gameState; 
 						printf("fill in 1 lance : actualiezGameState avec src : %i | dest : %i\n", srcCells[i], destCells[j]);
-						actualizeGameState(srcCells[i], destCells[j], &gameState, player);
+						actualizeGameState(srcCells[i], destCells[j], &data.gameState, player);
 						
 	
 						// ajout de la cellule
@@ -1259,7 +1267,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 			nbMovesInCells = fillIn_2_MovesPossible(player, movesPossible, nbMovesInCells); 
 		}
 	}
-	printf("fin fill in 2, nbMoves = %i", nbMovesInCells);
+	printf("fin fill in 2, nbMoves = %i\n", nbMovesInCells);
 	return nbMovesInCells;
 }
 
@@ -1330,8 +1338,14 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
 		printf("fill in 2 dit: nbMoves = %i\n", *nbMovesPossible);
 	}
 
+
+
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	/* MODF SI ON ON FORCE LE JOUEUR A JOUER LE DÉ LE PLUS ÉLEVÉ ON NE VÉRIFIE PAS QUIL PEUT LE JOUER */
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 	// si le joueur ne peut jouer qu'un dé ( ne concerne pas le cas d'un double)
-	// alors il est obligé de jouer le dé le plus élevé
+	// alors il est obligé de jouer le dé le plus élevé						
 	if (*nbMovesPossible == 1){
 
 		// dé le plus élevé :
@@ -1344,22 +1358,42 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
 			diceToPlay = 1;
 		}
 
-		// suppression des cellule dont le mouvement n'utilise pas le dé le plus élevé: 
+		// c'est possible d'utiliser le dé le plus élevé ?
+		int isPossible = 0; // initialisation à non
 
-		SCell* cellEnTraitement = GetFirstElement(movesPossible);
-		SCell* cellNext;
-		// parcours des cellules de la liste
-		while ( cellEnTraitement != NULL){ 
-
-			// cellule suivante 										
-			cellNext = cellEnTraitement->next;
-
-			// si le dé la plus élevé n'est pas utilisé alors on supprime la cellule des movesPossible
-			if ( cellEnTraitement->value.dice[diceToPlay] != -1 ){ 					
-				DeleteCell(movesPossible, cellEnTraitement);
+		// parcours de movesPossible
+			SCell* cellEnTraitement = GetFirstElement(movesPossible);
+			while(cellEnTraitement != NULL)
+			{
+				int src_point = cellEnTraitement->value.moves[0].src_point;
+				int dest_point = cellEnTraitement->value.moves[0].dest_point;
+				if ( diceUsed(dice, player, src_point, dest_point) == diceToPlay)
+				{
+					isPossible =1;
+				}
+				cellEnTraitement = cellEnTraitement->next;
 			}
-			cellEnTraitement = cellNext;
-		}
+
+			// c'est possible d'utiliser le dé le plus élevé
+			if (isPossible)
+			{
+				// suppression des cellules dont le mouvement n'utilise pas le dé le plus élevé
+				cellEnTraitement = GetFirstElement(movesPossible);
+				SCell* cellNext;
+				// parcours des cellules de la liste
+				while ( cellEnTraitement != NULL){ 
+
+					// cellule suivante 										
+					cellNext = cellEnTraitement->next;
+
+					// si le dé le plus élevé n'est pas utilisé alors on supprime la cellule des movesPossible
+					if ( cellEnTraitement->value.dice[diceToPlay] != -1 ){ 					
+						DeleteCell(movesPossible, cellEnTraitement);
+					}
+					cellEnTraitement = cellNext;
+				}
+
+			}
 	}
 	return movesPossible;
 }

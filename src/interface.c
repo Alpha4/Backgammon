@@ -76,12 +76,16 @@ void cleanup(Context* c)
 	if(c->doubler!=NULL)
 		SDL_DestroyTexture(c->doubler);
 
-
 	//else
 	if(c->pRenderer!=NULL)
 		SDL_DestroyRenderer(c->pRenderer);
 	if(c->pWindow!=NULL)
 		SDL_DestroyWindow(c->pWindow);
+
+	TTF_CloseFont(c->fonts[0]);
+	TTF_CloseFont(c->fonts[1]);
+	TTF_CloseFont(c->fonts[2]);
+
 	TTF_Quit();
 	SDL_Quit();
 }
@@ -194,7 +198,28 @@ int loadImages(Context* c)
 		c->doublingCube[i]=loadTexture(pathDoublingCube,c);
 	}
 	return 0;
+}
 
+void loadFonts(Context *C)
+{
+    C->fonts[0] = TTF_OpenFont("img/GeosansLight.ttf", 24);
+    	if (C->fonts[0]==NULL)
+		{
+			logSDLError("TTF_OpenFont");
+			TTF_CloseFont(C->fonts[0]);
+		}
+    C->fonts[1] = TTF_OpenFont("img/GeosansLight.ttf", 36);
+    	if (C->fonts[1]==NULL)
+		{
+			logSDLError("TTF_OpenFont");
+			TTF_CloseFont(C->fonts[1]);
+		}
+    C->fonts[2] = TTF_OpenFont("img/GeosansLight.ttf", 42);
+    	if (C->fonts[2]==NULL)
+		{
+			logSDLError("TTF_OpenFont");
+			TTF_CloseFont(C->fonts[2]);
+		}
 }
 
 /**
@@ -220,9 +245,9 @@ void highlight(Context* c,int i,Player p)
 	else if (i==25)
 	{
 		if(p==BLACK)
-			renderTextureAsIs(c->highlightOut,c->pRenderer,682,116);
+			renderTextureAsIs(c->highlightOut,c->pRenderer,622,116);
 		else
-			renderTextureAsIs(c->highlightOut,c->pRenderer,682,397);
+			renderTextureAsIs(c->highlightOut,c->pRenderer,622,397);
 	}
 	else if(i<13)
 	{
@@ -322,11 +347,13 @@ int init(Context *c, char* title)
 
 	loadImages(c);
 
+	loadFonts(c);
+
 	SDL_Color black={0,0,0,0};
-	c->accept=renderText("Accepter ?",c,36,black);
-	c->doubler=renderText("Doubler la mise ?",c,36,black);
-	c->oui=renderText("Oui",c,24,black);
-	c->non=renderText("Non",c,24,black);
+	c->accept=renderText("Accepter ?",c,1,black);
+	c->doubler=renderText("Doubler la mise ?",c,1,black);
+	c->oui=renderText("Oui",c,0,black);
+	c->non=renderText("Non",c,0,black);
 
 
 	return 0;
@@ -393,43 +420,44 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	//Score cumulé
 	char sW[20];
 	char sB[20];
-	sprintf(sW,"Score %d",gs.whiteScore);
-	sprintf(sB,"Score %d",gs.blackScore);
+	sprintf(sW,"ScoreW %d",gs.whiteScore);
+	sprintf(sB,"ScoreB %d",gs.blackScore);
 
-	c->scoreB=renderText(sB,c,42,white);
-	c->scoreW=renderText(sW,c,42,white);
+	c->scoreB=renderText(sB,c,2,white);
+	c->scoreW=renderText(sW,c,2,white);
 
-	renderTextureAsIs(c->scoreB,c->pRenderer,620,10);
-	renderTextureAsIs(c->scoreW,c->pRenderer,620,530);
+	renderTextureAsIs(c->scoreW,c->pRenderer,620,10);
+	renderTextureAsIs(c->scoreB,c->pRenderer,620,530);
 
 
 
 	//Tour en cours
 	char turn[20];
 	sprintf(turn,"Tour %d",gs.turn);
-	c->texturn=renderText(turn,c,36,white);
+	c->texturn=renderText(turn,c,1,white);
 	renderTextureAsIs(c->texturn,c->pRenderer,620,580);
-	renderTextureAsIs(c->pawn[((gs.turn)%2)],c->pRenderer,720,580);
+	renderTextureAsIs(c->pawn[((gs.turn)%2)],c->pRenderer,720,570);
 
 	//mise à jour des out
 	char out[4];
 	
-	sprintf(out,"%d",gs.out[WHITE]);
-	c->nbOutW=renderText(out,c,42,white);
-	renderTextureAsIs(c->nbOutW,c->pRenderer,682,397);
-	c->nbOutB=renderText(out,c,42,white);
 	sprintf(out,"%d",gs.out[BLACK]);
-	renderTextureAsIs(c->nbOutB,c->pRenderer,682,116);
+	c->nbOutB=renderText(out,c,2,white);
+	renderTextureAsIs(c->nbOutB,c->pRenderer,682,397);
+
+	sprintf(out,"%d",gs.out[WHITE]);
+	c->nbOutW=renderText(out,c,2,white);
+	renderTextureAsIs(c->nbOutW,c->pRenderer,682,116);
 
 
-	for (i=0;i<gs.out[WHITE];i++)
-	{
-		renderTextureAsIs(c->pawnOut[WHITE],c->pRenderer,622,397+i*7);
-
-	}
 	for (i=0;i<gs.out[BLACK];i++)
 	{
-		renderTextureAsIs(c->pawnOut[BLACK],c->pRenderer,622,116+i*7);
+		renderTextureAsIs(c->pawnOut[BLACK],c->pRenderer,622,397+i*7);
+
+	}
+	for (i=0;i<gs.out[WHITE];i++)
+	{
+		renderTextureAsIs(c->pawnOut[WHITE],c->pRenderer,622,116+i*7);
 	}
 
 
@@ -437,13 +465,13 @@ int update(Context *c, SGameState gs,unsigned char* dices)
 	char bar[4];
 	sprintf(bar,"%d",gs.bar[BLACK]);
 	renderTextureAsIs(c->pawn[BLACK],c->pRenderer,510,280);
-	c->nbBarB=renderText(bar,c,42,white);
+	c->nbBarB=renderText(bar,c,2,white);
 	renderTextureAsIs(c->nbBarB,c->pRenderer,470,280);
 
 	
 	sprintf(bar,"%d",gs.bar[WHITE]);
 	renderTextureAsIs(c->pawn[WHITE],c->pRenderer,110,280);
-	c->nbBarW=renderText(bar,c,42,white);
+	c->nbBarW=renderText(bar,c,2,white);
 	renderTextureAsIs(c->nbBarW,c->pRenderer,70,280);
 
 
@@ -492,22 +520,16 @@ int update(Context *c, SGameState gs,unsigned char* dices)
  * @param Context c
  *	le context contient la police
  * @param int size
- *	la taille en pt du texte
+ *	la taille du texte 0->24pt 1->36pt 2->42pt
  * @param SDL_Color color
  *	la couleur du texte en RGBa
  */
 SDL_Texture* renderText(char* text,Context* c,int size,SDL_Color color)
 {
-	TTF_Font* font=TTF_OpenFont("img/GeosansLight.ttf",size);
-	if (font==NULL)
-	{
-		logSDLError("TTF_OpenFont");
-		TTF_CloseFont(font);
-	}
-	SDL_Surface* surf=TTF_RenderText_Blended(font,text,color);
+	SDL_Surface* surf=TTF_RenderText_Blended(c->fonts[size],text,color);
 	if (surf == NULL)
 	{
-		logSDLError("TTF_RenderText");
+		logSDLError("TTF_RenderText_Blended");
 		return NULL;
 	}
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(c->pRenderer, surf);
@@ -531,7 +553,7 @@ void prompt(Context* c,char* text)
 {
 	SDL_Color white={0,0,0,0};
 	renderTextureAsIs(c->prompt,c->pRenderer,85,260);
-	c->msg=renderText(text,c,36,white);
+	c->msg=renderText(text,c,1,white);
 	renderTextureAsIs(c->msg,c->pRenderer,xMiddleOf(c->prompt,c->msg,85),yMiddleOf(c->prompt,c->msg,260));
 }
 
@@ -548,7 +570,7 @@ void button(Context* c,char* name)
 
 	renderTextureAsIs(c->button,c->pRenderer,685,292);
 
-	c->msg=renderText(name,c,24,white);
+	c->msg=renderText(name,c,0,white);
 
 	renderTextureAsIs(c->msg,c->pRenderer,xMiddleOf(c->button,c->msg,685),yMiddleOf(c->button,c->msg,292));
 }
