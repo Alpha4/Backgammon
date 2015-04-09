@@ -754,12 +754,24 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 
 	// récupération des cellules qui peuvent etre source d'un mouvement
 	int srcCells[30];
-	int indexSrc = getSrcCells( *gameState, player, srcCells);
-	/*
-	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	 APPELER FILLIN 1 POUR AVOIR LES VRAIES SOURCES 
-	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	 */
+	int indexSrc = 0; // index de la premiere case vide de srcCells
+
+	// liste contenant les premiers mouvements possibles
+	SList* movesPossible = fillIn_1_MovesPossible(player, dice, *gameState);
+
+	// parcours de la liste pour récupérer les numéros des cellules sources possibles
+	SCell* cellEnTraitement = GetFirstElement(movesPossible);
+	while (cellEnTraitement != NULL)
+	{
+		// si la cellule source du mouvement possible n'est pas déjà ajoutée, alors on l'ajoute
+		if ( !(isIn(cellEnTraitement->value.moves[0].src_point, indexSrc, srcCells)) )
+		{
+			srcCells[indexSrc] = cellEnTraitement->value.moves[0].src_point;
+			indexSrc++;
+		}
+		cellEnTraitement = cellEnTraitement->next;
+	}
+
 	
 	printf("getMovesDone : cellules sources possibles :\n");
 	int a;
@@ -794,8 +806,6 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 		grayOut(c,dice);
 	SDL_RenderPresent(c->pRenderer);
 
-	//récupération des mouvements possibles
-	SList* movesPossible = fillIn_1_MovesPossible( player, dice, *gameState);
 	printf("GetMoveDone\n");
 	printf("liste des premiers mouvements dispo dans getMoveDone:\n");
 	printList(movesPossible);
@@ -810,7 +820,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 	}
 
 	//Libération mémoire allouée pour la liste movesPossible
-	//DeleteList(movesPossible);
+	DeleteList(movesPossible);
 
 	// affichage en surbrillance des cellules qui peuvent etre destination du mouvement
 
@@ -922,6 +932,29 @@ int yesOrNo(){
 	return response;
 }
 
+
+
+
+/*
+ERREURS A GERER
+--> des fois quand on doit sortir du out il dit pas de coup possible alors que si
+--> des fois il dit qu'on peut jouer qu'un dé alors que non
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * Fonction qui remplie une liste contenant l'ensemble des mouvements effectué par le joueur (pour 1 tour)
  * @param SMoves* moves
@@ -950,17 +983,6 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	printList(movesPossible);
 	printf("nbMoves = %i\n", nbMoves);
 
-	/*
-	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	 A FAIRE RECUPERE GETMOVESPOSSIBLE POUR DELETE
-	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	*/
-
-
-	/*//Libération mémoire allouée pour la liste movesPossible
-	printList(movesPossible);
-	printListTab(movesPossible);
-	DeleteList(movesPossible);*/
 
 	//transformation du dé en en un tableau de 4 entiers
 	// pour pouvoir traiter le cas d'un double --> 4 dés pourront être utilisés
@@ -991,9 +1013,67 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		playerClicked();
 	}
 	else if ( nbMoves == 1 ){
+		
+		// on récupère le mouvement fait par le joueur
 		SMove move1;
 		move1 = getMoveDone(player, &gameState, dice, c, diceGiven);
 
+
+		// si le joueur ne peut jouer qu'un dé, il est obligé de joueur le dé plus élevé ( si possible)
+		// vérification que ce n'est pas un double, auquel cas on ne traite pas cette exception
+		if (diceGiven[0] != diceGiven[1])
+		{
+			//index du dé le plus élevé
+			int indexHigherDice;
+			if (diceGiven[0] > diceGiven[1])
+			{
+				indexHigherDice = 0;
+			}
+			else
+			{
+				indexHigherDice = 1;
+			}
+
+			// cast du dé en int
+			int dice[4];
+			dice[0] = (int)diceGiven[0];
+			dice[1] = (int)diceGiven[1];
+			dice[2] = -1; // car on sait que ce n'est pas un double
+			dice[3] = -1;
+
+			
+			// c'est possible d'utiliser le dé le plus élevé ?
+			int isPossible = 0; // initialisation à non
+
+			// parcours de movesPossible
+			SCell* cellEnTraitement = GetFirstElement(movesPossible);
+			while(cellEnTraitement != NULL)
+			{
+				int src_point = cellEnTraitement->value.moves[0].src_point;
+				int dest_point = cellEnTraitement->value.moves[0].dest_point;
+				if ( diceUsed(dice, player, src_point, dest_point) == indexHigherDice)
+				{
+					isPossible =1;
+				}
+				cellEnTraitement = cellEnTraitement->next;
+			}
+
+			// c'est possible d'utiliser le dé le plus élevé
+			if (isPossible)
+			{
+				// tant que le mouvement fait par le joueur n'utilise pas le dé le plus élevé on le redemande
+				while ( diceUsed(dice, player, move1.src_point, move1.dest_point) != indexHigherDice )
+				{
+					SDL_RenderClear(c->pRenderer);
+						update(c,gameState,diceGiven);
+						grayOut(c,dice);
+						prompt(c, "Utilisez le dé le plus élevé");
+					SDL_RenderPresent(c->pRenderer);
+					move1 = getMoveDone(player, &gameState, dice, c, diceGiven);
+				}
+			}
+
+		}
 
 		//remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -1063,6 +1143,12 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		moves[2] = move3;
 		moves[3] = move4;
 	}
+
+	//Libération mémoire allouée pour la liste movesPossible
+	//printList(movesPossible);
+	//printListTab(movesPossible);
+	DeleteList(movesPossible);
+
 
 	SDL_RenderClear(c->pRenderer);
 		update(c,gameState,diceGiven);

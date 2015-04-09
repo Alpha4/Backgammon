@@ -294,7 +294,7 @@ void initData(Data* data){
 
 void actualizeGameState(int numSrcCell, int numDestCell, SGameState* gameState, Player player){
 
-	printf("\n\nDebut actualizeGameSate\n\n");
+	/*printf("\n\nDebut actualizeGameSate\n\n");
 
 	// si le pion sort du bar
 	if (numSrcCell == 0){ 
@@ -364,8 +364,56 @@ void actualizeGameState(int numSrcCell, int numDestCell, SGameState* gameState, 
 		gameState->board[numSrcCell-1].nbDames --;
 		gameState->board[numDestCell-1].nbDames ++;
 	}
-}
+}*/
 
+		Square *dest;
+		Square *src;
+		Square nul;
+
+		if (numSrcCell!=0)
+			src=&gameState->board[numSrcCell-1];
+		else // si la source est le bar les opération habituelles seront appliquées sur un Square vide
+			src=&nul;
+
+		if (numDestCell!=25)
+			dest=&gameState->board[numDestCell-1];
+		else // si la destination est le out les opération habituelles seront appliquées sur un Square vide
+			dest=&nul; 
+
+		//La case sur laquelle on arrive était vide
+		if(dest->nbDames==0)
+		{
+			dest->owner=player; 
+		}
+
+		//La case de départ est maintenant vide
+		if(src->nbDames==1)
+		{
+			src->owner=NOBODY;
+		}
+
+		//Cas de pions pris
+		if (dest->owner!=player && dest->owner!=NOBODY)
+		{
+			Player p=dest->owner; //Ancien owner de la case prise
+			dest->owner=player; //Changement d'owner
+			gameState->bar[p]++; // L'adversaire a une dame supplémentaire dans le bar
+			dest->nbDames=0; // Le placement de la dame est géré dans le cas général
+		}
+
+		//Cas général
+		src->nbDames--;
+		dest->nbDames++;
+
+		//Une dame est remise en jeu
+		if (numSrcCell==0)
+			gameState->bar[player]--;
+
+		//Une dame est sortie
+		if (numDestCell==25)
+			gameState->out[player]++;
+					
+}
 /**
  * Fonction qui créer et remplit les premiers mouvements possibles dans movesPossible
  * @param Player player
