@@ -768,39 +768,19 @@ int pointClicked(Player player){
  * @return SMove move
  *    mouvement effectué par le joueur
  */
-SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven){
+SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven, int* srcCells, int indexSrc, SList* movesPossible, int rank ){
 	
 	// mouvement qui sera effectué par le joueur
 	SMove move;
 
 
-	// récupération des cellules qui peuvent etre source d'un mouvement
-	int srcCells[30];
-	int indexSrc = 0; // index de la premiere case vide de srcCells
-
-	// liste contenant les premiers mouvements possibles
-	SList* movesPossible = fillIn_1_MovesPossible(player, dice, *gameState);
-
-	// parcours de la liste pour récupérer les numéros des cellules sources possibles
-	SCell* cellEnTraitement = GetFirstElement(movesPossible);
-	while (cellEnTraitement != NULL)
-	{
-		// si la cellule source du mouvement possible n'est pas déjà ajoutée, alors on l'ajoute
-		if ( !(isIn(cellEnTraitement->value.moves[0].src_point, indexSrc, srcCells)) )
-		{
-			srcCells[indexSrc] = cellEnTraitement->value.moves[0].src_point;
-			indexSrc++;
-		}
-		cellEnTraitement = cellEnTraitement->next;
-	}
-
-	
+	/*
 	printf("getMovesDone : cellules sources possibles :\n");
 	int a;
 	for(a=0;a<indexSrc;a++)
 	{
 		printf("SrcPossible : %d\n",srcCells[a]);
-	}
+	}*/
 
 	// affichage en surbrillance des cellules qui peuvent etre source du mouvement
 	int i;
@@ -816,36 +796,43 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 
 	// tant que la case voulue pour la source du mouvement n'est pas dans srcCells on la "redemande"
 	printf("src?\n");
+
 	unsigned int numSrcCell = 100;
 	while ( !(isIn(numSrcCell, indexSrc, srcCells)) ){
-		printf("LastPointClicked  %d\n", numSrcCell);
+		//printf("LastPointClicked  %d\n", numSrcCell);
 		numSrcCell = pointClicked(player); // on récupère la case source voulue pour le mouvement
 	}
-	printf("LastLastPointClicked  %d\n", numSrcCell);
+	//printf("LastLastPointClicked  %d\n", numSrcCell);
 
 	SDL_RenderClear(c->pRenderer);
 		update(c,*gameState,diceGiven);
 		grayOut(c,dice);
 	SDL_RenderPresent(c->pRenderer);
 
+	/*
 	printf("GetMoveDone\n");
 	printf("liste des premiers mouvements dispo dans getMoveDone:\n");
-	printList(movesPossible);
+	printList(movesPossible);*/
 
 	// récupération des cellules qui peuvent etre destination du mouvement
 	int destCells[30];
-	int indexDest = fillInDestCells(movesPossible, numSrcCell, destCells );
-	
+	int indexDest = fillInDestCells(movesPossible, numSrcCell, destCells, rank );
+
+	printf("\ngetMoveDone \n");
+	printf("destCells :\n");
+		int a;
+		for(a=0; a<indexDest; a++)
+		{
+			printf("   dest : %i\n", destCells[a]);
+		}
+	/*	
 	for(a=0;a<indexDest;a++)
 	{
 		printf("DestPossible : %d\n",destCells[a]);
-	}
+	}*/
 
-	//Libération mémoire allouée pour la liste movesPossible
-	DeleteList(movesPossible);
 
 	// affichage en surbrillance des cellules qui peuvent etre destination du mouvement
-
 	SDL_RenderClear(c->pRenderer);
 		update(c,*gameState,diceGiven);
 		for (i=0; i<indexDest; i++)
@@ -869,11 +856,12 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 		//si le joueur cliques sur undo : on reprend la fonction au début
 		if (numDestCell == 26)
 		{
-			return getMoveDone(player, gameState, dice, c, diceGiven);
+			return getMoveDone(player, gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, rank);
 		}
 		numDestCell = pointClicked(player);
 	}
 	printf("LastLastPointClicked  %d\n", numDestCell);
+
 	// actualisation du gameSate par rapport au mouvement effectué
 	actualizeGameState(numSrcCell, numDestCell, gameState, player);
 
@@ -1000,10 +988,13 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	int nbMoves; 
 	SList* movesPossible = getMovesPossible(gameState, player, diceGiven, &nbMoves);
 
-	// AFFICHAGE CONSOLE	
+	printf("\n début getArrayMoves : movesPossible recu :\n");
+	printList(movesPossible);
+
+	/*// AFFICHAGE CONSOLE	
 	printf("\ngetArrayMoves :movesPossible : \n");
 	printList(movesPossible);
-	printf("nbMoves = %i\n", nbMoves);
+	printf("nbMoves = %i\n", nbMoves);*/
 
 
 	//transformation du dé en en un tableau de 4 entiers
@@ -1023,6 +1014,8 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		dice[2] = -1;
 		dice[3] = -1;	
 	}
+
+
 	// récupération des mouvements
 	if ( nbMoves == 0 )
 	{
@@ -1036,10 +1029,14 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	}
 	else if ( nbMoves == 1 ){
 		
+		// on récupère les cellules qui peuvent être source d'un mouvement ( movesPossible)
+		int srcCells[30]; 
+		int indexSrc = getRealSrcCells(movesPossible, 0, srcCells);
+
+
 		// on récupère le mouvement fait par le joueur
 		SMove move1;
-		move1 = getMoveDone(player, &gameState, dice, c, diceGiven);
-
+		move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0);
 
 		// si le joueur ne peut jouer qu'un dé, il est obligé de joueur le dé plus élevé ( si possible)
 		// vérification que ce n'est pas un double, auquel cas on ne traite pas cette exception
@@ -1091,7 +1088,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 						grayOut(c,dice);
 						prompt(c, "Utilisez le dé le plus élevé");
 					SDL_RenderPresent(c->pRenderer);
-					move1 = getMoveDone(player, &gameState, dice, c, diceGiven);
+					move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0);
 				}
 			}
 
@@ -1101,14 +1098,48 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		moves[0] = move1;
 	}
 	else if ( nbMoves==2 ){
+		printf("nbMoves = 2\n");
 		SMove move1, move2;
-		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
+		// on récupère les cellules qui peuvent être source d'un mouvement ( movesPossible)
+		int srcCells[30]; 
+		int indexSrc = getRealSrcCells(movesPossible, 0, srcCells);
+
+		printf("srcCells : \n");
+		int a;
+		for(a=0; a<indexSrc; a++)
+		{
+			printf("   src : %i\n", srcCells[a]);
+		}
+
+
+		// on récupère le premier mouvement fait par le joueur
+		move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+
+		// MAJ affichage graphique
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
 			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
-		move2 = getMoveDone( player, &gameState, dice, c, diceGiven); 
+
+		// on ne garde dans movesPossible que les cellules donc le premier move est celui effectué par le joueur
+		keepCells( movesPossible, 0, move1.src_point , move1.dest_point );
+
+		printf("move1 : %i->%i\n", move1.src_point, move1.dest_point);
+		printf("nouveau movesPossible :\n");
+		printList(movesPossible);
+
+		// on récupère les cellules qui peuvent être sources du 2e move
+		indexSrc = getRealSrcCells(movesPossible, 1, srcCells);
+
+		printf("srcCells : \n");
+		for(a=0; a<indexSrc; a++)
+		{
+			printf("   src : %i\n", srcCells[a]);
+		}
+
+		// on récupère le 2e move fait par le joueur
+		move2 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1); 
 
 		// remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -1116,18 +1147,43 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	}
 	else if ( nbMoves == 3 ){
 		SMove move1, move2, move3;
-		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
+		// on récupère les cellules qui peuvent être source d'un mouvement ( movesPossible)
+		int srcCells[30]; 
+		int indexSrc = getRealSrcCells(movesPossible, 0, srcCells);
+
+		// on récupère le premier mouvement fait par le joueur
+		move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+
+		// MAj affichage graphique
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
 			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
-		move2 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+
+		// on ne garde dans movesPossible que les cellules donc le premier move est celui effectué par le joueur
+		keepCells( movesPossible, 0, move1.src_point, move1.dest_point);
+
+		// on récupère les cellules qui peuvent être sources du 2e move
+		indexSrc = getRealSrcCells(movesPossible, 1, srcCells);
+
+		// on récupère le 2e move fait par le joueur
+		move2 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1);
+
+		// MAJ affichage graphique
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
 			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
-		move3 = getMoveDone(player, &gameState, dice, c, diceGiven); 
+
+		// on ne garde dans movesPossible que les cellules donc le 2e move est celui effectué par le joueur
+		keepCells( movesPossible, 1, move2.src_point, move2.dest_point );
+
+		// on récupère les cellules qui peuvent être sources du 3e move
+		indexSrc = getRealSrcCells(movesPossible, 2, srcCells);
+
+		// on récupère le 3e move fait par le joueur
+		move3 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 2);
 
 		//remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -1136,28 +1192,59 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	}
 	else if ( nbMoves == 4 ){
 		SMove move1, move2, move3, move4;
-		move1 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		
+		// on récupère les cellules qui peuvent être source d'un mouvement ( movesPossible)
+		int srcCells[30]; 
+		int indexSrc = getRealSrcCells(movesPossible, 0, srcCells);
 
+		// on récupère le premier mouvement fait par le joueur
+		move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+
+		// MAj affichage graphique
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
 			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
 
-		move2 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
-		
+		// on ne garde dans movesPossible que les cellules donc le premier move est celui effectué par le joueur
+		keepCells( movesPossible, 0, move1.src_point, move1.dest_point);
+
+		// on récupère les cellules qui peuvent être sources du 2e move
+		indexSrc = getRealSrcCells(movesPossible, 1, srcCells);
+
+		// on récupère le 2e move fait par le joueur
+		move2 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1);
+
+		// MAJ affichage graphique
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
 			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
-		
-		move3 = getMoveDone(player, &gameState, dice, c, diceGiven); // le gameState et les dés sont actualisés en fonction du mouvement effectué
-		
+
+		// on ne garde dans movesPossible que les cellules donc le 2e move est celui effectué par le joueur
+		keepCells( movesPossible, 1, move2.src_point, move2.dest_point );
+
+		// on récupère les cellules qui peuvent être sources du 3e move
+		indexSrc = getRealSrcCells(movesPossible, 2, srcCells);
+
+		// on récupère le 3e move fait par le joueur
+		move3 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 2);
+
+		//MAJ affichage graphique	
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
 			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
+
+
+		// on ne garde dans movesPossible que les cellules donc le 3e move est celui effectué par le joueur
+		keepCells( movesPossible, 2, move2.src_point, move2.dest_point );
+
+		// on récupère les cellules qui peuvent être sources du 4e move
+		indexSrc = getRealSrcCells(movesPossible, 3, srcCells);
 		
-		move4 = getMoveDone(player, &gameState, dice, c, diceGiven); 
+		// on récupère le 3e move fait par le joueur
+		move4 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 3);
 
 		//remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -1165,6 +1252,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		moves[2] = move3;
 		moves[3] = move4;
 	}
+
 
 	//Libération mémoire allouée pour la liste movesPossible
 	//printList(movesPossible);
@@ -1178,6 +1266,78 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	SDL_RenderPresent(c->pRenderer);
 	return nbMoves;
 }
+
+
+/**
+ * Fonction qui ne garde que les cellules de movesPossible dont le mouvement au rang 'rank' correspond au mouvement donné
+ * @param SList* movesPossible
+ *    liste contenant les mouvements possibles
+ * @param int rank
+ *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaque celulle de movesPossible
+ * @ parma int numSrcCell
+ *     numéro de la cellule du départ du mouvement que l'on veut conserver
+ * @parma int numDestCell
+ *     numéor de la cellule d'arrivée du mouvement que l'on veut conserver
+ */
+void keepCells(SList* movesPossible, int rank, int numSrcCell, int numDestCell)
+{
+	// parcours de movesPossible
+	SCell* cellEnTraitement = GetFirstElement(movesPossible);
+	SCell* next;
+	while (cellEnTraitement != NULL)
+	{
+		next = cellEnTraitement->next;
+		if ( cellEnTraitement->value.moves[rank].src_point != numSrcCell || cellEnTraitement->value.moves[rank].dest_point != numDestCell )
+		{
+			DeleteCell(movesPossible, cellEnTraitement);
+		}
+		cellEnTraitement = next;
+	}
+}
+
+
+
+
+
+/**
+ * Fonction qui remplie les cellules sources possibles d'un mouvement avev movesPossible
+ * @param SList* movesPossible
+ *    liste chainée contenant les mouvements possibles
+ * @param int rank
+ *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaque cellule de movesPossible
+ * @parma int srcCells
+ *    tableau contenant les numéros des cellules sources, à remplir
+ * @return int index
+ *    index de la premiere case vide de srcCells
+ */
+int getRealSrcCells(SList* movesPossible, int rank, int* srcCells)
+{
+	int index = 0; // index de la premiere case vide de srcCells
+
+	// parcours de la liste movesPossible
+	SCell* cellEnTraitement = GetFirstElement(movesPossible);
+	while ( cellEnTraitement != NULL)
+	{
+		// si la cellule source du mouvement n'est pas déjà dans srcCells, on l'ajoute
+		if ( !(isIn(cellEnTraitement->value.moves[rank].src_point, index, srcCells)) )
+		{
+			srcCells[index] = cellEnTraitement->value.moves[rank].src_point ;
+			index ++;
+		}
+
+		cellEnTraitement = cellEnTraitement->next;
+	}
+	return index;
+}
+
+
+
+
+
+
+
+
+
 
 /**
  * Fonction qui renvoit l'indice du dé utilisé pour le mouvement
@@ -1260,7 +1420,7 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell){
  * @param int* destCells
  *   tableau contenant le numéro des cellules d'arrivée possibles à remplir
  */
-int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells){
+int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells, int rank){
 	// index de la premiere case vide du tableau
 	int index = 0;
 
@@ -1270,9 +1430,9 @@ int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells){
 	while ( cellEnTraitement != NULL)
 	{
 		// la cellule source du mouvement correspond à notre cellule numSrcCell
-		if (cellEnTraitement->value.moves[0].src_point == numSrcCell)
+		if (cellEnTraitement->value.moves[rank].src_point == numSrcCell && !(isIn(cellEnTraitement->value.moves[rank].dest_point, index, destCells )))
 		{
-			destCells[index] = cellEnTraitement->value.moves[0].dest_point; // on ajoute la cellule destination au tableau destCells
+			destCells[index] = cellEnTraitement->value.moves[rank].dest_point; // on ajoute la cellule destination au tableau destCells
 			index ++;
 		}
 

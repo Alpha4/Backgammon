@@ -204,7 +204,7 @@ int isIn(int elem, int index, int* tab);
  * @param int* destCells
  *   tableau contenant le numéro des cellules d'arrivée possibles à remplir
  */
-int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells);
+int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells, int rank);
 
 
 /**
@@ -235,7 +235,7 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell);
  * @return SMove move
  *    mouvement effectué par le joueur
  */
-SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven);
+SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven, int* srcCells, int indexSrc, SList* movesPossible, int rank );
 
 
 /**
@@ -255,6 +255,32 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
  */
 int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, Player player, Context* c);
 
+/**
+ * Fonction qui ne garde que les cellules de movesPossible dont le mouvement au rang 'rank' correspond au mouvement donné
+ * @param SList* movesPossible
+ *    liste contenant les mouvements possibles
+ * @param int rank
+ *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaque celulle de movesPossible
+ * @ parma int numSrcCell
+ *     numéro de la cellule du départ du mouvement que l'on veut conserver
+ * @parma int numDestCell
+ *     numéor de la cellule d'arrivée du mouvement que l'on veut conserver
+ */
+void keepCells(SList* movePossibles, int rank, int numSrcCell, int numDestCell);
+
+
+/**
+ * Fonction qui remplie les cellules sources possibles d'un mouvement avev movesPossible
+ * @param SList* movesPossible
+ *    liste chainée contenant les mouvements possibles
+ * @param int rank
+ *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaue cellule de movesPossible
+ * @parma int srcCells
+ *    tableau contenant les numéros des cellules sources, à remplir
+ * @return int index
+ *    index de la premiere case vide de srcCells
+ */
+int getRealSrcCells(SList* movesPossible, int rank, int* srcCells);
 
 /**
  * Fonction qui renvoie si le joueur a répondu 'oui' ou 'non' à une question posée
