@@ -480,6 +480,13 @@ int main (int argc, char *argv[])
 				else // mouvement(s) non valide(s)
 				{
 					penalty[current]++; //Pénalité pour le joueur 
+					printf("Pénalité pour le joueur %d",current);
+					sprintf(msg,"Pénalité pour joueur %d",current);
+					SDL_RenderClear(c.pRenderer);
+							update(&c,gameState,dices);
+							prompt(&c,msg);
+					SDL_RenderPresent(c.pRenderer);
+
 				}
 				printf("BP6\n");
 				result=isGameFinished(gameState,penalty); // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY

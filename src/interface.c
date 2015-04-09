@@ -720,7 +720,7 @@ int pointClicked(Player player){
 						if ( player == WHITE ){
 
 							// clic sur le bar
-							if ( isClicked(x, y, 110, 160, 280, 330) ){
+							if ( isClicked(x, y, 50, 165, 280, 330) ){
 								pointClicked = 0;
 							}
 
@@ -735,7 +735,7 @@ int pointClicked(Player player){
 						if ( player == BLACK ){
 
 							// clic sur le bar
-							if ( isClicked(x, y, 510, 560, 280, 330)  ){
+							if ( isClicked(x, y, 450, 565, 280, 330)  ){
 								pointClicked = 0;
 							}
 
