@@ -1238,7 +1238,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 
 		// on ne garde dans movesPossible que les cellules donc le 3e move est celui effectué par le joueur
-		keepCells( movesPossible, 2, move2.src_point, move2.dest_point );
+		keepCells( movesPossible, 2, move3.src_point, move3.dest_point );
 
 		// on récupère les cellules qui peuvent être sources du 4e move
 		indexSrc = getRealSrcCells(movesPossible, 3, srcCells);

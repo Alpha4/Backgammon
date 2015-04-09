@@ -12,7 +12,7 @@ int COLORADV;
 
 void InitLibrary(char name[50])
 {
-    name[0] = 'a';
+    name[0] = 'A';
     name[1] = 'l';
     name[2] = 't';
     name[3] = 'a';
@@ -47,14 +47,14 @@ void EndMatch()
 
 int DoubleStack(const SGameState * const gameState)
 {
-	/*if (getDistanceToWin(gameState, COLOR)*2 < getDistanceToWin(gameState, COLORADV))//on regarde si notre total de deplacement est plus petit que celui de l'adversaire fois 1.5
+	if (getDistanceToWin(gameState, COLOR)*2 < getDistanceToWin(gameState, COLORADV))//on regarde si notre total de deplacement est plus petit que celui de l'adversaire fois 1.5
 	{
 		return 1; //si c'est le cas, on demande le double
 	}
 	else
 	{
 	    return 0; //sinon on ne fait rien
-	}*/
+	}
 	return 0;
 }
 
@@ -127,7 +127,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
     int i;
     for (i=0;i<2;i++) currentDices[i]=dices[i];
     
-    SList* possibleMovements = CreateList();
+    SList* possibleMovements = CreateList(); // ICI PROBLEME
     possibleMovements = getMovesPossible( *currentGameState, COLOR, currentDices, nbMvmnt);
     printf("\n\nGet moves possible ok.\n\n");
     SList* attMoves = CreateList();
@@ -143,7 +143,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	    while (currentCell != NULL)
 	    {
 	    	printf("\n\n While : %d \n\n", test);
-	    	//printList(possibleMovements);
+	    	//printList(possibleMovements); PROBLEME : SUREMENT MEME CELLULE COPIEE DANS PLUSIEURS
 	        triMoves(i, *currentGameState, currentCell,attMoves,defMoves,neutralMoves,harmingMoves); //On trie dans les differentes categories
 	        printf("trimoves");
 	        currentCell = currentCell->next;
@@ -191,7 +191,7 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
     printf("\n\nfin de la fonction \n\n");
     FILE *fp;
 	fp = fopen("Output.txt", "a");// "w" means that we are going to write on this file
-	fprintf(fp,"\n\ndes : %d, %d | move 1  src : %d dest : %d |move 2  src : %d dest : %d |move 3  src : %d dest : %d |move 4  src : %d dest : %d \n", dices[0], dices[1],moves[0].src_point,moves[0].dest_point,moves[1].src_point,moves[1].dest_point,moves[2].src_point,moves[2].dest_point,moves[3].src_point,moves[3].dest_point);
+	fprintf(fp,"\n\ndes : %d, %d | nbmove : %d | move 1  src : %d dest : %d |move 2  src : %d dest : %d |move 3  src : %d dest : %d |move 4  src : %d dest : %d \n", dices[0], dices[1], *nbMove, moves[0].src_point,moves[0].dest_point,moves[1].src_point,moves[1].dest_point,moves[2].src_point,moves[2].dest_point,moves[3].src_point,moves[3].dest_point);
     fclose(fp);
     //sleep(10);
 }
@@ -315,7 +315,6 @@ int movesAreEquals(SMove move1, SMove move2)
 void triMoves (int i, SGameState gameState, SCell* currentCell,SList* attMoves, SList* defMoves,SList* neutralMoves,SList* harmingMoves)
 {
     SMove *currentMoves;
-    currentMoves = malloc(4*sizeof(SMove));
     currentMoves = currentCell->value.moves;
     if (currentMoves[i].src_point == 0)
     {
