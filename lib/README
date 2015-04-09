@@ -1,0 +1,42 @@
+PlayTurn :
+
+On récupère la liste des tableaux de mouvements possibles (fonction getMovePossible)
+On test le premier mouvement de chaque tableau, on en choisit un. (fonction triMoves+chooseMove)
+On supprime tous les tableaux dont le premier mouvement est différent de celui choisi (fonction deleteUnchosen)
+On retrie les mouvements (triMove)
+On recommence avec le mouvement suivant.
+
+
+TriMove :
+
+On regarde diverses conditions du jeu pour determiner le type du mouvement parmis quatre categories :
+->dangereux (harming) : la case de depart ne contiendra plus qu'un seul pion après le deplacement ou la case de destination est vide
+->defensif : le mouvement resulte au "sauvetage" d'un pion isolé
+->attaquant : on mange un pion ennemi
+->neutre : aucun des trois autres
+On met ensuite le mouvement dans le tableau correspondant
+(Distinction avec le cas ou le pion est dans le bar)
+
+
+ChooseMove :
+
+On choisit en comparant deux à deux chaque mouvement d'une liste de mouvement (deja "triée" en fonction du type de mouvement) celui dont la source est la plus loin (essayer de rapprocher les pions)
+
+DeleteUnchosen: 
+
+On verifie pour chaque element de la liste que le move correspond à celui choisi donnéé en parametre. (fonction movesAreEquals)
+Si non, le move est enlevé de la liste
+
+MovesAreEquals :
+
+On verifie que les sources et les destinations des deux mouvements sont bien identiques.
+
+
+DoubleStack : 
+On demande le doubleStack que si la distance est deux fois plus petite que la distance adverse (fonction distanceToWin)
+
+TakeStack :
+On accepte le doubleStack que si la distance est 1.5 fois  plus petite que 1.5 fois la distance adverse (fonction distanceToWin)
+
+GetDistanceToWin :
+On compte (en sommant sur toutes les cases) le nombre de pions multiplié par la distance avec le out

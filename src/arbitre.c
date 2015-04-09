@@ -125,6 +125,7 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 				add += gameState.board[i].nbDames;
 			}
 		}
+		add+=gameState.out[WHITE];
 		if (add == 15){
 			destCells[index] = 25; // out
 			index ++;
@@ -139,6 +140,7 @@ int getDestCells( SGameState gameState, Player player, int* destCells ){
 				add += gameState.board[i].nbDames;
 			}
 		}
+		add+=gameState.out[BLACK];
 		if (add == 15){
 			destCells[index] = 25; //out
 			index ++;
@@ -224,6 +226,7 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 				add += gameState.board[i].nbDames;
 			}
 		}
+		add+= gameState.out[player];
 		if (add == 15){
 			piecesWellPlaced = 1;
 		}	
@@ -237,6 +240,7 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 				add += gameState.board[i].nbDames;
 			}
 		}
+		add+= gameState.out[player];
 		if (add == 15){
 			piecesWellPlaced = 1;
 		}	
@@ -247,7 +251,7 @@ int canGoToOut(SGameState gameState, Player player, int numDice, int numSrcCell)
 	if (piecesWellPlaced){
 
 		// si le mouvement correspond pile au dé le mouvement est autorisé
-		if ( ((player = BLACK) && (numSrcCell == numDice)) || ((player = WHITE) &&  ((25-numSrcCell) == numDice) )){
+		if ( ((player == BLACK) && (numSrcCell == numDice)) || ((player == WHITE) &&  ((25-numSrcCell) == numDice) )){
 			canGoToOut = 1;
 		}
 		// sinon s'il n'y pas de pions plus loin et que le dé est plus grand que la distance entre le pion et le out, le mouvement est également autorisé
@@ -992,6 +996,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 						// remplissage de la liste chainée avec une nouvelle cellule
 						Data data;
 						initData(&data);
+						data.nbMoves = nbMovesInCells;
 						
 						// copie des mouvements déjà présents
 						if (nbMovesInCells == 1){
@@ -1059,6 +1064,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 						// remplissage de la liste chainée avec une nouvelle cellule
 						Data data;
 						initData(&data);
+						data.nbMoves = nbMovesInCells;
 
 						// copie des mouvements déjà présents
 						if (nbMovesInCells == 1){
@@ -1124,6 +1130,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 						// remplissage de la liste chainée avec une nouvelle cellule
 						Data data;
 						initData(&data);
+						data.nbMoves = nbMovesInCells;
 
 						// copie des mouvements déjà présents
 						if (nbMovesInCells == 1){
@@ -1188,6 +1195,7 @@ int fillIn_2_MovesPossible( Player player, SList* movesPossible, int nbMovesInCe
 						// remplissage de la liste chainée avec une nouvelle cellule
 						Data data;
 						initData(&data);
+						data.nbMoves = nbMovesInCells;
 
 
 						// copie des mouvements déjà présents

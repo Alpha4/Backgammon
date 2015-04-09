@@ -12,6 +12,12 @@ Fonctions utilisées pour la gestion des libs chargées
 #include "backgammon.h"
 #include "libs.h"
 
+/**
+     * Charge une lib d'IA et toutes ses fonctions
+     * @param  AI   *ai   Structure stockant la lib et ses fonctions
+     * @param  char *file Chemin vers la lib
+     * @return            -1 si erreur, 0 sinon
+ */
 int LoadLib(AI *ai, char* file)
 {
     // On charge toutes les fonctions de la lib
