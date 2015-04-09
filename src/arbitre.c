@@ -398,7 +398,7 @@ void actualizeGameState(int numSrcCell, int numDestCell, SGameState* gameState, 
 		}
 
 		//Cas de pions pris
-		if (dest->owner!=player && dest->owner!=NOBODY)
+		if (dest->owner!=player && dest->owner!=NOBODY && numDestCell!=25)
 		{
 			Player p=dest->owner; //Ancien owner de la case prise
 			dest->owner=player; //Changement d'owner

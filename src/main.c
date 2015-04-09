@@ -456,7 +456,7 @@ int main (int argc, char *argv[])
 						}
 
 						//Cas de pions pris
-						if (dest->owner!=current && dest->owner!=NOBODY)
+						if (dest->owner!=current && dest->owner!=NOBODY && moves[n].dest_point!=25)
 						{
 							Player p=dest->owner; //Ancien owner de la case prise
 							dest->owner=current; //Changement d'owner

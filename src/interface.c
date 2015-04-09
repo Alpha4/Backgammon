@@ -244,7 +244,7 @@ void highlight(Context* c,int i,Player p)
 	}
 	else if (i==25)
 	{
-		if(p==BLACK)
+		if(p==WHITE)
 			renderTextureAsIs(c->highlightOut,c->pRenderer,622,116);
 		else
 			renderTextureAsIs(c->highlightOut,c->pRenderer,622,397);
@@ -725,7 +725,7 @@ int pointClicked(Player player){
 							}
 
 							// clic sur le out
-							if ( isClicked(x, y, 622, 672, 397, 502)  ){
+							if ( isClicked(x, y, 622, 672, 116, 502)  ){
 								pointClicked = 25;
 							}
 
@@ -740,7 +740,7 @@ int pointClicked(Player player){
 							}
 
 							// clic sur le out
-							if ( isClicked(x, y, 622, 672, 116, 221)  ){
+							if ( isClicked(x, y, 622, 672, 397, 221)  ){
 								pointClicked = 25;				
 							}
 						}
