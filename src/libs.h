@@ -6,6 +6,7 @@ Fonctions utilisées pour la gestoin des libs chargées
 
 #ifndef _LIBS_H
     #define _LIBS_H
+#include "backgammon.h"
 
     typedef struct AI
     {

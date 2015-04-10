@@ -1,3 +1,13 @@
+Strategie :
+Le bot recherche d'abord tous les mouvements possibles, puis les trie selon leur nature (dangereux, offensif, defensif, et neutre).
+Il choisit enfin le move à effectuer en fonction de cette nture, en privilégiant en priorité les mouvements offensifs, puis defensif, puis neutres, et enfin dangereux s'il n'a pas d'autre choix
+
+
+
+
+
+
+
 PlayTurn :
 
 On récupère la liste des tableaux de mouvements possibles (fonction getMovePossible)
@@ -40,3 +50,6 @@ On accepte le doubleStack que si la distance est 1.5 fois  plus petite que 1.5 f
 
 GetDistanceToWin :
 On compte (en sommant sur toutes les cases) le nombre de pions multiplié par la distance avec le out
+
+
+

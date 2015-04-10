@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
-#include "liste.h"
+#include "../src/liste.h"
 #include "bot.h"
 
 int TARGET;
@@ -119,7 +120,8 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
     // Copie du game state dans une variable modifiable
     printf("\n\n\n\n Playturn begin !! \n\n");
     SGameState* currentGameState;
-    currentGameState = gameState;
+    currentGameState = malloc(sizeof(SGameState));
+    memcpy(currentGameState,gameState,sizeof(SGameState));
     
     // copie des dices dnas une variable modifiable
     unsigned char currentDices[2];
@@ -130,25 +132,21 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
     SList* possibleMovements = CreateList(); // ICI PROBLEME
     possibleMovements = getMovesPossible( *currentGameState, COLOR, currentDices, nbMvmnt);
     printf("\n\nGet moves possible ok.\n\n");
-    SList* attMoves = CreateList();
-    SList* defMoves = CreateList();
-    SList* neutralMoves = CreateList();
-    SList* harmingMoves = CreateList();
     SCell* currentCell = GetFirstElement(possibleMovements);
     SMove chosenMove;
     for (i=0;i<*nbMove;i++)
     {	
+    	SList* attMoves = CreateList();
+   		SList* defMoves = CreateList();
+    	SList* neutralMoves = CreateList();
+    	SList* harmingMoves = CreateList();
     	printf("\n\n Traitement rang %d \n\n",i);
     	int test = 0;
-	    while (currentCell != NULL)
-	    {
-	    	printf("\n\n While : %d \n\n", test);
-	    	//printList(possibleMovements); PROBLEME : SUREMENT MEME CELLULE COPIEE DANS PLUSIEURS
-	        triMoves(i, *currentGameState, currentCell,attMoves,defMoves,neutralMoves,harmingMoves); //On trie dans les differentes categories
-	        printf("trimoves");
-	        currentCell = currentCell->next;
-	        test++;
-	    }
+	    printf("\n\n While : %d \n\n", test);
+	    triMoves(i, *currentGameState, currentCell,attMoves,defMoves,neutralMoves,harmingMoves); //On trie dans les differentes categories
+	    printf("trimoves OK");
+	    test++;
+	    
 	    printf("\n\n\n\n Après Tri moves \n\n");
 	    if (IsEmpty(attMoves) == 1)
 	    {
@@ -156,44 +154,40 @@ void PlayTurn(const SGameState * const gameState, const unsigned char dices[2], 
 	    	{
 	    		if (IsEmpty(neutralMoves) ==1)
 	    		{
+	    			printf("Harming !\n");
 	    			chosenMove = choseMove(harmingMoves,i);
 	    			deleteUnchosen(chosenMove,possibleMovements,i);
 	    		}
 	    		else
 	    		{
+	    			printf("Neutral !\n");
 	    			chosenMove = choseMove(neutralMoves,i);
 					deleteUnchosen(chosenMove,possibleMovements,i);
 	    		}
 	    	}
 	    	else
 	    	{
+	    		printf("Defense !\n");
 	    		chosenMove = choseMove(defMoves,i);
 	    		deleteUnchosen(chosenMove,possibleMovements,i);
 	    	}
 	    }
 	    else
 	    {
+	    	printf("Attaque !\n");
 	    	chosenMove = choseMove(attMoves,i);
 	    	deleteUnchosen(chosenMove,possibleMovements,i);
 	    }
 	    moves[i] = chosenMove;
 
 	    currentCell = GetFirstElement(possibleMovements);
-	    while (currentCell != NULL)
-	    {
-	    	//printf("\n\n While : %d \n\n", test);
-	        triMoves(i, *currentGameState, currentCell,attMoves,defMoves,neutralMoves,harmingMoves); //On trie dans les differentes categories
-	        currentCell = currentCell->next;
-	        //test++;
-	    }
+    	
+    	DeleteList(attMoves);
+    	DeleteList(defMoves);
+    	DeleteList(harmingMoves);
+    	DeleteList(neutralMoves);
     }
-    //printf("\n\ndes : %d, %d | move 1  src : %d dest : %d |move 2  src : %d dest : %d |move 3  src : %d dest : %d |move 4  src : %d dest : %d \n", dices[0], dices[1],moves[0].src_point,moves[0].dest_point,moves[1].src_point,moves[1].dest_point,moves[2].src_point,moves[2].dest_point,moves[3].src_point,moves[3].dest_point);
-    printf("\n\nfin de la fonction \n\n");
-    FILE *fp;
-	fp = fopen("Output.txt", "a");// "w" means that we are going to write on this file
-	fprintf(fp,"\n\ndes : %d, %d | nbmove : %d | move 1  src : %d dest : %d |move 2  src : %d dest : %d |move 3  src : %d dest : %d |move 4  src : %d dest : %d \n", dices[0], dices[1], *nbMove, moves[0].src_point,moves[0].dest_point,moves[1].src_point,moves[1].dest_point,moves[2].src_point,moves[2].dest_point,moves[3].src_point,moves[3].dest_point);
-    fclose(fp);
-    //sleep(10);
+    free(currentGameState);
 }
 
 //////////////////////////////////////////
@@ -216,6 +210,7 @@ SMove choseMove(SList* listMoves, int i)
 	SMove chosenMove;
 	while (currentCell != NULL)
 	{
+		printf("Fonction Chosen Move, Current cell:src =%d, dest = %d, rang %d\n\n",currentCell->value.moves[i].src_point,currentCell->value.moves[i].dest_point,i);
 		if (COLOR == WHITE) // cas des blancs : de 1->24
 		{
 			if (currentCell->value.moves[i].src_point < chosenCell->value.moves[i].src_point)
@@ -234,6 +229,7 @@ SMove choseMove(SList* listMoves, int i)
 		}
 	}
 	chosenMove = chosenCell->value.moves[i];
+	printf("Fonction Chosen Move, chosenCell :src =%d, dest = %d, rang %d\n\n",chosenMove.src_point,chosenMove.dest_point,i);
 	return chosenMove;
 }
 
@@ -252,7 +248,7 @@ SMove choseMove(SList* listMoves, int i)
  */
 void deleteUnchosen(SMove move, SList* liste, int i)
 {
-	printf("\n\n Debut de deleteUnchosen\n\n");
+	printf("\n\n Debut de deleteUnchosen | chosenMove : src =%d, dest = %d\n\n",move.src_point,move.dest_point);
 	//printList(liste);
 	SCell* currentCell;
 	SCell* nextCell;
@@ -268,13 +264,15 @@ void deleteUnchosen(SMove move, SList* liste, int i)
 		if((movesAreEquals(currentCell->value.moves[i],move) == 0))
 		{
 			DeleteCell(liste, currentCell);
-			printf("\n\nCOUCOU JE PASSE LA DEDANS \n\n");
+			printf("\n\ncell deleted : move 1  src : %d dest : %d |move 2  src : %d dest : %d |move 3  src : %d dest : %d |move 4  src : %d dest : %d \n\n",currentCell->value.moves[0].src_point,currentCell->value.moves[0].dest_point,currentCell->value.moves[1].src_point,currentCell->value.moves[1].dest_point,currentCell->value.moves[2].src_point,currentCell->value.moves[2].dest_point,currentCell->value.moves[3].src_point,currentCell->value.moves[3].dest_point);
+
 			//printList(liste);
 		}
 		currentCell = nextCell;
 		test++;
 	}
-	printf("fin du while");
+	printf("fin du while. Liste en sortie :\n");
+	printList(liste);
 }
 
 
@@ -296,6 +294,7 @@ int movesAreEquals(SMove move1, SMove move2)
 	}
 	return result;
 }
+
 //////////////////////////////////////////
 //            Fonction de tri           //
 //////////////////////////////////////////
@@ -315,63 +314,67 @@ int movesAreEquals(SMove move1, SMove move2)
 void triMoves (int i, SGameState gameState, SCell* currentCell,SList* attMoves, SList* defMoves,SList* neutralMoves,SList* harmingMoves)
 {
     SMove *currentMoves;
-    currentMoves = currentCell->value.moves;
-    if (currentMoves[i].src_point == 0)
-    {
-    	if (gameState.board[currentMoves[i].dest_point-1].nbDames == 0)
-	        {
-	           AddElementEnd(harmingMoves,currentCell->value);
-	        }
-	        else 
-	        {
-	           if (gameState.board[currentMoves[i].dest_point-1].nbDames == 1 && gameState.board[currentMoves[i].dest_point-1].owner != COLOR)
-	           {
-	               AddElementEnd(attMoves,currentCell->value);
-	           }
-	           else 
-	           {
-	               if (gameState.board[currentMoves[i].dest_point-1].nbDames == 1 && gameState.board[currentMoves[i].dest_point-1].owner == COLOR)
-	               {
-	                   AddElementEnd(defMoves,currentCell->value); 
-	               }
-	               else
-	               {
-	                   AddElementEnd(neutralMoves,currentCell->value);
-	               }
-	            }
-	        }
-    }
-	else
+    while (currentCell != NULL)
 	{
-	    if (gameState.board[currentMoves[i].src_point-1].nbDames == 2)
+	    currentMoves = currentCell->value.moves;
+	    if (currentMoves[i].src_point == 0)
 	    {
-	        AddElementEnd(harmingMoves,currentCell->value);
+	    	if (gameState.board[currentMoves[i].dest_point-1].nbDames == 0)
+		        {
+		           AddElementEnd(harmingMoves,currentCell->value);
+		        }
+		        else 
+		        {
+		           if (gameState.board[currentMoves[i].dest_point-1].nbDames == 1 && gameState.board[currentMoves[i].dest_point-1].owner != COLOR)
+		           {
+		               AddElementEnd(attMoves,currentCell->value);
+		           }
+		           else 
+		           {
+		               if (gameState.board[currentMoves[i].dest_point-1].nbDames == 1 && gameState.board[currentMoves[i].dest_point-1].owner == COLOR)
+		               {
+		                   AddElementEnd(defMoves,currentCell->value); 
+		               }
+		               else
+		               {
+		                   AddElementEnd(neutralMoves,currentCell->value);
+		               }
+		            }
+		        }
 	    }
-	    else 
-	    {
-	        if (gameState.board[currentMoves[i].dest_point-1].nbDames == 0)
-	        {
-	           AddElementEnd(harmingMoves,currentCell->value);
-	        }
-	        else 
-	        {
-	           if (gameState.board[currentMoves[i].dest_point-1].nbDames == 1 && gameState.board[currentMoves[i].dest_point-1].owner != COLOR)
-	           {
-	               AddElementEnd(attMoves,currentCell->value);
-	           }
-	           else 
-	           {
-	               if (gameState.board[currentMoves[i].dest_point-1].nbDames == 1 && gameState.board[currentMoves[i].dest_point-1].owner == COLOR)
-	               {
-	                   AddElementEnd(defMoves,currentCell->value); 
-	               }
-	               else
-	               {
-	                   AddElementEnd(neutralMoves,currentCell->value);
-	               }
-	            }
-	        }
-	    }
+		else
+		{
+		    if (gameState.board[currentMoves[i].src_point-1].nbDames == 2)
+		    {
+		        AddElementEnd(harmingMoves,currentCell->value);
+		    }
+		    else 
+		    {
+		        if (gameState.board[currentMoves[i].dest_point-1].nbDames == 0)
+		        {
+		           AddElementEnd(harmingMoves,currentCell->value);
+		        }
+		        else 
+		        {
+		           if (gameState.board[currentMoves[i].dest_point-1].nbDames == 1 && gameState.board[currentMoves[i].dest_point-1].owner != COLOR)
+		           {
+		               AddElementEnd(attMoves,currentCell->value);
+		           }
+		           else 
+		           {
+		               if (gameState.board[currentMoves[i].dest_point-1].nbDames == 1 && gameState.board[currentMoves[i].dest_point-1].owner == COLOR)
+		               {
+		                   AddElementEnd(defMoves,currentCell->value); 
+		               }
+		               else
+		               {
+		                   AddElementEnd(neutralMoves,currentCell->value);
+		               }
+		            }
+		        }
+		    }
+		}
+		currentCell = currentCell->next;
 	}
 }            
     

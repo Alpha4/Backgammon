@@ -1,16 +1,7 @@
-/*include de SDL*/
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "backgammon.h"
 #include "arbitre.h"
-#include "liste.h"
-#include "interface.h"
-
 
 
 /**

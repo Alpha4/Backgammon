@@ -1,8 +1,6 @@
 #ifndef _INTERFACE_H
     #define _INTERFACE_H
 
-
-#include "liste.h"
 #include "arbitre.h"
 
 typedef struct Context Context;

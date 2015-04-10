@@ -2,8 +2,6 @@
 #include "liste.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "backgammon.h"
-
 
 
 SList* CreateList()
@@ -157,7 +155,7 @@ void printList(SList *list)
 	SCell* pCell=list->head;
 	while(pCell!=NULL)
 	{
-		printf("@prev %d |@me %d | @next %d | %d | Move1 s=%d d=%d | Move2 s=%d d=%d | Move3 s=%d d=%d | Move4 s=%d d=%d\n",pCell->previous,pCell,pCell->next,pCell->value.nbMoves,pCell->value.moves[0].src_point,pCell->value.moves[0].dest_point,pCell->value.moves[1].src_point,pCell->value.moves[1].dest_point,pCell->value.moves[2].src_point,pCell->value.moves[2].dest_point,pCell->value.moves[3].src_point,pCell->value.moves[3].dest_point);
+		printf("@prev %p |@me %p | @next %p | %d | Move1 s=%d d=%d | Move2 s=%d d=%d | Move3 s=%d d=%d | Move4 s=%d d=%d\n",pCell->previous,pCell,pCell->next,pCell->value.nbMoves,pCell->value.moves[0].src_point,pCell->value.moves[0].dest_point,pCell->value.moves[1].src_point,pCell->value.moves[1].dest_point,pCell->value.moves[2].src_point,pCell->value.moves[2].dest_point,pCell->value.moves[3].src_point,pCell->value.moves[3].dest_point);
 		pCell=pCell->next;
 	}
 }
@@ -167,7 +165,7 @@ void printListTab(SList *list)
 	STab* pTab=list->table;
 	while(pTab!=NULL)
 	{
-		printf("@me %d | @next %d | %d \n",pTab,pTab->next,pTab->nb);
+		printf("@me %p | @next %p | %d \n",pTab,pTab->next,pTab->nb);
 		pTab=pTab->next;
 	}
 }

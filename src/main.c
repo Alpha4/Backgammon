@@ -13,11 +13,7 @@ Programme principal gérant l'interface, l'arbitre et les interface
 #include <SDL2/SDL_ttf.h>
 
 /*include du projet*/
-#include "backgammon.h"
-#include "libs.h"
-#include "arbitre.h" 
 #include "interface.h"
-#include "liste.h"
 
 
 /**

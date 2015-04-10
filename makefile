@@ -1,5 +1,5 @@
 # app name
-app = main
+app = backgammon
 
 # extension to compile
 srcExt = c

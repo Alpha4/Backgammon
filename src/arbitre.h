@@ -2,7 +2,6 @@
     #define _ARBITRE_H
 
 #include "liste.h"
-//#include "backgammon.h"
 
 
 

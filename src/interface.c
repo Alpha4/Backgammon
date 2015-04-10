@@ -8,7 +8,7 @@
 #include <SDL2/SDL_ttf.h>
 
 /*include du projet*/
-#include "backgammon.h"
+#include "arbitre.h"
 #include "interface.h"
 
 
