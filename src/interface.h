@@ -180,7 +180,7 @@ void playerClicked();
 int pointClicked(Player player);
 
 
-/**
+/** --> arbitre.h ?
  * Fonction qui indique si un élément ( entier ) se trouve dans un tableau (d'entiers)
  * @param int elem
  *   élément pour lequel on veut savoir s'il se trouve dans le tableau
@@ -195,7 +195,7 @@ int pointClicked(Player player);
 int isIn(int elem, int index, int* tab);
 
 
-/**
+/** --> arbitre.h ?
  * Fonction qui remplit le tableau des cellules d'arrivée possibles d'un mouvement
  * @param SLits* movesPossible
  *   liste de mouvements possibles
@@ -207,7 +207,7 @@ int isIn(int elem, int index, int* tab);
 int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells, int rank);
 
 
-/**
+/** --> arbitre.h ?
  * Fonction qui renvoit l'indice du dé utilisé pour le mouvement
  * @param int* dice
  *   jeu de dés
@@ -255,7 +255,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
  */
 int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, Player player, Context* c);
 
-/**
+/** -->arbitre.h
  * Fonction qui ne garde que les cellules de movesPossible dont le mouvement au rang 'rank' correspond au mouvement donné
  * @param SList* movesPossible
  *    liste contenant les mouvements possibles
@@ -266,10 +266,10 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
  * @parma int numDestCell
  *     numéor de la cellule d'arrivée du mouvement que l'on veut conserver
  */
-void keepCells(SList* movePossibles, int rank, int numSrcCell, int numDestCell);
+//void keepCells(SList* movePossibles, int rank, int numSrcCell, int numDestCell);
 
 
-/**
+/** --> arbitre.h ?
  * Fonction qui remplie les cellules sources possibles d'un mouvement avev movesPossible
  * @param SList* movesPossible
  *    liste chainée contenant les mouvements possibles

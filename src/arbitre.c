@@ -1429,9 +1429,9 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
 	int nbMovesPossible;
 	movesPossible = getMovesPossible(gameState, player, dice, &nbMovesPossible);
 
-	//printf("movesPossible recu par validMoves :\n");
+	printf("movesPossible recu par validMoves :\n");
 	printList(movesPossible);
-	//printf("nbMovesPossible recu apr validMoves: %d\n", nbMovesPossible);
+	printf("nbMovesPossible recu apr validMoves: %d\n", nbMovesPossible);
 	//ERREUR DU AU getMovesPossible
 	// Je propose de changer la valeur de retour par le pointeur sur la List et de passer l'entier par référence 
 	//voir si ça marche 
@@ -1463,9 +1463,9 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
 				
 				if ( !(cellEnTraitement->value.moves[i].src_point == moves[i].src_point) && (cellEnTraitement->value.moves[i].dest_point == moves[i].dest_point) )
 				{
-					
 					same = 0;
 				}
+				keepCells( movesPossible, i, moves[i].src_point , moves[i].dest_point );
 			}
 			//si tous les mouvements sont identiques alors le tableau de mouvements donné est correcte
 			if ( same == 1 ){
@@ -1557,4 +1557,31 @@ char* saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1){
     }
     return winner;
 
+}
+
+/**
+ * Fonction qui ne garde que les cellules de movesPossible dont le mouvement au rang 'rank' correspond au mouvement donné
+ * @param SList* movesPossible
+ *    liste contenant les mouvements possibles
+ * @param int rank
+ *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaque celulle de movesPossible
+ * @ parma int numSrcCell
+ *     numéro de la cellule du départ du mouvement que l'on veut conserver
+ * @parma int numDestCell
+ *     numéor de la cellule d'arrivée du mouvement que l'on veut conserver
+ */
+void keepCells(SList* movesPossible, int rank, int numSrcCell, int numDestCell)
+{
+	// parcours de movesPossible
+	SCell* cellEnTraitement = GetFirstElement(movesPossible);
+	SCell* next;
+	while (cellEnTraitement != NULL)
+	{
+		next = cellEnTraitement->next;
+		if ( cellEnTraitement->value.moves[rank].src_point != numSrcCell || cellEnTraitement->value.moves[rank].dest_point != numDestCell )
+		{
+			DeleteCell(movesPossible, cellEnTraitement);
+		}
+		cellEnTraitement = next;
+	}
 }

@@ -1279,7 +1279,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
  * @parma int numDestCell
  *     numéor de la cellule d'arrivée du mouvement que l'on veut conserver
  */
-void keepCells(SList* movesPossible, int rank, int numSrcCell, int numDestCell)
+/*void keepCells(SList* movesPossible, int rank, int numSrcCell, int numDestCell)
 {
 	// parcours de movesPossible
 	SCell* cellEnTraitement = GetFirstElement(movesPossible);
@@ -1293,7 +1293,7 @@ void keepCells(SList* movesPossible, int rank, int numSrcCell, int numDestCell)
 		}
 		cellEnTraitement = next;
 	}
-}
+}*/
 
 
 

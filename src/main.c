@@ -228,10 +228,11 @@ int main (int argc, char *argv[])
 					update(&c,gameState,dices);
 				SDL_RenderPresent(c.pRenderer);
 
+
 				//Tableau vide pour les moves
 				SMove vide;
-				vide.src_point=0;
-				vide.dest_point=0;
+				vide.src_point=100;
+				vide.dest_point=100;
 				int i;
 				for (i=0;i<4;i++)
 				{
@@ -319,11 +320,11 @@ int main (int argc, char *argv[])
 							update(&c,gameState,dices);
 						SDL_RenderPresent(c.pRenderer);
 
-						printf("BP1\n");
+
 						memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
-						printf("BP2\n");
+
 						nbMoves=getArrayMoves(moves,gameStateCopy,dices,current,&c);
-						printf("BP3\n");
+
 					}
 				}
 
@@ -412,23 +413,21 @@ int main (int argc, char *argv[])
 						SDL_RenderClear(c.pRenderer);
 							update(&c,gameState,dices);
 						SDL_RenderPresent(c.pRenderer);
-						printf("BP1J2\n");
 						memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
-						printf("BP2J2\n");
 						nbMoves=getArrayMoves(moves,gameStateCopy,dices,current,&c);
-						printf("BP3J2\n");
 					}
 				}
 
 
-				printf("BP4\n");
+
 				int n;
 				memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
 				if(validMoves(nbMoves,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
 				{
-					printf("BP5\n");
+
 					for (n=0;n<nbMoves;n++) 
 					{
+						printf("Move : %i -> %i\n",moves[n].src_point,moves[n].dest_point);
 						Square *dest;
 						Square *src;
 						Square nul;
@@ -444,20 +443,24 @@ int main (int argc, char *argv[])
 							dest=&nul; 
 
 						//La case sur laquelle on arrive était vide
+
 						if(dest->nbDames==0)
 						{
+							printf("Case d'arrivée était vide\n");
 							dest->owner=current; 
 						}
 
 						//La case de départ est maintenant vide
 						if(src->nbDames==1)
 						{
+							printf("Cas de départ vide\n");
 							src->owner=NOBODY;
 						}
 
 						//Cas de pions pris
 						if (dest->owner!=current && dest->owner!=NOBODY && moves[n].dest_point!=25)
 						{
+							printf("Pions pris\n");
 							Player p=dest->owner; //Ancien owner de la case prise
 							dest->owner=current; //Changement d'owner
 							gameState.bar[p]++; // L'adversaire a une dame supplémentaire dans le bar
@@ -470,11 +473,17 @@ int main (int argc, char *argv[])
 
 						//Une dame est remise en jeu
 						if (moves[n].src_point==0)
+						{
+							printf("Remise en jeu\n");
 							gameState.bar[current]--;
+						}
 
 						//Une dame est sortie
 						if (moves[n].dest_point==25)
+						{
+							printf("Sortie de jeu\n");
 							gameState.out[current]++;
+						}
 					}
 				}
 				else // mouvement(s) non valide(s)
@@ -488,7 +497,7 @@ int main (int argc, char *argv[])
 					SDL_RenderPresent(c.pRenderer);
 
 				}
-				printf("BP6\n");
+
 				result=isGameFinished(gameState,penalty); // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
 
 
@@ -526,7 +535,7 @@ int main (int argc, char *argv[])
 			playerClicked();
 			g++;
 		}
-		printf("BP6\n");
+
 		sprintf(msg,"%s remporte le match !",saveMatch(gameState,p1Name,p2Name,player1));
 		SDL_RenderClear(c.pRenderer);
 			update(&c,gameState,dices);

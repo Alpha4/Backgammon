@@ -161,7 +161,7 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
  */
 int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char dice[2], Player player);
 
-/**
+/** --> interface.h ?
  * Sauvegarde du résultat du round
  * @param char* winner
  *	nom du gagnant
@@ -175,7 +175,7 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
  */
 void saveResult(char* winner, int pointsWin);
 
-/**
+/** --> interface.h ?
  * Sauvegarde du résultat du match
  * @param GameState gs
  *  l'état du jeu courant
@@ -191,6 +191,19 @@ void saveResult(char* winner, int pointsWin);
  *  nomGagnant  points  nomPerdant  points\n
  */
 char* saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1);
+
+/**
+ * Fonction qui ne garde que les cellules de movesPossible dont le mouvement au rang 'rank' correspond au mouvement donné
+ * @param SList* movesPossible
+ *    liste contenant les mouvements possibles
+ * @param int rank
+ *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaque celulle de movesPossible
+ * @ parma int numSrcCell
+ *     numéro de la cellule du départ du mouvement que l'on veut conserver
+ * @parma int numDestCell
+ *     numéor de la cellule d'arrivée du mouvement que l'on veut conserver
+ */
+void keepCells(SList* movesPossible, int rank, int numSrcCell, int numDestCell);
 
 
 #endif
