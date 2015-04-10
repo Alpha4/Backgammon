@@ -13,7 +13,6 @@ struct Context
 	SDL_Window* pWindow; //La fenêtre
 	SDL_Renderer* pRenderer; //Le renderer
 
-
 	SDL_Texture* board; //Texture du board
 	SDL_Texture* dice[6]; //Textures de dé
 	SDL_Texture* pawn[2]; //Texture des pions
@@ -41,6 +40,8 @@ struct Context
 
 	TTF_Font* fonts[3];
 };
+
+/***** FONCTIONS GRAPHIQUES *****/
 
 /**
  * Quitte SDL en détruisant le context
@@ -104,6 +105,13 @@ void renderTextureAsIs(SDL_Texture* tex, SDL_Renderer* ren, int x, int y);
 int loadImages(Context* c);
 
 /**
+ * Load les polices d'écriture dans le Context c
+ * @param Context* c
+ *  Context dans lequel loadé les images
+ */
+void loadFonts(Context *C);
+
+/**
  * Charge SDL et initialise le context(pWindow,pRenderer et textures)
  * @param Context* c
  *  Context à initialisé
@@ -146,6 +154,68 @@ SDL_Texture* renderText(char* text,Context* c,int size,SDL_Color color);
 void doubleQuery(Context* c,int qoa);
 
 /**
+ *	Fonction qui renvoie la valeur x pour afficher au milieu
+ * @param Texture* texOut 
+ *	texture englobante
+ * @param Texture* texIn
+ *	texture englboée
+ * @param int xOut
+ *	abscisse d'affihage de la texture Out
+ */
+int xMiddleOf(SDL_Texture* texOut,SDL_Texture* texIn,int xOut);
+
+/**
+ *	Fonction qui renvoie la valeur y pour afficher au milieu
+ * @param Texture* texOut 
+ *	texture englobante
+ * @param Texture* texIn
+ *	texture englboée
+ * @param int yOut
+ *	ordonnée d'affihage de la texture Out
+ */
+int yMiddleOf(SDL_Texture* texOut,SDL_Texture* texIn,int yOut);
+
+/**
+ *	Fonction affichant un message sur l'écran et attend 2secondes
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param char* text
+ *	le message à afficher
+*/
+void prompt(Context* c,char* text);
+
+/**
+ *	Fonction affichantun bouton et son nom
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param char* name
+ *	le nom du bouton
+*/
+void button(Context* c,char* name);
+
+/**
+ *	Fonction mettant en surbrillance les points / bar / out
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param int i
+ *	numéro du point à highlight
+ * @param Player p
+ *	le joueur qui joue (nécessaire pour le bar et out)
+*/
+void highlight(Context* c,int i,Player p);
+
+/**
+ *	Fonction grisant le dé indiqué
+ * @param Context* c
+ *	le context pour l'affichage
+ * @param int i
+ *	numéro du dé à griser
+*/
+void grayOut(Context* c,int *dice);
+
+/***** FONCTIONS INTERACTIVES *****/
+
+/**
  * Fonction qui indique si un clic se situe sur un bouton
  * @param int x
  *   abscisse du clic
@@ -179,51 +249,6 @@ void playerClicked();
  */
 int pointClicked(Player player);
 
-
-/** --> arbitre.h ?
- * Fonction qui indique si un élément ( entier ) se trouve dans un tableau (d'entiers)
- * @param int elem
- *   élément pour lequel on veut savoir s'il se trouve dans le tableau
- * @param in index
- *   index de la premiere case vide dans le tableau
- * @param int* tab
- *   tableau dans lequel on cherche l'élément
- * @return int result
- *   0 : l'élément ne se trouve pas dans le tableau
- *   1 : l'élément se trouve dans le tableau
- */
-int isIn(int elem, int index, int* tab);
-
-
-/** --> arbitre.h ?
- * Fonction qui remplit le tableau des cellules d'arrivée possibles d'un mouvement
- * @param SLits* movesPossible
- *   liste de mouvements possibles
- * @param int numSrcCell
- *   numéro de la cellule de départ du mouvement
- * @param int* destCells
- *   tableau contenant le numéro des cellules d'arrivée possibles à remplir
- */
-int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells, int rank);
-
-
-/** --> arbitre.h ?
- * Fonction qui renvoit l'indice du dé utilisé pour le mouvement
- * @param int* dice
- *   jeu de dés
- * @param Player player
- *   joueur qui effectue le mouvement
- * @param int numSrcCell
- *    numéro de la cellule de départ du mouvement
- * @param int numDestCell
- *    numéro de la cellule d'arrivée du mouvement
- * @return int diceUsed
- *   indice du dé utilisé
- */
-int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell);
-
-
-
 /**
  * Fonction qui renvoie le mouvement effectué par le joueur
  * @param Player player
@@ -255,100 +280,43 @@ SList* getMoveDone(SMove* move, Player player, SGameState* gameState, int* dice,
  */
 int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, Player player, Context* c);
 
-/** -->arbitre.h
- * Fonction qui ne garde que les cellules de movesPossible dont le mouvement au rang 'rank' correspond au mouvement donné
- * @param SList* movesPossible
- *    liste contenant les mouvements possibles
- * @param int rank
- *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaque celulle de movesPossible
- * @ parma int numSrcCell
- *     numéro de la cellule du départ du mouvement que l'on veut conserver
- * @parma int numDestCell
- *     numéor de la cellule d'arrivée du mouvement que l'on veut conserver
- */
-//void keepCells(SList* movePossibles, int rank, int numSrcCell, int numDestCell);
-
-
-/** --> arbitre.h ?
- * Fonction qui remplie les cellules sources possibles d'un mouvement avev movesPossible
- * @param SList* movesPossible
- *    liste chainée contenant les mouvements possibles
- * @param int rank
- *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaue cellule de movesPossible
- * @parma int srcCells
- *    tableau contenant les numéros des cellules sources, à remplir
- * @return int index
- *    index de la premiere case vide de srcCells
- */
-int getRealSrcCells(SList* movesPossible, int rank, int* srcCells);
-
 /**
  * Fonction qui renvoie si le joueur a répondu 'oui' ou 'non' à une question posée
  * @return int response
- *   réponse du joueur : 0-->oui   1-->non
+ *   réponse du joueur : 0-->non   1-->oui
  */
 int yesOrNo();
 
 /**
- *	Fonction qui renvoie la valeur x pour afficher au milieu
- * @param Texture* texOut 
- *	texture englobante
- * @param Texture* texIn
- *	texture englboée
- * @param int xOut
- *	abscisse d'affihage de la texture Out
+ * Sauvegarde du résultat du round
+ * @param char* winner
+ *	nom du gagnant
+ * @param int pointsWin
+ *	le nombre de points gagnés
+ * @param int round
+ *	le round gagné
+ *
+ *	FORMAT
+ *	nomGagnant	points\n<-- une game
  */
-int xMiddleOf(SDL_Texture* texOut,SDL_Texture* texIn,int xOut);
+void saveResult(char* winner, int pointsWin);
 
 /**
- *	Fonction qui renvoie la valeur y pour afficher au milieu
- * @param Texture* texOut 
- *	texture englobante
- * @param Texture* texIn
- *	texture englboée
- * @param int yOut
- *	ordonnée d'affihage de la texture Out
+ * Sauvegarde du résultat du match
+ * @param GameState gs
+ *  l'état du jeu courant
+ * @param char* p1Name
+ *  nom joueur 1
+ * @param char* p2Name
+ *  nom joueur 2
+ * @param Player player1
+ *  couleur du joueur 1
+ * @return char*
+ *  le nom du gagnant
+ *  FORMAT
+ *  nomGagnant  points  nomPerdant  points\n
  */
-int yMiddleOf(SDL_Texture* texOut,SDL_Texture* texIn,int yOut);
+char* saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1);
 
-
-/**
- *	Fonction affichant un message sur l'écran et attend 2secondes
- * @param Context* c
- *	le context pour l'affichage
- * @param char* text
- *	le message à afficher
-*/
-
-void prompt(Context* c,char* text);
-
-/**
- *	Fonction affichantun bouton et son nom
- * @param Context* c
- *	le context pour l'affichage
- * @param char* name
- *	le nom du bouton
-*/
-void button(Context* c,char* name);
-
-/**
- *	Fonction mettant en surbrillance les points / bar / out
- * @param Context* c
- *	le context pour l'affichage
- * @param int i
- *	numéro du point à highlight
- * @param Player p
- *	le joueur qui joue (nécessaire pour le bar et out)
-*/
-void highlight(Context* c,int i,Player p);
-
-/**
- *	Fonction grisant le dé indiqué
- * @param Context* c
- *	le context pour l'affichage
- * @param int i
- *	numéro du dé à griser
-*/
-void grayOut(Context* c,int *dice);
 
 #endif

@@ -161,37 +161,6 @@ SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceG
  */
 int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char dice[2], Player player);
 
-/** --> interface.h ?
- * Sauvegarde du résultat du round
- * @param char* winner
- *	nom du gagnant
- * @param int pointsWin
- *	le nombre de points gagnés
- * @param int round
- *	le round gagné
- *
- *	FORMAT
- *	nomGagnant	points\n<-- une game
- */
-void saveResult(char* winner, int pointsWin);
-
-/** --> interface.h ?
- * Sauvegarde du résultat du match
- * @param GameState gs
- *  l'état du jeu courant
- * @param char* p1Name
- *  nom joueur 1
- * @param char* p2Name
- *  nom joueur 2
- * @param Player player1
- *  couleur du joueur 1
- * @return char*
- *  le nom du gagnant
- *  FORMAT
- *  nomGagnant  points  nomPerdant  points\n
- */
-char* saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1);
-
 /**
  * Fonction qui ne garde que les cellules de movesPossible dont le mouvement au rang 'rank' correspond au mouvement donné
  * @param SList* movesPossible
@@ -205,10 +174,58 @@ char* saveMatch(SGameState gs, char* p1Name,char* p2Name,Player player1);
  */
 void keepCells(SList* movesPossible, int rank, int numSrcCell, int numDestCell);
 
+/**
+ * Fonction qui indique si un élément ( entier ) se trouve dans un tableau (d'entiers)
+ * @param int elem
+ *   élément pour lequel on veut savoir s'il se trouve dans le tableau
+ * @param in index
+ *   index de la premiere case vide dans le tableau
+ * @param int* tab
+ *   tableau dans lequel on cherche l'élément
+ * @return int result
+ *   0 : l'élément ne se trouve pas dans le tableau
+ *   1 : l'élément se trouve dans le tableau
+ */
+int isIn(int elem, int index, int* tab);
+
+/**
+ * Fonction qui remplit le tableau des cellules d'arrivée possibles d'un mouvement
+ * @param SLits* movesPossible
+ *   liste de mouvements possibles
+ * @param int numSrcCell
+ *   numéro de la cellule de départ du mouvement
+ * @param int* destCells
+ *   tableau contenant le numéro des cellules d'arrivée possibles à remplir
+ */
+int fillInDestCells(SList* movesPossible, int numSrcCell, int* destCells, int rank);
+
+
+/**
+ * Fonction qui renvoit l'indice du dé utilisé pour le mouvement
+ * @param int* dice
+ *   jeu de dés
+ * @param Player player
+ *   joueur qui effectue le mouvement
+ * @param int numSrcCell
+ *    numéro de la cellule de départ du mouvement
+ * @param int numDestCell
+ *    numéro de la cellule d'arrivée du mouvement
+ * @return int diceUsed
+ *   indice du dé utilisé
+ */
+int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell);
+
+/**
+ * Fonction qui remplie les cellules sources possibles d'un mouvement avev movesPossible
+ * @param SList* movesPossible
+ *    liste chainée contenant les mouvements possibles
+ * @param int rank
+ *    numéro du mouvement que l'on doit traiter dans le tableau de mouvement contenu dans chaue cellule de movesPossible
+ * @parma int srcCells
+ *    tableau contenant les numéros des cellules sources, à remplir
+ * @return int index
+ *    index de la premiere case vide de srcCells
+ */
+int getRealSrcCells(SList* movesPossible, int rank, int* srcCells);
 
 #endif
-
-
-
-
-

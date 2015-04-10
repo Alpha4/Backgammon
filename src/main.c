@@ -19,6 +19,10 @@ Programme principal gérant l'interface, l'arbitre et les interface
 #include "interface.h"
 #include "liste.h"
 
+
+/**
+ *	Fonction d'initialisation du Gamestate
+ */
 void initGS(SGameState* gameState)
 {
 	/*Initialisation du plateau*/
@@ -70,7 +74,7 @@ int main (int argc, char *argv[])
 
 	/*Variables pour l'affichage*/
 	Context c;
-	char msg[40];
+	char msg[200];
 
 	/* Variables pour le jeu*/
 	Player player1,player2;
@@ -84,10 +88,10 @@ int main (int argc, char *argv[])
 	char p1Name[50], p2Name[50]; // Nom des joueurs
 	strcpy(p1Name,"Joueur1");// pour le cas de parties avec humain
 	strcpy(p2Name,"Joueur2");
-	int penalty[2]={0,0}; // Pénalité pour chacun des joueurs
+	int penalty[2]={1,0}; // Pénalité pour chacun des joueurs
 
 	unsigned int nbMoves;
-	int pts=3; //Points pour remporter le match
+	int pts=10; //Points pour remporter le match
 	unsigned char dices[2]={1,1};
 
 	SMove moves[4];
@@ -186,12 +190,12 @@ int main (int argc, char *argv[])
 			}
 		}
 
-
+		//Remise à zéro des scores pour le nouveau match
 		gameState.whiteScore=0;
 		gameState.blackScore=0;
 		
 		int g=0;
-		while(gameState.whiteScore<=pts && gameState.blackScore<=pts)
+		while(gameState.whiteScore<pts && gameState.blackScore<pts)
 		{
 			if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 			{
@@ -212,9 +216,11 @@ int main (int argc, char *argv[])
 			SDL_RenderPresent(c.pRenderer);
 			playerClicked();
 
+			//Remise à zéro des variables utiles au nouveau game
 			initGS(&gameState);
-			
 			videau=-1;
+			penalty[0]=0;
+			penalty[1]=0;
 
 			int result=-1;
 			while (result==-1) //Boucle pour chaque tour (result est à -1 si pas de gagnant)
@@ -261,6 +267,7 @@ int main (int argc, char *argv[])
 									if(!(ai2.TakeDouble(&gameState)))
 									{
 										result=current;
+										
 										break;//Sortie de la boucle while
 									}
 									else
@@ -273,7 +280,7 @@ int main (int argc, char *argv[])
 										doubleQuery(&c,1);
 									SDL_RenderPresent(c.pRenderer);
 
-									if(yesOrNo()==1)//VIDEAU_TAKE J2
+									if(!yesOrNo())//VIDEAU_TAKE J2
 									{
 										result=current;
 										break;//Sortie de la boucle while
@@ -299,14 +306,14 @@ int main (int argc, char *argv[])
 								doubleQuery(&c,0);
 							SDL_RenderPresent(c.pRenderer);
 
-							if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J1
+							if(yesOrNo())//VIDEAU_DOUBLE HUMAIN J1
 							{
 								videau=current;
 								SDL_RenderClear(c.pRenderer);
 									update(&c,gameState,dices);
 									doubleQuery(&c,1);
 								SDL_RenderPresent(c.pRenderer);
-								if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J2
+								if(!yesOrNo())//VIDEAU_TAKE HUMAIN J2
 								{
 										result=current;
 										break;//Sortie de la boucle while
@@ -369,7 +376,7 @@ int main (int argc, char *argv[])
 									doubleQuery(&c,0);
 								SDL_RenderPresent(c.pRenderer);
 
-								if (yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
+								if (yesOrNo())//VIDEAU_DOUBLE HUMAIN J2
 								{
 									videau=current;
 									if(!(ai1.TakeDouble(&gameState)))
@@ -392,14 +399,14 @@ int main (int argc, char *argv[])
 									doubleQuery(&c,0);
 								SDL_RenderPresent(c.pRenderer);
 
-								if(yesOrNo()==0)//VIDEAU_DOUBLE HUMAIN J2
+								if(yesOrNo())//VIDEAU_DOUBLE HUMAIN J2
 								{
 									videau=current;
 									SDL_RenderClear(c.pRenderer);
 										update(&c,gameState,dices);
 										doubleQuery(&c,1);
 									SDL_RenderPresent(c.pRenderer);
-									if(yesOrNo()==1)//VIDEAU_TAKE HUMAIN J1
+									if(!yesOrNo())//VIDEAU_TAKE HUMAIN J1
 									{
 										result=current;
 										break; //Sortie de la boucle while
@@ -422,75 +429,25 @@ int main (int argc, char *argv[])
 
 				int n;
 				memcpy(&gameStateCopy,&gameState,sizeof(SGameState));
-				if(validMoves(nbMoves,moves,gameStateCopy,dices,current))//Fonction de l'arbitre
+				if(validMoves(nbMoves,moves,gameStateCopy,dices,current))
 				{
 
 					for (n=0;n<nbMoves;n++) 
 					{
-						printf("Move : %i -> %i\n",moves[n].src_point,moves[n].dest_point);
-						Square *dest;
-						Square *src;
-						Square nul;
-
-						if (moves[n].src_point!=0)
-							src=&gameState.board[moves[n].src_point-1];
-						else // si la source est le bar les opération habituelles seront appliquées sur un Square vide
-							src=&nul;
-
-						if (moves[n].dest_point!=25)
-							dest=&gameState.board[moves[n].dest_point-1];
-						else // si la destination est le out les opération habituelles seront appliquées sur un Square vide
-							dest=&nul; 
-
-						//La case sur laquelle on arrive était vide
-
-						if(dest->nbDames==0)
-						{
-							printf("Case d'arrivée était vide\n");
-							dest->owner=current; 
-						}
-
-						//La case de départ est maintenant vide
-						if(src->nbDames==1)
-						{
-							printf("Cas de départ vide\n");
-							src->owner=NOBODY;
-						}
-
-						//Cas de pions pris
-						if (dest->owner!=current && dest->owner!=NOBODY && moves[n].dest_point!=25)
-						{
-							printf("Pions pris\n");
-							Player p=dest->owner; //Ancien owner de la case prise
-							dest->owner=current; //Changement d'owner
-							gameState.bar[p]++; // L'adversaire a une dame supplémentaire dans le bar
-							dest->nbDames=0; // Le placement de la dame est géré dans le cas général
-						}
-
-						//Cas général
-						src->nbDames--;
-						dest->nbDames++;
-
-						//Une dame est remise en jeu
-						if (moves[n].src_point==0)
-						{
-							printf("Remise en jeu\n");
-							gameState.bar[current]--;
-						}
-
-						//Une dame est sortie
-						if (moves[n].dest_point==25)
-						{
-							printf("Sortie de jeu\n");
-							gameState.out[current]++;
-						}
+						actualizeGameState(moves[n].src_point,moves[n].dest_point,&gameState,current);
 					}
 				}
 				else // mouvement(s) non valide(s)
 				{
 					penalty[current]++; //Pénalité pour le joueur 
-					printf("Pénalité pour le joueur %d",current);
-					sprintf(msg,"Pénalité pour joueur %d",current);
+					if (current==player1)
+					{
+						sprintf(msg,"Pénalité pour %s !",p1Name);
+					}
+					else
+					{
+						sprintf(msg,"Pénalité pour %s!",p2Name);
+					}
 					SDL_RenderClear(c.pRenderer);
 							update(&c,gameState,dices);
 							prompt(&c,msg);
@@ -500,7 +457,6 @@ int main (int argc, char *argv[])
 				}
 
 				result=isGameFinished(gameState,penalty); // Fonction de l'arbitre renvoyant le joueur gagnant(WHITE, BLACK) ou NOBODY
-
 
 				
 				//Prochain joueur
@@ -529,6 +485,7 @@ int main (int argc, char *argv[])
 				sprintf(msg,"%s gagne le game!",p2Name);
 				saveResult(p2Name,gameState.stake);
 			}
+
 			SDL_RenderClear(c.pRenderer);
 				update(&c,gameState,dices);
 				prompt(&c,msg);
