@@ -197,6 +197,11 @@ int main (int argc, char *argv[])
 		int g=0;
 		while(gameState.whiteScore<pts && gameState.blackScore<pts)
 		{
+			if (g%2==0)
+				current=WHITE;
+			else
+				current=BLACK;
+			
 			if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
 			{
 				ai1.StartGame(player1);
