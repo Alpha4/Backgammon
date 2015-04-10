@@ -768,11 +768,13 @@ int pointClicked(Player player){
  * @return SMove move
  *    mouvement effectué par le joueur
  */
-SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven, int* srcCells, int indexSrc, SList* movesPossible, int rank ){
+SList* getMoveDone(SMove* move, Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven, int* srcCells, int indexSrc, SList* movesPossible, int rank ){
 	
 	// mouvement qui sera effectué par le joueur
-	SMove move;
+	//SMove move;
 
+	printf("\n\ndébut getMoveDone - movesPossible recu :\n");
+	printList(movesPossible);
 
 	/*
 	printf("getMovesDone : cellules sources possibles :\n");
@@ -792,6 +794,7 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 		}
 		grayOut(c,dice);
 	SDL_RenderPresent(c->pRenderer);
+
 	
 
 	// tant que la case voulue pour la source du mouvement n'est pas dans srcCells on la "redemande"
@@ -817,9 +820,10 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 	// récupération des cellules qui peuvent etre destination du mouvement
 	int destCells[30];
 	int indexDest = fillInDestCells(movesPossible, numSrcCell, destCells, rank );
+	printf("getMoveDone : movesPossible après fillInDestCells :\n");
+	printList(movesPossible);
 
-	printf("\ngetMoveDone \n");
-	printf("destCells :\n");
+	printf("\ngetMoveDone - destCells\n");
 		int a;
 		for(a=0; a<indexDest; a++)
 		{
@@ -856,7 +860,8 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 		//si le joueur cliques sur undo : on reprend la fonction au début
 		if (numDestCell == 26)
 		{
-			return getMoveDone(player, gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, rank);
+			printf("clic sur undo\n");
+			return getMoveDone(move, player, gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, rank);
 		}
 		numDestCell = pointClicked(player);
 	}
@@ -873,9 +878,13 @@ SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, u
 
 
 	// on remplit le mouvement
-	move.src_point = numSrcCell;
-	move.dest_point = numDestCell;
-	return move;
+	move->src_point = numSrcCell;
+	move->dest_point = numDestCell;
+	printf("%i->%i\n", move->src_point, move->dest_point);
+	printf("getMoveDone - movesPossible avant return:\n");
+	printList(movesPossible);
+
+	return movesPossible;
 }
 
 /**
@@ -957,7 +966,16 @@ ERREURS A GERER
 
 
 
+/*
+PROBLEME DE CORE DUMPT RÉGLÉ
+il y avait un pb dans getArrayMoves, des fois ( quand la cellule dest etait de le out mais pas tout le temps) quand elle appelait getMoveDone, 
+après cet appel le movesPossible était passé à NULL ( je suppose -- coreDumpt quand printList(movesPossible))
+alors que quand je le print avant le return de getMoveDone il est nickel
+CHANGEMENTS EFFECTUES
+j'ai changé le prototype de le fonction getMoveDone qui renvoit maintenant le movesPossible (pas tres intuitif mais osef ca marche maintenant)
+donc il y a aussi des modifs dans getArrayMoves lorsqu'elle appelle getMoveDone
 
+*/
 
 
 
@@ -1036,7 +1054,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 		// on récupère le mouvement fait par le joueur
 		SMove move1;
-		move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0);
+		movesPossible = getMoveDone(&move1, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0);
 
 		// si le joueur ne peut jouer qu'un dé, il est obligé de joueur le dé plus élevé ( si possible)
 		// vérification que ce n'est pas un double, auquel cas on ne traite pas cette exception
@@ -1088,7 +1106,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 						grayOut(c,dice);
 						prompt(c, "Utilisez le dé le plus élevé");
 					SDL_RenderPresent(c->pRenderer);
-					move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0);
+					movesPossible = getMoveDone(&move1, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0);
 				}
 			}
 
@@ -1114,16 +1132,26 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 
 
 		// on récupère le premier mouvement fait par le joueur
-		move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		//printf("début du 1er getMoveDone\n");
+		movesPossible = getMoveDone(&move1, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		//printf("fin du 1er getMoveDone\n");
 
+		printf("movesPossible après 1er move :\n");
+		printList(movesPossible);
+
+		//printf("début MAJ affichage\n");
 		// MAJ affichage graphique
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
 			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
+		//printf("fin MAJ affichage\n");
 
 		// on ne garde dans movesPossible que les cellules donc le premier move est celui effectué par le joueur
+		printf("début keepCells - movesPossible envoyé :\n");
+		printList(movesPossible);
 		keepCells( movesPossible, 0, move1.src_point , move1.dest_point );
+		printf("fin keepCells\n");
 
 		printf("move1 : %i->%i\n", move1.src_point, move1.dest_point);
 		printf("nouveau movesPossible :\n");
@@ -1138,8 +1166,10 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 			printf("   src : %i\n", srcCells[a]);
 		}
 
+		//printf("debut du 2e getMoveDone\n");
 		// on récupère le 2e move fait par le joueur
-		move2 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1); 
+		movesPossible = getMoveDone(&move2, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1); 
+		//printf("fin du 2e getMoveDone\n");
 
 		// remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -1153,7 +1183,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		int indexSrc = getRealSrcCells(movesPossible, 0, srcCells);
 
 		// on récupère le premier mouvement fait par le joueur
-		move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		movesPossible = getMoveDone(&move1, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
 
 		// MAj affichage graphique
 		SDL_RenderClear(c->pRenderer);
@@ -1168,7 +1198,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		indexSrc = getRealSrcCells(movesPossible, 1, srcCells);
 
 		// on récupère le 2e move fait par le joueur
-		move2 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1);
+		movesPossible = getMoveDone(&move2, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1);
 
 		// MAJ affichage graphique
 		SDL_RenderClear(c->pRenderer);
@@ -1183,7 +1213,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		indexSrc = getRealSrcCells(movesPossible, 2, srcCells);
 
 		// on récupère le 3e move fait par le joueur
-		move3 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 2);
+		movesPossible = getMoveDone(&move3, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 2);
 
 		//remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -1198,22 +1228,30 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		int indexSrc = getRealSrcCells(movesPossible, 0, srcCells);
 
 		// on récupère le premier mouvement fait par le joueur
-		move1 = getMoveDone(player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		//printf("début du 1er getMoveDone\n");
+		movesPossible = getMoveDone(&move1, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 0); // le gameState et les dés sont actualisés en fonction du mouvement effectué
+		//printf("fin du 1er getMoveDone\n");
 
 		// MAj affichage graphique
+		//printf("début MAJ affichage graphique\n");
 		SDL_RenderClear(c->pRenderer);
 			update(c,gameState,diceGiven);
 			grayOut(c,dice);
 		SDL_RenderPresent(c->pRenderer);
+		//printf("fin MAJ affichage graphique\n");
 
 		// on ne garde dans movesPossible que les cellules donc le premier move est celui effectué par le joueur
+		printf("début keepCells - movesPossible envoyé :\n");
+		printList(movesPossible);
 		keepCells( movesPossible, 0, move1.src_point, move1.dest_point);
+		printf("fin keepCells\n");
 
 		// on récupère les cellules qui peuvent être sources du 2e move
 		indexSrc = getRealSrcCells(movesPossible, 1, srcCells);
 
 		// on récupère le 2e move fait par le joueur
-		move2 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1);
+		//printf("Début 2e getMoveDone [...]\n");
+		movesPossible = getMoveDone(&move2, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 1);
 
 		// MAJ affichage graphique
 		SDL_RenderClear(c->pRenderer);
@@ -1228,7 +1266,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		indexSrc = getRealSrcCells(movesPossible, 2, srcCells);
 
 		// on récupère le 3e move fait par le joueur
-		move3 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 2);
+		movesPossible = getMoveDone(&move3, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 2);
 
 		//MAJ affichage graphique	
 		SDL_RenderClear(c->pRenderer);
@@ -1244,7 +1282,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 		indexSrc = getRealSrcCells(movesPossible, 3, srcCells);
 		
 		// on récupère le 3e move fait par le joueur
-		move4 = getMoveDone( player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 3);
+		movesPossible = getMoveDone(&move4, player, &gameState, dice, c, diceGiven, srcCells, indexSrc, movesPossible, 3);
 
 		//remplissage du tableau de mouvements:
 		moves[0] = move1;
@@ -1257,7 +1295,7 @@ int getArrayMoves(SMove* moves, SGameState gameState, unsigned char* diceGiven, 
 	//Libération mémoire allouée pour la liste movesPossible
 	//printList(movesPossible);
 	//printListTab(movesPossible);
-	DeleteList(movesPossible);
+	//DeleteList(movesPossible);
 
 
 	SDL_RenderClear(c->pRenderer);

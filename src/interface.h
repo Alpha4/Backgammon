@@ -235,7 +235,7 @@ int diceUsed(int* dice, Player player, int numSrcCell, int numDestCell);
  * @return SMove move
  *    mouvement effectué par le joueur
  */
-SMove getMoveDone(Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven, int* srcCells, int indexSrc, SList* movesPossible, int rank );
+SList* getMoveDone(SMove* move, Player player, SGameState* gameState, int* dice, Context* c, unsigned char* diceGiven, int* srcCells, int indexSrc, SList* movesPossible, int rank );
 
 
 /**

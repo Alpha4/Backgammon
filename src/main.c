@@ -495,6 +495,7 @@ int main (int argc, char *argv[])
 							update(&c,gameState,dices);
 							prompt(&c,msg);
 					SDL_RenderPresent(c.pRenderer);
+					playerClicked();
 
 				}
 

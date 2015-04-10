@@ -1461,11 +1461,11 @@ int validMoves(int nbMoves, SMove moves[4], SGameState gameState, unsigned char 
 			for (i=0; i<nbMoves; i++)
 			{
 				
-				if ( !(cellEnTraitement->value.moves[i].src_point == moves[i].src_point) && (cellEnTraitement->value.moves[i].dest_point == moves[i].dest_point) )
+				if ( !((cellEnTraitement->value.moves[i].src_point == moves[i].src_point) && (cellEnTraitement->value.moves[i].dest_point == moves[i].dest_point)) )
 				{
 					same = 0;
 				}
-				keepCells( movesPossible, i, moves[i].src_point , moves[i].dest_point );
+
 			}
 			//si tous les mouvements sont identiques alors le tableau de mouvements donné est correcte
 			if ( same == 1 ){
