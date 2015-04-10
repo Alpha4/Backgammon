@@ -725,7 +725,7 @@ int pointClicked(Player player){
 							}
 
 							// clic sur le out
-							if ( isClicked(x, y, 622, 672, 116, 502)  ){
+							if ( isClicked(x, y, 622, 672, 116, 221)  ){
 								pointClicked = 25;
 							}
 
@@ -740,7 +740,7 @@ int pointClicked(Player player){
 							}
 
 							// clic sur le out
-							if ( isClicked(x, y, 622, 672, 397, 221)  ){
+							if ( isClicked(x, y, 622, 672, 397, 502)  ){
 								pointClicked = 25;				
 							}
 						}
