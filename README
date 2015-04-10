@@ -2,7 +2,7 @@ README
 
 DESCRIPTION
 
-Intelligence Artificielle
+Intelligence Artificielle (Sicot Timothée et Sourisseau Arthur)
 
 Strategie :
 Le bot recherche d'abord tous les mouvements possibles, puis les trie selon leur nature (dangereux, offensif, defensif, et neutre).
@@ -10,7 +10,7 @@ Il choisit enfin le move à effectuer en fonction de cette nture, en privilégia
 
 Plus de détails dans le fichier README dans le répertoire lib.
 
-Interface
+Interface (Brisseau Aurélien et Jacquel Laura)
 
 Notre interface Homme Machine n'autorise que des mouvements valide pour l'Humain. Il l'assiste aux choix des mouvements en mettant en surbrillance les flèches qu'il peut choisir pour ses mouvements.
 Les matchs sont joués en 11 points.
