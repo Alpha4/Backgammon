@@ -87,7 +87,7 @@ int main (int argc, char *argv[])
 	int penalty[2]={1,0}; // Pénalité pour chacun des joueurs
 
 	unsigned int nbMoves;
-	int pts=10; //Points pour remporter le match
+	int pts=11; //Points pour remporter le match
 	unsigned char dices[2]={1,1};
 
 	SMove moves[4];

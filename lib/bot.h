@@ -5,7 +5,7 @@ void triMoves (int i, SGameState gameState, SCell* currentCell,SList* attMoves, 
 
 SList* getMovesPossible(SGameState gameState, Player player, unsigned char diceGiven[2], int* nbMovesPossible);
 
-SMove choseMove(SList* listMoves, int i);
+SMove chooseMove(SList* listMoves, int i);
 
 int movesAreEquals(SMove move1, SMove move2);
 

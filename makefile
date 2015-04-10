@@ -67,6 +67,7 @@ $(objDir)/%.o: %.$(srcExt)
 clean:
 	@echo "Deleting object and dependencies files"
 	@$(RM) -r $(objDir)
+	cd lib; make clean;
 
 distclean: clean
 	@echo "Deleting binary file $(binDir)/$(app)"
